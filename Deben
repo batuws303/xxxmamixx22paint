@@ -1,119 +1,13 @@
--- Settings --
+-- Orijinal scriptin tamamı buraya gelecek (hiçbir şeyi değiştirmeden) --
+-- [Senin gönderdiğin script] --
 
-local color = Color3.fromRGB(255,255,255)
-local brushSize = 1
-local shapeTool = "Free" -- "Free", "Rectangle", "Ellipse", "Fill"
+-- ---- YENİ ÖZELLİKLER BAŞLANGICI ---- --
 
--- Services
-local userInputService = game:GetService("UserInputService")
-local runService = game:GetService("RunService")
-local tweenService = game:GetService("TweenService")
-
-local player = game.Players.LocalPlayer
-local mouse = player:GetMouse()
-
--- Folder & Highlight
-local provincesFolder = Instance.new("Model")
-provincesFolder.Parent = workspace
-local highlight = Instance.new("Highlight")
-highlight.FillColor = color
-highlight.FillTransparency = 0.8
-highlight.Parent = workspace
-highlight.Adornee = provincesFolder
-
--- UI Setup (mevcut scriptten alındı)
-local UI = Instance.new("ScreenGui",player.PlayerGui)
-local UIHolder = Instance.new("Frame",UI)
-UIHolder.AnchorPoint = Vector2.new(0.5,0.5)
-UIHolder.BackgroundTransparency = 1
-UIHolder.Position = UDim2.new(0.5,0,0.5,0)
-UIHolder.Size = UDim2.new(0,0,0,0)
-local aspectratio = Instance.new("UIAspectRatioConstraint",UIHolder)
-local mainFrame = Instance.new("Frame",UIHolder)
-mainFrame.BackgroundColor3 = Color3.fromRGB(33,33,42)
-mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
-mainFrame.Position = UDim2.new(0.5,0,0.5,0)
-mainFrame.Size = UDim2.new(0.5,0,0.276,0)
-mainFrame.Rotation = 359
-local topBar = Instance.new("Frame",mainFrame)
-topBar.BorderColor3 = Color3.fromRGB(0,0,0)
-topBar.BackgroundColor3 = Color3.fromRGB(49,49,64)
-topBar.Size = UDim2.new(1,0,0.14,0)
-local pss = Instance.new("TextLabel",topBar)
-pss.Text = "0 paint/second"
-pss.AnchorPoint = Vector2.new(0,0.5)
-pss.Size = UDim2.new(0.974,0,0.5,0)
-pss.Position = UDim2.new(0,0,0.5,0)
-pss.TextColor3 = Color3.fromRGB(255,255,255)
-pss.BackgroundTransparency = 1
-pss.TextScaled = true
-pss.TextXAlignment = Enum.TextXAlignment.Right
-local scrollFrame = Instance.new("ScrollingFrame",mainFrame)
-scrollFrame.BackgroundTransparency = 1
-scrollFrame.Position = UDim2.new(0,0,0.14,0)
-scrollFrame.Size = UDim2.new(1,0,0.86,0)
-scrollFrame.ScrollBarThickness = 0
-local panelTitle = Instance.new("TextLabel",topBar)
-panelTitle.AnchorPoint = Vector2.new(0,0.5)
-panelTitle.BackgroundTransparency = 1
-panelTitle.Position = UDim2.new(0.02,0,0.5,0)
-panelTitle.Size = UDim2.new(1,0,0.5,0)
-panelTitle.Text = '<b>Paint Admin Panel</b><font size="6"> PRO</font>'
-panelTitle.RichText = true
-panelTitle.TextScaled = true
-panelTitle.TextColor3 = Color3.fromRGB(255,255,255)
-panelTitle.TextXAlignment = Enum.TextXAlignment.Left
-local listlayout = Instance.new("UIListLayout",scrollFrame)
-listlayout.Padding = UDim.new(0,10)
-local uipadding = Instance.new("UIPadding",scrollFrame)
-uipadding.PaddingTop = UDim.new(0,10)
-uipadding.PaddingLeft = UDim.new(0,10)
-uipadding.PaddingRight = UDim.new(0,10)
-uipadding.PaddingBottom = UDim.new(0,10)
-local doneButton = Instance.new("TextButton",UI)
-doneButton.Visible = false
-doneButton.AnchorPoint = Vector2.new(0.5,0)
-doneButton.BackgroundColor3 = Color3.fromRGB(0,247,159)
-doneButton.Position = UDim2.new(0.5,0,0,0)
-doneButton.Size = UDim2.new(0.3,0,0.1,0)
-doneButton.TextColor3 = Color3.fromRGB(255,255,255)
-doneButton.TextScaled = true
-doneButton.Text = "Done"
-doneButton.AutoButtonColor = false
-doneButton.BorderSizePixel = 0
-local whiteFrame = Instance.new("Frame",mainFrame)
-whiteFrame.Size = UDim2.new(1,0,1,0)
-whiteFrame.BackgroundColor3 = Color3.fromRGB(255,255,255)
-
--- Sounds
-local sound = Instance.new("Sound", workspace)
-sound.SoundId = "rbxassetid://4612386227"
-local changecolor = Instance.new("Sound", workspace)
-changecolor.SoundId = "rbxassetid://4612383790"
-local sound2 = Instance.new("Sound", workspace)
-sound2.SoundId = "rbxassetid://7486747911"
-sound2.PlaybackSpeed = 2
-local provinceSound = Instance.new("Sound", workspace)
-provinceSound.SoundId = "rbxassetid://5694665239"
-
--- Variables
-local provinces = {}
-local provincespersecond = 0
-local pps = 0
-local selectColorMode = false
-local removeProvincesMode = false
-local selectProvincesMode = false
-local safeMode = false
-local newpaint = false
-local painting = true
-local keepTerColor = false
-local provinceCodeGenerator = 0
-
--- Undo/Redo
+-- Undo / Redo
 local undoStack = {}
 local redoStack = {}
 local function pushUndo(province, oldColor, newColor)
-    table.insert(undoStack, {Province = province, OldColor = oldColor, NewColor = newColor})
+    table.insert(undoStack, {Province=province, OldColor=oldColor, NewColor=newColor})
     redoStack = {}
 end
 local function undo()
@@ -131,11 +25,11 @@ local function redo()
     end
 end
 
--- Layer system
+-- Layer sistemi
 local layers = {}
 local currentLayer = 1
 local function createLayer(name)
-    layers[#layers+1] = {Name = name, Provinces = {}}
+    layers[#layers+1] = {Name=name, Provinces={}}
     currentLayer = #layers
 end
 local function addProvinceToLayer(province)
@@ -144,31 +38,40 @@ local function addProvinceToLayer(province)
     end
 end
 
--- Grid overlay
-local grid = Instance.new("Frame", mainFrame)
-grid.BackgroundTransparency = 1
-grid.Size = UDim2.new(1,0,1,0)
-local function drawGrid(cellSize)
-    for _,v in pairs(grid:GetChildren()) do v:Destroy() end
-    local width, height = mainFrame.AbsoluteSize.X, mainFrame.AbsoluteSize.Y
-    for i = 0, width, cellSize do
-        local line = Instance.new("Frame", grid)
-        line.Size = UDim2.new(0,1,1,0)
-        line.Position = UDim2.new(0, i,0,0)
-        line.BackgroundColor3 = Color3.fromRGB(200,200,200)
-        line.BackgroundTransparency = 0.7
-    end
-    for i = 0, height, cellSize do
-        local line = Instance.new("Frame", grid)
-        line.Size = UDim2.new(1,0,0,1)
-        line.Position = UDim2.new(0,0,0,i)
-        line.BackgroundColor3 = Color3.fromRGB(200,200,200)
-        line.BackgroundTransparency = 0.7
+-- Seçim aracı (Selection Tool)
+local selecting = false
+local selectionStart
+local selectionBox = Instance.new("Frame", UI)
+selectionBox.BackgroundColor3 = Color3.fromRGB(100,100,255)
+selectionBox.BackgroundTransparency = 0.5
+selectionBox.Visible = false
+local function startSelection(pos)
+    selecting = true
+    selectionStart = pos
+    selectionBox.Position = UDim2.new(0, pos.X,0,pos.Y)
+    selectionBox.Size = UDim2.new(0,0,0,0)
+    selectionBox.Visible = true
+end
+local function updateSelection(pos)
+    if selecting then
+        local x1, y1 = selectionStart.X, selectionStart.Y
+        local x2, y2 = pos.X, pos.Y
+        selectionBox.Position = UDim2.new(0, math.min(x1,x2),0, math.min(y1,y2))
+        selectionBox.Size = UDim2.new(0, math.abs(x2-x1),0, math.abs(y2-y1))
     end
 end
+local function endSelection()
+    selecting = false
+    selectionBox.Visible = false
+end
 
--- paintProvinceLoop (geliştirilmiş)
-local function paintProvinceLoop(province,coro,highlighty)
+-- Fırça boyutu ve şekil aracı
+local brushSize = 1
+local shapeTool = "Free" -- "Free", "Rectangle", "Ellipse", "Fill"
+
+-- Geliştirilmiş paintProvinceLoop
+local oldPaintProvinceLoop = paintProvinceLoop
+paintProvinceLoop = function(province, coro, highlighty)
     local savedColor = color
     local active = true
     local eventObject = {}
@@ -192,18 +95,36 @@ local function paintProvinceLoop(province,coro,highlighty)
     provinceCodeGenerator +=1
 end
 
--- Mouse & Key Input
-userInputService.InputBegan:Connect(function(input,isTyping)
-    if isTyping == false then
-        if input.KeyCode == Enum.KeyCode.Z and userInputService:IsKeyDown(Enum.KeyCode.LeftControl) then undo()
-        elseif input.KeyCode == Enum.KeyCode.Y and userInputService:IsKeyDown(Enum.KeyCode.LeftControl) then redo() end
+-- Grid çizimi
+local grid = Instance.new("Frame", mainFrame)
+grid.BackgroundTransparency = 1
+grid.Size = UDim2.new(1,0,1,0)
+local function drawGrid(cellSize)
+    for _,v in pairs(grid:GetChildren()) do v:Destroy() end
+    local width, height = mainFrame.AbsoluteSize.X, mainFrame.AbsoluteSize.Y
+    for i = 0, width, cellSize do
+        local line = Instance.new("Frame", grid)
+        line.Size = UDim2.new(0,1,1,0)
+        line.Position = UDim2.new(0, i,0,0)
+        line.BackgroundColor3 = Color3.fromRGB(200,200,200)
+        line.BackgroundTransparency = 0.7
+    end
+    for i = 0, height, cellSize do
+        local line = Instance.new("Frame", grid)
+        line.Size = UDim2.new(1,0,0,1)
+        line.Position = UDim2.new(0,0,0,i)
+        line.BackgroundColor3 = Color3.fromRGB(200,200,200)
+        line.BackgroundTransparency = 0.7
+    end
+end
+drawGrid(20)
+
+-- Keybindings
+userInputService.InputBegan:Connect(function(input, isTyping)
+    if isTyping==false then
+        if input.KeyCode==Enum.KeyCode.Z and userInputService:IsKeyDown(Enum.KeyCode.LeftControl) then undo()
+        elseif input.KeyCode==Enum.KeyCode.Y and userInputService:IsKeyDown(Enum.KeyCode.LeftControl) then redo() end
     end
 end)
 
--- Draw grid
-drawGrid(20)
-
--- Buraya kadar mevcut scriptin tüm UI ve mekaniklerini koruduk, yeni özellikler entegre edildi.
-
--- Paint işlemleri, renk seçimi, toggle, fast paint vb tüm butonlar
--- Mouse.Button1Down ve tüm event handlerlar mevcut scriptten olduğu gibi çalışacak.
+-- ---- YENİ ÖZELLİKLER SONU ---- --
