@@ -603,4 +603,62 @@ while task.wait(1) do
 	pss.Text = provincespersecond.." paint/second"
 	pps = provincespersecond
 	provincespersecond = 0
+end targetPlayer)
+		
+		for _, province in pairs(foundProvinces) do
+			local clone = province:Clone()
+			local coro = coroutine.create(paintProvinceLoop)
+			coroutine.resume(coro, province, coro, clone)
+			
+			clone.Position -= Vector3.new(0, 0.01, 0)
+			clone.Material = "Glass"
+			clone.Transparency = 1000000
+			clone.Parent = provincesFolder
+		end
+		
+		if #foundProvinces > 0 then
+			provinceSound:Play()
+		end
+	end
+end)
+
+userInputService.InputBegan:Connect(function(input,isTyping)
+	if isTyping == false then
+		if input.KeyCode == Enum.KeyCode.R then
+			color = Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255))
+			button2.BackgroundColor3 = color
+			changecolor:Play()
+		elseif input.KeyCode == Enum.KeyCode.Q then
+			if painting then
+				painting = false
+				tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
+				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
+				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
+			else
+				painting = true
+				tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
+				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
+				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
+			end
+		end
+	end
+end)
+
+while task.wait(1) do
+	pss.TextColor3 = Color3.fromRGB(80, 255, 123)
+	if provincespersecond >= 50 then
+		pss.TextColor3 = Color3.fromRGB(247, 226, 112)
+	end
+	if provincespersecond >= 100 then
+		pss.TextColor3 = Color3.fromRGB(245, 128, 37)
+	end
+	if provincespersecond >= 300 then
+		pss.TextColor3 = Color3.fromRGB(235, 8, 10)
+	end
+	if provincespersecond >= 1000 then
+		pss.TextColor3 = Color3.fromRGB(235, 0, 120)
+	end
+	pss.Text = provincespersecond.." paint/second"
+	pps = provincespersecond
+	provincespersecond = 0
 end
