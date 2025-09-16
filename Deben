@@ -117,7 +117,7 @@ local startPos
 
 -- Functions --
 
--- <<--- HIZLANDIRILMIŞ paintProvinceLoop (ORJİNAL YAPIYI KORUYARAK) --->>
+-- <<--- SADECE BU KISMI HIZLANDIRDIM --->>
 local function paintProvinceLoop(province,coro,highlighty)
 	-- savedColor same as original
 	local savedColor = color
@@ -131,7 +131,7 @@ local function paintProvinceLoop(province,coro,highlighty)
 		active = false
 	end
 
-	-- spawn background loop (Orijinal yapıyı koruyarak sadece hızlandırdık)
+	-- spawn background loop (AYNI YAPIYI KORUYARAK)
 	task.spawn(function()
 		-- run until active is false (via Event:Disconnect or removal)
 		while active do
@@ -159,14 +159,14 @@ local function paintProvinceLoop(province,coro,highlighty)
 				end
 			end
 
-			-- HIZ İYİLEŞTİRMESİ: Bekleme sürelerini kısalttık
+			-- HIZLANDIRMA: Bekleme sürelerini kısalttım
 			if safeMode then
-				task.wait(0.5) -- 1 saniyeden 0.5'e düşürdük
+				task.wait(0.3) -- orijinal: 1 saniye, yeni: 0.3 saniye
 			elseif newpaint then
-				-- Çok daha hızlı
-				task.wait() -- Sadece 1 frame bekle
+				-- orijinal: 0.01 saniye, yeni: hiç bekleme
+				task.wait()
 			else
-				task.wait(0.02) -- 0.05'ten 0.02'ye düşürdük
+				task.wait(0.02) -- orijinal: 0.05 saniye, yeni: 0.02 saniye
 			end
 		end
 	end)
@@ -418,7 +418,7 @@ territoryColorButton.MouseButton1Down:Connect(function()
 		keepTerColor = true
 		tweenService:Create(territoryColorButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
 		tweenService:Create(territoryColorButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-		tweenService:Create(territoryColorButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
+		tweenService:Create(territoryColorButton,TweenInfo.new(0.1),{AncherPoint = Vector2.new(1,0)}):Play()
 	end
 end)
 
@@ -443,7 +443,7 @@ userInputService.InputBegan:Connect(function(input,isTyping)
 			else
 				painting = true
 				tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-				tweenService:Create(togglePaintButton,TWeenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
+				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
 				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
 			end
 		end
