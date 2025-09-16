@@ -95,12 +95,11 @@ local provinceSound = Instance.new("Sound")
 provinceSound.SoundId = "rbxassetid://5694665239"
 provinceSound.Parent = workspace
 
--- AUTO-TARGET SYSTEM VARIABLES --
-local targetInputBox = nil
-local targetPlayer = ""
-local autoTargetMode = false
-local targetedProvinces = {}
-local autoTargetConnection = nil
+-- YENİ ÖZELLİKLER --
+local dragSelectMode = false
+local isDragging = false
+local dragConnection = nil
+local selectedInDrag = {}
 
 local provinces = {}
 
@@ -124,86 +123,84 @@ local startPos
 
 -- Functions --
 
--- AUTO-TARGET SYSTEM FUNCTIONS --
-local function findPlayerProvinces(playerName)
-	local foundProvinces = {}
-	local targetedPlayer = nil
-	
-	-- Oyuncuyu bul
-	for _, p in pairs(game.Players:GetPlayers()) do
-		if string.lower(p.Name):find(string.lower(playerName)) or string.lower(p.DisplayName):find(string.lower(playerName)) then
-			targetedPlayer = p
-			break
-		end
+-- DRAG SELECT FUNCTIONS --
+local function startDragSelect()
+	if dragConnection then
+		dragConnection:Disconnect()
 	end
 	
-	if not targetedPlayer then
-		return foundProvinces
-	end
+	selectedInDrag = {}
 	
-	-- Workspace'teki tüm Province'leri tara
-	for _, obj in pairs(workspace:GetDescendants()) do
-		if obj.Name == "Province" and obj:IsA("BasePart") then
-			-- Province'nin sahibini kontrol et (genelde ColorValue veya StringValue ile saklanır)
-			local owner = obj:FindFirstChild("Owner") or obj:FindFirstChild("PlayerName") or obj:FindFirstChild("TeamColor")
-			if owner then
-				if owner:IsA("StringValue") and owner.Value == targetedPlayer.Name then
-					table.insert(foundProvinces, obj)
-				elseif owner:IsA("ObjectValue") and owner.Value == targetedPlayer then
-					table.insert(foundProvinces, obj)
-				end
-			else
-				-- Eğer owner tag yoksa, renk ile kontrol et (oyuncuya ait renkse)
-				if targetedPlayer.TeamColor and obj.Color == targetedPlayer.TeamColor.Color then
-					table.insert(foundProvinces, obj)
-				end
-			end
-		end
-	end
-	
-	return foundProvinces
-end
-
-local function startAutoTarget()
-	if autoTargetConnection then
-		autoTargetConnection:Disconnect()
-	end
-	
-	autoTargetConnection = task.spawn(function()
-		while autoTargetMode do
-			local foundProvinces = findPlayerProvinces(targetPlayer)
-			
-			-- Bulunan province'leri otomatik olarak koruma listesine ekle
-			for _, province in pairs(foundProvinces) do
-				local alreadyExists = false
-				for _, info in pairs(provinces) do
-					if info.Province == province then
-						alreadyExists = true
+	dragConnection = mouse.Move:Connect(function()
+		if isDragging and dragSelectMode then
+			if mouse.Target and mouse.Target.Name == "Province" then
+				local alreadySelected = false
+				for _, selected in pairs(selectedInDrag) do
+					if selected == mouse.Target then
+						alreadySelected = true
 						break
 					end
 				end
 				
-				if not alreadyExists then
-					-- Yeni province'yi koruma listesine ekle
-					local clone = province:Clone()
-					local coro = coroutine.create(paintProvinceLoop)
-					coroutine.resume(coro, province, coro, clone)
+				if not alreadySelected then
+					table.insert(selectedInDrag, mouse.Target)
+					-- Visual feedback
+					local tempHighlight = Instance.new("SelectionBox")
+					tempHighlight.Adornee = mouse.Target
+					tempHighlight.Color3 = Color3.fromRGB(0, 255, 0)
+					tempHighlight.Parent = mouse.Target
+					tempHighlight.Transparency = 0.5
 					
-					clone.Position -= Vector3.new(0, 0.01, 0)
-					clone.Material = "Glass"
-					clone.Transparency = 1000000
-					clone.Parent = provincesFolder
-					
-					provinceSound:Play()
+					task.spawn(function()
+						task.wait(0.3)
+						if tempHighlight then
+							tempHighlight:Destroy()
+						end
+					end)
 				end
 			end
-			
-			task.wait(2) -- Her 2 saniyede bir kontrol et
 		end
 	end)
 end
 
--- ORIJINAL paintProvinceLoop (HIZLANDIRILMIŞ)
+local function finishDragSelect()
+	if dragConnection then
+		dragConnection:Disconnect()
+		dragConnection = nil
+	end
+	
+	-- Seçilen province'leri listeye ekle
+	for _, province in pairs(selectedInDrag) do
+		local alreadyExists = false
+		for _, info in pairs(provinces) do
+			if info.Province == province then
+				alreadyExists = true
+				break
+			end
+		end
+		
+		if not alreadyExists then
+			local clone = province:Clone()
+			local coro = coroutine.create(paintProvinceLoop)
+			coroutine.resume(coro, province, coro, clone)
+			
+			clone.Position -= Vector3.new(0, 0.01, 0)
+			clone.Material = "Glass"
+			clone.Transparency = 1000000
+			clone.Parent = provincesFolder
+		end
+	end
+	
+	if #selectedInDrag > 0 then
+		provinceSound:Play()
+		print("Added " .. #selectedInDrag .. " provinces via drag select!")
+	end
+	
+	selectedInDrag = {}
+	isDragging = false
+end
+
+-- ORIJINAL HIZLI paintProvinceLoop --
 local function paintProvinceLoop(province,coro,highlighty)
 	local savedColor = color
 	local active = true
@@ -234,6 +231,7 @@ local function paintProvinceLoop(province,coro,highlighty)
 				end
 			end
 
+			-- HIZLANDIRMA
 			if safeMode then
 				task.wait(0.3)
 			elseif newpaint then
@@ -309,18 +307,6 @@ local function createNewOption(optionType,text,customText,enabled)
 		textlabel.Font = Enum.Font.SourceSansBold
 		textlabel.TextColor3 = Color3.fromRGB(255,255,255)
 		return button
-	elseif optionType == "input" then
-		local inputBox = Instance.new("TextBox",optionFrame)
-		inputBox.BackgroundColor3 = Color3.fromRGB(70,70,70)
-		inputBox.Position = UDim2.new(0.5,0,0.125,0)
-		inputBox.Size = UDim2.new(0.485,0,0.75,0)
-		inputBox.TextColor3 = Color3.fromRGB(255,255,255)
-		inputBox.TextScaled = true
-		inputBox.Font = Enum.Font.SourceSans
-		inputBox.PlaceholderText = "Enter player name..."
-		inputBox.Text = ""
-		inputBox.BorderSizePixel = 0
-		return inputBox
 	end
 end
 
@@ -369,9 +355,9 @@ userInputService.InputChanged:Connect(function(input)
 	end
 end)
 
--- UI ELEMENTS --
 local button2 = createNewOption("color","Country Color")
 local button1 = createNewOption("custom","Protect Province","Add")
+local dragSelectButton = createNewOption("custom","🖱️ Drag Select","Drag") -- YENİ
 local button5 = createNewOption("custom","Unprotect Province","Remove")
 local button3 = createNewOption("custom","Clear Provinces","Clear")
 local button4 = createNewOption("switch","Safe Mode")
@@ -380,13 +366,14 @@ local newPaintButton = createNewOption("switch","Fast Paint")
 local territoryColorButton = createNewOption("switch","Keep Territory Color (NEW)")
 local randomColorButton = createNewOption("custom","Randomize color (NEW)","Change")
 
--- AUTO-TARGET SYSTEM UI --
-targetInputBox = createNewOption("input","🎯 Auto Target Player")
-local autoTargetButton = createNewOption("switch","Auto Target Mode")
-local findTargetButton = createNewOption("custom","Find Target Provinces","Find")
-
--- EVENT CONNECTIONS --
+-- MOUSE EVENT --
 mouse.Button1Down:Connect(function()
+	if dragSelectMode then
+		isDragging = true
+		startDragSelect()
+		return
+	end
+	
 	if mouse.Target and mouse.Target.Name == "Province" then
 		if selectColorMode then
 			color = mouse.Target.Color
@@ -419,6 +406,12 @@ mouse.Button1Down:Connect(function()
 	end
 end)
 
+mouse.Button1Up:Connect(function()
+	if dragSelectMode and isDragging then
+		finishDragSelect()
+	end
+end)
+
 button2.BackgroundColor3 = color
 button2.MouseButton1Down:Connect(function()
 	UIHolder.Visible = false
@@ -431,11 +424,26 @@ button1.MouseButton1Down:Connect(function()
 	doneButton.Visible = true
 end)
 
+-- YENİ DRAG SELECT BUTTON
+dragSelectButton.MouseButton1Down:Connect(function()
+	UIHolder.Visible = false
+	dragSelectMode = true
+	doneButton.Visible = true
+	doneButton.Text = "Finish Drag"
+end)
+
 doneButton.MouseButton1Down:Connect(function()
 	removeProvincesMode = false
 	selectProvincesMode = false
+	dragSelectMode = false
 	UIHolder.Visible = true
 	doneButton.Visible = false
+	doneButton.Text = "Done"
+	
+	if dragConnection then
+		dragConnection:Disconnect()
+		dragConnection = nil
+	end
 end)
 
 button3.MouseButton1Down:Connect(function()
@@ -516,110 +524,6 @@ randomColorButton.MouseButton1Down:Connect(function()
 	color = Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255))
 	button2.BackgroundColor3 = color
 	changecolor:Play()
-end)
-
--- AUTO-TARGET BUTTON CONNECTIONS --
-autoTargetButton.MouseButton1Down:Connect(function()
-	sound2:Play()
-	if autoTargetMode then
-		autoTargetMode = false
-		if autoTargetConnection then
-			autoTargetConnection:Disconnect()
-		end
-		tweenService:Create(autoTargetButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-		tweenService:Create(autoTargetButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-		tweenService:Create(autoTargetButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
-	else
-		autoTargetMode = true
-		targetPlayer = targetInputBox.Text
-		if targetPlayer ~= "" then
-			startAutoTarget()
-		end
-		tweenService:Create(autoTargetButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-		tweenService:Create(autoTargetButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-		tweenService:Create(autoTargetButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-	end
-end)
-
-findTargetButton.MouseButton1Down:Connect(function()
-	targetPlayer = targetInputBox.Text
-	if targetPlayer ~= "" then
-		local foundProvinces = findPlayerProvinces(targetPlayer)
-		print("Found " .. #foundProvinces .. " provinces for " .. targetPlayer)
-		
-		for _, province in pairs(foundProvinces) do
-			local clone = province:Clone()
-			local coro = coroutine.create(paintProvinceLoop)
-			coroutine.resume(coro, province, coro, clone)
-			
-			clone.Position -= Vector3.new(0, 0.01, 0)
-			clone.Material = "Glass"
-			clone.Transparency = 1000000
-			clone.Parent = provincesFolder
-		end
-		
-		if #foundProvinces > 0 then
-			provinceSound:Play()
-		end
-	end
-end)
-
-userInputService.InputBegan:Connect(function(input,isTyping)
-	if isTyping == false then
-		if input.KeyCode == Enum.KeyCode.R then
-			color = Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255))
-			button2.BackgroundColor3 = color
-			changecolor:Play()
-		elseif input.KeyCode == Enum.KeyCode.Q then
-			if painting then
-				painting = false
-				tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
-			else
-				painting = true
-				tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-			end
-		end
-	end
-end)
-
-while task.wait(1) do
-	pss.TextColor3 = Color3.fromRGB(80, 255, 123)
-	if provincespersecond >= 50 then
-		pss.TextColor3 = Color3.fromRGB(247, 226, 112)
-	end
-	if provincespersecond >= 100 then
-		pss.TextColor3 = Color3.fromRGB(245, 128, 37)
-	end
-	if provincespersecond >= 300 then
-		pss.TextColor3 = Color3.fromRGB(235, 8, 10)
-	end
-	if provincespersecond >= 1000 then
-		pss.TextColor3 = Color3.fromRGB(235, 0, 120)
-	end
-	pss.Text = provincespersecond.." paint/second"
-	pps = provincespersecond
-	provincespersecond = 0
-end targetPlayer)
-		
-		for _, province in pairs(foundProvinces) do
-			local clone = province:Clone()
-			local coro = coroutine.create(paintProvinceLoop)
-			coroutine.resume(coro, province, coro, clone)
-			
-			clone.Position -= Vector3.new(0, 0.01, 0)
-			clone.Material = "Glass"
-			clone.Transparency = 1000000
-			clone.Parent = provincesFolder
-		end
-		
-		if #foundProvinces > 0 then
-			provinceSound:Play()
-		end
-	end
 end)
 
 userInputService.InputBegan:Connect(function(input,isTyping)
