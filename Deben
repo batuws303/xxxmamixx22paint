@@ -1,107 +1,265 @@
--- GUI Referansları
-local screenGui = script.Parent
-local addButton = screenGui:WaitForChild("AddButton")
-local removeButton = screenGui:WaitForChild("RemoveButton")
-local clearButton = screenGui:WaitForChild("ClearButton")
-local counterLabel = screenGui:WaitForChild("CounterLabel")
-local closeButton = screenGui:WaitForChild("CloseButton")
+-- Settings --
+local color = Color3.fromRGB(255,255,255)
 
--- Services
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
+-- Services --
+local userInputService = game:GetService("UserInputService")
+local tweenService = game:GetService("TweenService")
+local players = game:GetService("Players")
 
--- Seçim tablosu
-local selectedParts = {}
+local player = players.LocalPlayer
+local mouse = player:GetMouse()
 
--- Modlar
-local addMode = false
-local removeMode = false
+-- UI --
+local UI = Instance.new("ScreenGui",player.PlayerGui)
+UI.Name = "PaintUI"
+local UIHolder = Instance.new("Frame",UI)
+UIHolder.AnchorPoint = Vector2.new(0.5,0.5)
+UIHolder.BackgroundTransparency = 1
+UIHolder.Position = UDim2.new(0.5,0,0.5,0)
+UIHolder.Size = UDim2.new(0.55,0,0.55,0)
 
--- Boyama sayaç
-local paintedCount = 0
+local mainFrame = Instance.new("Frame",UIHolder)
+mainFrame.BackgroundColor3 = Color3.fromRGB(33,33,42)
+mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
+mainFrame.Position = UDim2.new(0.5,0,0.5,0)
+mainFrame.Size = UDim2.new(0.5,0,0.32,0)
 
--- Add Butonu
-addButton.MouseButton1Click:Connect(function()
-	addMode = not addMode
-	removeMode = false
+local topBar = Instance.new("Frame",mainFrame)
+topBar.BackgroundColor3 = Color3.fromRGB(49,49,64)
+topBar.Size = UDim2.new(1,0,0.14,0)
 
-	if addMode then
-		addButton.BackgroundColor3 = Color3.fromRGB(0,255,0) -- yeşil
-	else
-		addButton.BackgroundColor3 = Color3.fromRGB(255,0,0) -- kırmızı
-	end
-	removeButton.BackgroundColor3 = Color3.fromRGB(255,0,0)
+local panelTitle = Instance.new("TextLabel",topBar)
+panelTitle.Text = '<b>Paint Admin Panel</b><font size="6"> PRO</font>'
+panelTitle.RichText = true
+panelTitle.TextScaled = true
+panelTitle.TextColor3 = Color3.fromRGB(255,255,255)
+panelTitle.TextXAlignment = Enum.TextXAlignment.Left
+panelTitle.AnchorPoint = Vector2.new(0,0.5)
+panelTitle.Position = UDim2.new(0.02,0,0.5,0)
+panelTitle.BackgroundTransparency = 1
+
+-- Exit Button
+local exitBtn = Instance.new("TextButton",topBar)
+exitBtn.Text = "X"
+exitBtn.Size = UDim2.new(0.1,0,1,0)
+exitBtn.Position = UDim2.new(0.9,0,0,0)
+exitBtn.BackgroundColor3 = Color3.fromRGB(120,0,0)
+exitBtn.TextColor3 = Color3.fromRGB(255,255,255)
+exitBtn.TextScaled = true
+exitBtn.MouseButton1Down:Connect(function()
+	UI:Destroy()
 end)
 
--- Remove Butonu
-removeButton.MouseButton1Click:Connect(function()
-	removeMode = not removeMode
-	addMode = false
+local pss = Instance.new("TextLabel",topBar)
+pss.Text = "0 paint/second"
+pss.AnchorPoint = Vector2.new(0,0.5)
+pss.Size = UDim2.new(0.874,0,0.5,0)
+pss.Position = UDim2.new(0,0,0.5,0)
+pss.TextColor3 = Color3.fromRGB(255,255,255)
+pss.BackgroundTransparency = 1
+pss.TextScaled = true
+pss.TextXAlignment = Enum.TextXAlignment.Right
 
-	if removeMode then
-		removeButton.BackgroundColor3 = Color3.fromRGB(0,255,0) -- yeşil
-	else
-		removeButton.BackgroundColor3 = Color3.fromRGB(255,0,0) -- kırmızı
-	end
-	addButton.BackgroundColor3 = Color3.fromRGB(255,0,0)
-end)
+-- Scroll Frame for options --
+local scrollFrame = Instance.new("ScrollingFrame",mainFrame)
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.Position = UDim2.new(0,0,0.14,0)
+scrollFrame.Size = UDim2.new(1,0,0.86,0)
+scrollFrame.ScrollBarThickness = 6
 
--- Clear Butonu
-clearButton.MouseButton1Click:Connect(function()
-	for part, highlight in pairs(selectedParts) do
-		if highlight then
-			highlight:Destroy()
-		end
-	end
-	selectedParts = {}
-	paintedCount = 0
-	counterLabel.Text = "Painted: 0"
-end)
+local listlayout = Instance.new("UIListLayout",scrollFrame)
+listlayout.Padding = UDim.new(0,10)
+local uipadding = Instance.new("UIPadding",scrollFrame)
+uipadding.PaddingTop = UDim.new(0,10)
+uipadding.PaddingLeft = UDim.new(0,10)
+uipadding.PaddingRight = UDim.new(0,10)
+uipadding.PaddingBottom = UDim.new(0,10)
 
--- X (Kapat) Butonu
-closeButton.MouseButton1Click:Connect(function()
-	screenGui.Enabled = false
-end)
+-- Sounds --
+local changecolor = Instance.new("Sound",workspace)
+changecolor.SoundId = "rbxassetid://4612383790"
 
--- Mouse ile seçim/kaldırma
-Mouse.Button1Down:Connect(function()
-	local target = Mouse.Target
-	if not target or not target:IsA("BasePart") then return end
+local provinceSound = Instance.new("Sound",workspace)
+provinceSound.SoundId = "rbxassetid://5694665239"
 
-	-- Add Mode
-	if addMode and not selectedParts[target] then
-		local highlight = Instance.new("SelectionBox")
-		highlight.Adornee = target
-		highlight.LineThickness = 0.05
-		highlight.Color3 = Color3.fromRGB(255,255,255)
-		highlight.Parent = target
+-- Variables --
+local provinces = {}
+local provincespersecond = 0
+local selectColorMode = false
+local removeProvincesMode = false
+local selectProvincesMode = false
+local safeMode = false
+local newpaint = false
+local painting = true
+local keepTerColor = false
 
-		selectedParts[target] = highlight
-		print("Seçildi:", target.Name)
-	end
+-- Paint speed configs
+local normalDelay = 0.05
+local fastDelay = 0.001
+local safeDelay = 0.5
 
-	-- Remove Mode
-	if removeMode and selectedParts[target] then
-		selectedParts[target]:Destroy()
-		selectedParts[target] = nil
-		print("Kaldırıldı:", target.Name)
-	end
-end)
-
--- Hızlı boyama (örnek: 1 dakikadan kısa sürede her bloğu bitiriyor)
-local function fastPaint()
-	local start = tick()
-	for part, _ in pairs(selectedParts) do
-		if part and part:IsA("BasePart") then
-			part.Color = Color3.fromRGB(255, 0, 0) -- kırmızıya boya (örnek)
-			paintedCount += 1
-			counterLabel.Text = "Painted: " .. paintedCount
-		end
-		game:GetService("RunService").Heartbeat:Wait() -- FPS’e göre optimize
-	end
-	print("Boyama bitti, süre:", tick()-start)
+-- UI Functions --
+local function createButton(text,parent)
+	local btn = Instance.new("TextButton",parent)
+	btn.Text = text
+	btn.Size = UDim2.new(1,0,0.075,0)
+	btn.BackgroundColor3 = Color3.fromRGB(49,49,64)
+	btn.TextColor3 = Color3.fromRGB(255,255,255)
+	btn.TextScaled = true
+	btn.Font = Enum.Font.SourceSansBold
+	return btn
 end
 
--- Test için: GUI’ye “Paint” butonu eklersen buraya bağla
--- örn: paintButton.MouseButton1Click:Connect(fastPaint)
+local function toggleButtonColor(button,state)
+	if state then
+		button.BackgroundColor3 = Color3.fromRGB(0,150,0)
+	else
+		button.BackgroundColor3 = Color3.fromRGB(150,0,0)
+	end
+end
+
+-- Options Buttons --
+local colorButton = createButton("Country Color",scrollFrame)
+local addButton = createButton("Add Province",scrollFrame)
+local removeButton = createButton("Remove Province",scrollFrame)
+local clearButton = createButton("Clear Provinces",scrollFrame)
+local fastPaintButton = createButton("Fast Paint",scrollFrame)
+local togglePaintButton = createButton("Toggle Paint",scrollFrame)
+local safeModeButton = createButton("Safe Mode",scrollFrame)
+local keepColorButton = createButton("Keep Territory Color",scrollFrame)
+local randomColorButton = createButton("Random Color",scrollFrame)
+
+-- Paint Function --
+local function paintProvinceLoop(province)
+	if not province then return end
+	while painting do
+		if province.Color ~= color then
+			local args = {
+				[1] = "PaintPart",
+				[2] = {["Part"] = province,["Color"] = color},
+				[3] = "Peace"
+			}
+			game.Players.LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+			provincespersecond += 1
+		end
+		if safeMode then
+			task.wait(safeDelay)
+		elseif newpaint then
+			task.wait(fastDelay)
+		else
+			task.wait(normalDelay)
+		end
+	end
+end
+
+-- Mouse Events --
+mouse.Button1Down:Connect(function()
+	if mouse.Target and mouse.Target.Name == "Province" then
+		if selectColorMode then
+			color = mouse.Target.Color
+			selectColorMode = false
+			colorButton.BackgroundColor3 = color
+			changecolor:Play()
+		end
+		if selectProvincesMode then
+			provinceSound:Play()
+			local coro = coroutine.create(paintProvinceLoop)
+			coroutine.resume(coro,mouse.Target)
+			table.insert(provinces,{Province=mouse.Target,Coroutine=coro})
+		end
+		if removeProvincesMode then
+			for i,info in pairs(provinces) do
+				if info.Province == mouse.Target then
+					coroutine.close(info.Coroutine)
+					table.remove(provinces,i)
+				end
+			end
+		end
+	end
+end)
+
+-- Button Actions --
+colorButton.MouseButton1Down:Connect(function()
+	selectColorMode = true
+end)
+
+addButton.MouseButton1Down:Connect(function()
+	selectProvincesMode = not selectProvincesMode
+	removeProvincesMode = false
+	toggleButtonColor(addButton,selectProvincesMode)
+	toggleButtonColor(removeButton,removeProvincesMode)
+end)
+
+removeButton.MouseButton1Down:Connect(function()
+	removeProvincesMode = not removeProvincesMode
+	selectProvincesMode = false
+	toggleButtonColor(removeButton,removeProvincesMode)
+	toggleButtonColor(addButton,selectProvincesMode)
+end)
+
+clearButton.MouseButton1Down:Connect(function()
+	for _,info in pairs(provinces) do
+		coroutine.close(info.Coroutine)
+	end
+	provinces = {}
+end)
+
+fastPaintButton.MouseButton1Down:Connect(function()
+	newpaint = not newpaint
+	toggleButtonColor(fastPaintButton,newpaint)
+end)
+
+togglePaintButton.MouseButton1Down:Connect(function()
+	painting = not painting
+	toggleButtonColor(togglePaintButton,painting)
+end)
+
+safeModeButton.MouseButton1Down:Connect(function()
+	safeMode = not safeMode
+	toggleButtonColor(safeModeButton,safeMode)
+end)
+
+keepColorButton.MouseButton1Down:Connect(function()
+	keepTerColor = not keepTerColor
+	toggleButtonColor(keepColorButton,keepTerColor)
+end)
+
+randomColorButton.MouseButton1Down:Connect(function()
+	color = Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255))
+	colorButton.BackgroundColor3 = color
+	changecolor:Play()
+end)
+
+-- PPS Update --
+task.spawn(function()
+	while true do
+		pss.Text = provincespersecond.." paint/second"
+		provincespersecond = 0
+		task.wait(1)
+	end
+end)
+
+-- Draggable UI
+local dragging = false
+local dragInput, dragStart, startPos
+
+topBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = mainFrame.Position
+	end
+end)
+
+topBar.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+userInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	end
+end)
