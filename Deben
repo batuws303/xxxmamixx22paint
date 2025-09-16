@@ -10,26 +10,41 @@ local players = game:GetService("Players")
 local player = players.LocalPlayer
 local mouse = player:GetMouse()
 
+-- Variables
+local provinces = {}
+local provincesPerSecond = 0
+local painting = true
+local newPaint = false
+local safeMode = false
+local selectColorMode = false
+local selectProvinceMode = false
+local removeProvinceMode = false
+local keepTerColor = false
+
 -- UI
-local UI = Instance.new("ScreenGui",player.PlayerGui)
-local UIHolder = Instance.new("Frame",UI)
-UIHolder.AnchorPoint = Vector2.new(0.5,0.5)
+local UI = Instance.new("ScreenGui", player.PlayerGui)
+UI.Name = "PaintAdminPanel"
+
+local UIHolder = Instance.new("Frame", UI)
+UIHolder.AnchorPoint = Vector2.new(0.5, 0.5)
+UIHolder.Position = UDim2.new(0.5, 0, 0.5, 0)
+UIHolder.Size = UDim2.new(0.35, 0, 0.5, 0)
 UIHolder.BackgroundTransparency = 1
-UIHolder.Position = UDim2.new(0.5,0,0.5,0)
-UIHolder.Size = UDim2.new(0.75,0,0.75,0)
+UIHolder.Active = true
+UIHolder.Draggable = true
 
-local mainFrame = Instance.new("Frame",UIHolder)
+local mainFrame = Instance.new("Frame", UIHolder)
+mainFrame.Size = UDim2.new(1, 0, 1, 0)
 mainFrame.BackgroundColor3 = Color3.fromRGB(33,33,42)
-mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
-mainFrame.Position = UDim2.new(0.5,0,0.5,0)
-mainFrame.Size = UDim2.new(0.5,0,0.5,0)
+mainFrame.BorderSizePixel = 0
 
-local topBar = Instance.new("Frame",mainFrame)
+-- Top bar
+local topBar = Instance.new("Frame", mainFrame)
+topBar.Size = UDim2.new(1,0,0.12,0)
 topBar.BackgroundColor3 = Color3.fromRGB(49,49,64)
-topBar.Size = UDim2.new(1,0,0.14,0)
 
-local panelTitle = Instance.new("TextLabel",topBar)
-panelTitle.Text = '<b>Paint Admin Panel</b><font size="6"> PRO</font>'
+local panelTitle = Instance.new("TextLabel", topBar)
+panelTitle.Text = "<b>Paint Admin Panel</b> PRO"
 panelTitle.RichText = true
 panelTitle.TextScaled = true
 panelTitle.TextColor3 = Color3.fromRGB(255,255,255)
@@ -38,208 +53,213 @@ panelTitle.AnchorPoint = Vector2.new(0,0.5)
 panelTitle.Position = UDim2.new(0.02,0,0.5,0)
 panelTitle.BackgroundTransparency = 1
 
-local pss = Instance.new("TextLabel",topBar)
-pss.Text = "0 paint/second"
-pss.AnchorPoint = Vector2.new(0,0.5)
-pss.Size = UDim2.new(0.974,0,0.5,0)
-pss.Position = UDim2.new(0,0,0.5,0)
-pss.TextColor3 = Color3.fromRGB(255,255,255)
-pss.BackgroundTransparency = 1
-pss.TextScaled = true
-pss.TextXAlignment = Enum.TextXAlignment.Right
+-- Exit Button
+local exitButton = Instance.new("TextButton", topBar)
+exitButton.Size = UDim2.new(0.08,0,0.6,0)
+exitButton.Position = UDim2.new(0.9,0,0.2,0)
+exitButton.Text = "X"
+exitButton.TextScaled = true
+exitButton.BackgroundColor3 = Color3.fromRGB(235,8,10)
+exitButton.TextColor3 = Color3.fromRGB(255,255,255)
+exitButton.AutoButtonColor = false
+exitButton.MouseButton1Click:Connect(function()
+    UI:Destroy()
+end)
 
 -- Scroll Frame
-local scrollFrame = Instance.new("ScrollingFrame",mainFrame)
+local scrollFrame = Instance.new("ScrollingFrame", mainFrame)
+scrollFrame.Position = UDim2.new(0,0,0.12,0)
+scrollFrame.Size = UDim2.new(1,0,0.88,0)
 scrollFrame.BackgroundTransparency = 1
-scrollFrame.Position = UDim2.new(0,0,0.14,0)
-scrollFrame.Size = UDim2.new(1,0,0.86,0)
 scrollFrame.ScrollBarThickness = 6
 
-local listlayout = Instance.new("UIListLayout",scrollFrame)
-listlayout.Padding = UDim.new(0,10)
-local uipadding = Instance.new("UIPadding",scrollFrame)
-uipadding.PaddingTop = UDim.new(0,10)
-uipadding.PaddingLeft = UDim.new(0,10)
-uipadding.PaddingRight = UDim.new(0,10)
-uipadding.PaddingBottom = UDim.new(0,10)
+local listLayout = Instance.new("UIListLayout", scrollFrame)
+listLayout.Padding = UDim.new(0,10)
+local uiPadding = Instance.new("UIPadding", scrollFrame)
+uiPadding.PaddingTop = UDim.new(0,10)
+uiPadding.PaddingBottom = UDim.new(0,10)
+uiPadding.PaddingLeft = UDim.new(0,10)
+uiPadding.PaddingRight = UDim.new(0,10)
+
+-- Counter
+local counterLabel = Instance.new("TextLabel", mainFrame)
+counterLabel.AnchorPoint = Vector2.new(1,1)
+counterLabel.Position = UDim2.new(0.98,0,0.95,0)
+counterLabel.Size = UDim2.new(0.25,0,0.05,0)
+counterLabel.TextScaled = true
+counterLabel.BackgroundTransparency = 1
+counterLabel.TextColor3 = Color3.fromRGB(255,255,255)
+counterLabel.Text = "0 painted"
 
 -- Sounds
-local sound = Instance.new("Sound",workspace)
-sound.SoundId = "rbxassetid://4612386227"
-
-local changecolor = Instance.new("Sound",workspace)
+local changecolor = Instance.new("Sound", workspace)
 changecolor.SoundId = "rbxassetid://4612383790"
 
-local sound2 = Instance.new("Sound",workspace)
+local sound2 = Instance.new("Sound", workspace)
 sound2.SoundId = "rbxassetid://7486747911"
 sound2.PlaybackSpeed = 2
 
-local provinceSound = Instance.new("Sound",workspace)
+local provinceSound = Instance.new("Sound", workspace)
 provinceSound.SoundId = "rbxassetid://5694665239"
 
--- Variables
-local provinces = {}
-local provincespersecond = 0
-local pps = 0
+-- Functions
+local function createButton(text)
+    local btn = Instance.new("TextButton", scrollFrame)
+    btn.Size = UDim2.new(1,0,0.08,0)
+    btn.Text = text
+    btn.TextScaled = true
+    btn.BackgroundColor3 = Color3.fromRGB(49,49,64)
+    btn.TextColor3 = Color3.fromRGB(255,255,255)
+    btn.AutoButtonColor = false
+    return btn
+end
 
-local selectColorMode = false
-local removeProvincesMode = false
-local selectProvincesMode = false
-local safeMode = false
-local newpaint = false
-local painting = true
-local keepTerColor = false
-
--- UI Functions
-local function createButton(text,parent)
-	local btn = Instance.new("TextButton",parent)
-	btn.Text = text
-	btn.Size = UDim2.new(1,0,0.075,0)
-	btn.BackgroundColor3 = Color3.fromRGB(49,49,64)
-	btn.TextColor3 = Color3.fromRGB(255,255,255)
-	btn.TextScaled = true
-	btn.Font = Enum.Font.SourceSansBold
-	return btn
+local function createSwitch(text, enabled)
+    local frame = Instance.new("Frame", scrollFrame)
+    frame.Size = UDim2.new(1,0,0.08,0)
+    frame.BackgroundColor3 = enabled and Color3.fromRGB(53,227,153) or Color3.fromRGB(241,33,103)
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(0.7,0,1,0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextScaled = true
+    label.TextColor3 = Color3.fromRGB(255,255,255)
+    local button = Instance.new("TextButton", frame)
+    button.Size = UDim2.new(0.3,0,1,0)
+    button.Position = UDim2.new(0.7,0,0,0)
+    button.BackgroundTransparency = 1
+    button.Text = ""
+    return frame, button
 end
 
 -- Buttons
-local colorButton = createButton("Country Color",scrollFrame)
-local addButton = createButton("Add Province",scrollFrame)
-local removeButton = createButton("Remove Province",scrollFrame)
-local clearButton = createButton("Clear Provinces",scrollFrame)
-local fastPaintButton = createButton("Fast Paint",scrollFrame)
-local togglePaintButton = createButton("Toggle Paint",scrollFrame)
-local safeModeButton = createButton("Safe Mode",scrollFrame)
-local keepColorButton = createButton("Keep Territory Color",scrollFrame)
-local randomColorButton = createButton("Random Color",scrollFrame)
+local colorButton = createButton("Country Color")
+local addButton = createButton("Add Province")
+local removeButton = createButton("Remove Province")
+local clearButton = createButton("Clear Provinces")
+local safeButtonFrame, safeButton = createSwitch("Safe Mode", false)
+local togglePaintFrame, togglePaintButton = createSwitch("Toggle Paint", true)
+local fastPaintFrame, fastPaintButton = createSwitch("Fast Paint", false)
+local keepColorFrame, keepColorButton = createSwitch("Keep Territory Color", false)
+local randomColorButton = createButton("Random Color")
 
--- UI Drag
-local dragging, dragInput, dragStart, startPos
-local function update(input)
-	local delta = input.Position - dragStart
-	mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-end
+-- Highlight Folder
+local provinceFolder = Instance.new("Folder", workspace)
+provinceFolder.Name = "PaintedProvinces"
 
-topBar.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = true
-		dragStart = input.Position
-		startPos = mainFrame.Position
-
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
-	end
-end)
-
-topBar.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement then
-		dragInput = input
-	end
-end)
-
-userInputService.InputChanged:Connect(function(input)
-	if input == dragInput and dragging then
-		update(input)
-	end
-end)
-
--- Province painting
+-- Paint logic
 local function paintProvince(province)
-	local savedColor = color
-	while painting do
-		if province.Color ~= color then
-			local args = {
-				[1] = "PaintPart",
-				[2] = {["Part"] = province,["Color"] = color},
-				[3] = "Peace"
-			}
-			if player.Character:FindFirstChild("PaintBucket") then
-				game.Players.LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
-				provincespersecond = provincespersecond + 1
-			end
-		end
-		if safeMode then wait(0.5) else wait(0.01) end
-		if newpaint then wait(0.005) end
-	end
+    if not province or not province.Parent then return end
+    local savedColor = color
+    local highlight = Instance.new("Highlight", workspace)
+    highlight.Adornee = province
+    highlight.FillColor = color
+    highlight.FillTransparency = 0.8
+
+    table.insert(provinces, {Province=province, Highlight=highlight})
+
+    coroutine.wrap(function()
+        while painting do
+            if province.Color ~= color then
+                local args = {"PaintPart",{Part=province, Color=color},"Peace"}
+                if player.Character:FindFirstChild("PaintBucket") then
+                    player.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+                end
+                provincesPerSecond += 1
+                counterLabel.Text = tostring(provincesPerSecond).." painted"
+            end
+            if safeMode then wait(0.5) else wait(0.05) end
+        end
+    end)()
 end
+
+-- Button logic
+colorButton.MouseButton1Click:Connect(function()
+    selectColorMode = true
+end)
+
+addButton.MouseButton1Click:Connect(function()
+    selectProvinceMode = true
+end)
+
+removeButton.MouseButton1Click:Connect(function()
+    removeProvinceMode = true
+end)
+
+clearButton.MouseButton1Click:Connect(function()
+    for _,v in pairs(provinces) do
+        v.Highlight:Destroy()
+    end
+    provinces = {}
+    provincesPerSecond = 0
+    counterLabel.Text = "0 painted"
+end)
+
+randomColorButton.MouseButton1Click:Connect(function()
+    color = Color3.fromRGB(math.random(0,255), math.random(0,255), math.random(0,255))
+    colorButton.BackgroundColor3 = color
+    changecolor:Play()
+end)
+
+-- Switches
+local function toggleSwitch(frame, button)
+    local enabled = frame.BackgroundColor3 == Color3.fromRGB(53,227,153)
+    if enabled then
+        frame.BackgroundColor3 = Color3.fromRGB(241,33,103)
+    else
+        frame.BackgroundColor3 = Color3.fromRGB(53,227,153)
+    end
+    return not enabled
+end
+
+safeButton.MouseButton1Click:Connect(function()
+    safeMode = toggleSwitch(safeButtonFrame, safeButton)
+    sound2:Play()
+end)
+
+togglePaintButton.MouseButton1Click:Connect(function()
+    painting = toggleSwitch(togglePaintFrame, togglePaintButton)
+    sound2:Play()
+end)
+
+fastPaintButton.MouseButton1Click:Connect(function()
+    newPaint = toggleSwitch(fastPaintFrame, fastPaintButton)
+    sound2:Play()
+end)
+
+keepColorButton.MouseButton1Click:Connect(function()
+    keepTerColor = toggleSwitch(keepColorFrame, keepColorButton)
+    sound2:Play()
+end)
 
 -- Mouse Click
 mouse.Button1Down:Connect(function()
-	if mouse.Target and mouse.Target.Name == "Province" then
-		if selectColorMode then
-			color = mouse.Target.Color
-			selectColorMode = false
-			colorButton.BackgroundColor3 = color
-			changecolor:Play()
-		end
-		if selectProvincesMode then
-			provinceSound:Play()
-			local coro = coroutine.create(paintProvince)
-			coroutine.resume(coro, mouse.Target)
-			table.insert(provinces,{Province=mouse.Target,Coroutine=coro})
-		end
-		if removeProvincesMode then
-			for i,info in pairs(provinces) do
-				if info.Province == mouse.Target then
-					coroutine.close(info.Coroutine)
-					table.remove(provinces,i)
-				end
-			end
-		end
-	end
+    if mouse.Target and mouse.Target.Name == "Province" then
+        if selectColorMode then
+            color = mouse.Target.Color
+            selectColorMode = false
+            colorButton.BackgroundColor3 = color
+            changecolor:Play()
+        elseif selectProvinceMode then
+            paintProvince(mouse.Target)
+            selectProvinceMode = false
+            provinceSound:Play()
+        elseif removeProvinceMode then
+            for i,info in pairs(provinces) do
+                if info.Province == mouse.Target then
+                    info.Highlight:Destroy()
+                    table.remove(provinces,i)
+                end
+            end
+            removeProvinceMode = false
+        end
+    end
 end)
 
--- Button Actions
-colorButton.MouseButton1Down:Connect(function()
-	selectColorMode = true
-end)
-
-addButton.MouseButton1Down:Connect(function()
-	selectProvincesMode = true
-end)
-
-removeButton.MouseButton1Down:Connect(function()
-	removeProvincesMode = true
-end)
-
-clearButton.MouseButton1Down:Connect(function()
-	for _,info in pairs(provinces) do
-		coroutine.close(info.Coroutine)
-	end
-	provinces = {}
-end)
-
-fastPaintButton.MouseButton1Down:Connect(function()
-	newpaint = not newpaint
-end)
-
-togglePaintButton.MouseButton1Down:Connect(function()
-	painting = not painting
-end)
-
-safeModeButton.MouseButton1Down:Connect(function()
-	safeMode = not safeMode
-end)
-
-keepColorButton.MouseButton1Down:Connect(function()
-	keepTerColor = not keepTerColor
-end)
-
-randomColorButton.MouseButton1Down:Connect(function()
-	color = Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255))
-	colorButton.BackgroundColor3 = color
-	changecolor:Play()
-end)
-
--- PPS Display
+-- Auto update counter
 spawn(function()
-	while true do
-		pss.Text = provincespersecond.." paint/second"
-		pps = provincespersecond
-		provincespersecond = 0
-		wait(1)
-	end
+    while true do
+        counterLabel.Text = tostring(#provinces).." painted"
+        wait(0.5)
+    end
 end)
