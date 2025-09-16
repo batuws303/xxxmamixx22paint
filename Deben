@@ -65,7 +65,7 @@ listlayout.Padding = UDim.new(0,10)
 local uipadding = Instance.new("UIPadding",scrollFrame)
 uipadding.PaddingTop = UDim.new(0,10)
 uipadding.PaddingLeft = UDim.new(0,10)
-uipadding.PaddingRight = UDim.new(0,10)
+uipadding.PaddingRight = UDim2.new(0,10)
 uipadding.PaddingBottom = UDim.new(0,10)
 local doneButton = Instance.new("TextButton",UI)
 doneButton.Visible = false
@@ -115,19 +115,85 @@ local dragInput
 local dragStart
 local startPos
 
+-- HIZ OPTİMİZASYONU: Remote referansını cache'le
+local paintRemote = nil
+
 -- Functions --
 
+-- <<--- HIZLANDIRILMIŞ paintProvinceLoop --->>
 local function paintProvinceLoop(province,coro,highlighty)
+	-- savedColor same as original
 	local savedColor = color
+
+	-- active flag to stop the background loop when Disconnect() is called
 	local active = true
+
+	-- make an Event-like object so original code's info.Event:Disconnect() works
 	local eventObject = {}
 	function eventObject:Disconnect()
 		active = false
 	end
-	task.spawn(function()
-		while active do
-			if painting then
-				if player and player.Character and player.Character:FindFirstChild("PaintBucket") then
+
+	-- HİZ OPTİMİZASYONU: Batch işleme için değişkenler
+	local batchSize = 3 -- Aynı anda kaç eyalet boyansın
+	local batchCounter = 0
+	
+	-- HİZ OPTİMİZASYONU: RunService.Stepped kullan (FPS'e bağlı ama çok hızlı)
+	local connection
+	connection = runService.Stepped:Connect(function()
+		if not active then
+			connection:Disconnect()
+			return
+		end
+		
+		-- only paint when painting flag is true
+		if painting then
+			-- ensure player and PaintBucket exist
+			if player and player.Character and player.Character:FindFirstChild("PaintBucket") then
+				-- Cache remote if not already cached
+				if not paintRemote then
+					paintRemote = player.Character.PaintBucket.Remotes.ServerControls
+				end
+				
+				-- Batch processing için counter
+				batchCounter = batchCounter + 1
+				
+				-- Safe Mode dışında batch işleme yap
+				if not safeMode and batchCounter >= batchSize then
+					batchCounter = 0
+					return -- Bu frame'de skip et
+				end
+				
+				-- logic identical to original keepTerColor check
+				if (province.Color ~= color and keepTerColor == false) or (keepTerColor == true and province.Color ~= savedColor) then
+					local args = {
+						[1] = "PaintPart",
+						[2] = {
+							["Part"] = province,
+							["Color"] = keepTerColor and savedColor or color
+						},
+						[3] = "Peace"
+					}
+					-- invoke server (cached remote kullan)
+					pcall(function()
+						paintRemote:InvokeServer(unpack(args))
+					end)
+					-- increment counter (used by UI loop)
+					provincespersecond = provincespersecond + 1
+				end
+			end
+		end
+	end)
+
+	-- HİZ OPTİMİZASYONU: Ek optimizasyon için spawn'da çalışan ikinci döngü (sadece newpaint modunda)
+	if newpaint then
+		task.spawn(function()
+			while active do
+				if painting and player and player.Character and player.Character:FindFirstChild("PaintBucket") then
+					if not paintRemote then
+						paintRemote = player.Character.PaintBucket.Remotes.ServerControls
+					end
+					
 					if (province.Color ~= color and keepTerColor == false) or (keepTerColor == true and province.Color ~= savedColor) then
 						local args = {
 							[1] = "PaintPart",
@@ -138,21 +204,19 @@ local function paintProvinceLoop(province,coro,highlighty)
 							[3] = "Peace"
 						}
 						pcall(function()
-							game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+							paintRemote:InvokeServer(unpack(args))
 						end)
 						provincespersecond = provincespersecond + 1
 					end
 				end
+				
+				-- Ultra hızlı mod için çok kısa bekleyiş
+				task.wait(0.001) -- 0.01'den 0.001'e düşürüldü
 			end
-			if safeMode then
-				task.wait(1)
-			elseif newpaint then
-				task.wait(0.01)
-			else
-				task.wait(0.05)
-			end
-		end
-	end)
+		end)
+	end
+
+	-- create provinceInfo similarly to original but Event is our eventObject
 	local provinceInfo = {
 		["Province"] = province,
 		["Coroutine"] = coro,
@@ -162,6 +226,7 @@ local function paintProvinceLoop(province,coro,highlighty)
 	table.insert(provinces,provinceInfo)
 	provinceCodeGenerator += 1
 end
+-- <<--- paintProvinceLoop SONU --->>
 
 local function createNewOption(optionType,text,customText,enabled)
 	local optionFrame = Instance.new("Frame",scrollFrame)
@@ -276,24 +341,49 @@ local newPaintButton = createNewOption("switch","Fast Paint")
 local territoryColorButton = createNewOption("switch","Keep Territory Color (NEW)")
 local randomColorButton = createNewOption("custom","Randomize color (NEW)","Change")
 
--- Burada Add butonunun işlevi güncellendi
+mouse.Button1Down:Connect(function()
+	if mouse.Target and mouse.Target.Name == "Province" then
+		if selectColorMode then
+			color = mouse.Target.Color
+			selectColorMode = false
+			UIHolder.Visible = true
+			button2.BackgroundColor3 = color
+			changecolor:Play()
+		end
+		if selectProvincesMode then
+			provinceSound:Play()
+			local clone = mouse.Target:Clone()
+
+			local coro = coroutine.create(paintProvinceLoop)
+			coroutine.resume(coro,mouse.Target,coro,clone)
+
+			clone.Position -= Vector3.new(0,0.01,0)
+			clone.Material = "Glass"
+			clone.Transparency = 1000000
+			clone.Parent = provincesFolder
+		end
+		if removeProvincesMode then
+			for _,info in pairs(provinces) do
+				if mouse.Target == info.Province then
+					coroutine.close(info.Coroutine)
+					info.Event:Disconnect()
+					info.Highlight:Destroy()
+				end
+			end
+		end
+	end
+end)
+
+button2.BackgroundColor3 = color
+button2.MouseButton1Down:Connect(function()
+	UIHolder.Visible = false
+	selectColorMode = true
+end)
+
 button1.MouseButton1Down:Connect(function()
 	UIHolder.Visible = false
 	selectProvincesMode = true
 	doneButton.Visible = true
-
-	if mouse.Target and mouse.Target.Name == "Province" then
-		provinceSound:Play()
-		local clone = mouse.Target:Clone()
-
-		local coro = coroutine.create(paintProvinceLoop)
-		coroutine.resume(coro,mouse.Target,coro,clone)
-
-		clone.Position -= Vector3.new(0,0.01,0)
-		clone.Material = "Glass"
-		clone.Transparency = 1000000
-		clone.Parent = provincesFolder
-	end
 end)
 
 doneButton.MouseButton1Down:Connect(function()
@@ -301,12 +391,6 @@ doneButton.MouseButton1Down:Connect(function()
 	selectProvincesMode = false
 	UIHolder.Visible = true
 	doneButton.Visible = false
-end)
-
-button2.BackgroundColor3 = color
-button2.MouseButton1Down:Connect(function()
-	UIHolder.Visible = false
-	selectColorMode = true
 end)
 
 button3.MouseButton1Down:Connect(function()
@@ -374,3 +458,58 @@ territoryColorButton.MouseButton1Down:Connect(function()
 		keepTerColor = false
 		tweenService:Create(territoryColorButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
 		tweenService:Create(territoryColorButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
+		tweenService:Create(territoryColorButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
+	else
+		keepTerColor = true
+		tweenService:Create(territoryColorButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
+		tweenService:Create(territoryColorButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
+		tweenService:Create(territoryColorButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
+	end
+end)
+
+randomColorButton.MouseButton1Down:Connect(function()
+	color = Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255))
+	button2.BackgroundColor3 = color
+	changecolor:Play()
+end)
+
+userInputService.InputBegan:Connect(function(input,isTyping)
+	if isTyping == false then
+		if input.KeyCode == Enum.KeyCode.R then
+			color = Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255))
+			button2.BackgroundColor3 = color
+			changecolor:Play()
+		elseif input.KeyCode == Enum.KeyCode.Q then
+			if painting then
+				painting = false
+				tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
+				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
+				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
+			else
+				painting = true
+				tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
+				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
+				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
+			end
+		end
+	end
+end)
+
+while task.wait(1) do
+	pss.TextColor3 = Color3.fromRGB(80, 255, 123)
+	if provincespersecond >= 50 then
+		pss.TextColor3 = Color3.fromRGB(247, 226, 112)
+	end
+	if provincespersecond >= 100 then
+		pss.TextColor3 = Color3.fromRGB(245, 128, 37)
+	end
+	if provincespersecond >= 300 then
+		pss.TextColor3 = Color3.fromRGB(235, 8, 10)
+	end
+	if provincespersecond >= 1000 then
+		pss.TextColor3 = Color3.fromRGB(235, 0, 120)
+	end
+	pss.Text = provincespersecond.." paint/second"
+	pps = provincespersecond
+	provincespersecond = 0
+end
