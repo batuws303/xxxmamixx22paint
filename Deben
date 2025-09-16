@@ -55,7 +55,7 @@ panelTitle.AnchorPoint = Vector2.new(0,0.5)
 panelTitle.BackgroundTransparency = 1
 panelTitle.Position = UDim2.new(0.02,0,0.5,0)
 panelTitle.Size = UDim2.new(1,0,0.5,0)
-panelTitle.Text = '<b>Paint Admin Panel</b><font size="6"> PRO</font>'
+panelTitle.Text = '<b>Paint Admin Panel</b><font size="6"> 3.0</font>'
 panelTitle.RichText = true
 panelTitle.TextScaled = true
 panelTitle.TextColor3 = Color3.fromRGB(255,255,255)
