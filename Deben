@@ -1,108 +1,190 @@
--- Settings --
+-- Settings
 local color = Color3.fromRGB(255,255,255)
 
--- Services --
-local userInputService = game:GetService("UserInputService")
-local runService = game:GetService("RunService")
-local tweenService = game:GetService("TweenService")
-local player = game.Players.LocalPlayer
+-- Services
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
 local mouse = player:GetMouse()
 
--- UI ve highlight kısmı orijinal script gibi kalacak
--- [UI ve highlight kodları burada aynen kalacak]  
+-- UI Setup
+local UI = Instance.new("ScreenGui", player.PlayerGui)
+local mainFrame = Instance.new("Frame", UI)
+mainFrame.Size = UDim2.new(0, 400, 0, 500)
+mainFrame.Position = UDim2.new(0.5, -200, 0.5, -250)
+mainFrame.BackgroundColor3 = Color3.fromRGB(33,33,42)
+mainFrame.BorderSizePixel = 0
 
--- Provinces ve paint değerleri
+local topBar = Instance.new("Frame", mainFrame)
+topBar.Size = UDim2.new(1,0,0,50)
+topBar.BackgroundColor3 = Color3.fromRGB(49,49,64)
+
+local titleLabel = Instance.new("TextLabel", topBar)
+titleLabel.Size = UDim2.new(0.7,0,1,0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "Paint Admin Panel PRO"
+titleLabel.TextColor3 = Color3.fromRGB(255,255,255)
+titleLabel.TextScaled = true
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.RichText = true
+
+local pssLabel = Instance.new("TextLabel", topBar)
+pssLabel.Size = UDim2.new(0.3,0,1,0)
+pssLabel.Position = UDim2.new(0.7,0,0,0)
+pssLabel.BackgroundTransparency = 1
+pssLabel.Text = "0 paint/second"
+pssLabel.TextColor3 = Color3.fromRGB(80,255,123)
+pssLabel.TextScaled = true
+pssLabel.Font = Enum.Font.SourceSansBold
+pssLabel.TextXAlignment = Enum.TextXAlignment.Right
+
+local scrollFrame = Instance.new("ScrollingFrame", mainFrame)
+scrollFrame.Size = UDim2.new(1,0,1,-50)
+scrollFrame.Position = UDim2.new(0,0,0,50)
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.ScrollBarThickness = 8
+scrollFrame.CanvasSize = UDim2.new(0,0,0,0)
+
+local listLayout = Instance.new("UIListLayout", scrollFrame)
+listLayout.Padding = UDim.new(0,10)
+local uiPadding = Instance.new("UIPadding", scrollFrame)
+uiPadding.PaddingTop = UDim.new(0,10)
+uiPadding.PaddingLeft = UDim.new(0,10)
+uiPadding.PaddingRight = UDim.new(0,10)
+uiPadding.PaddingBottom = UDim.new(0,10)
+
+-- Variables
+local provincesFolder = Instance.new("Model", workspace)
+local highlight = Instance.new("Highlight", workspace)
+highlight.FillColor = color
+highlight.FillTransparency = 0.8
+highlight.Adornee = provincesFolder
+
 local provinces = {}
+local painting = true
+local newpaint = false
+local safeMode = false
+local keepTerColor = false
 local provincespersecond = 0
 local pps = 0
 
-local selectColorMode = false
-local removeProvincesMode = false
-local selectProvincesMode = false
-local safeMode = false
-local newpaint = false
-local painting = true
-local keepTerColor = false
+-- Helper Functions
+local function createButton(text)
+    local btnFrame = Instance.new("Frame", scrollFrame)
+    btnFrame.Size = UDim2.new(1,0,0,40)
+    btnFrame.BackgroundColor3 = Color3.fromRGB(49,49,64)
+    btnFrame.BorderSizePixel = 0
 
-local provinceCodeGenerator = 0
+    local btn = Instance.new("TextButton", btnFrame)
+    btn.Size = UDim2.new(1,0,1,0)
+    btn.BackgroundTransparency = 1
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(255,255,255)
+    btn.TextScaled = true
+    btn.Font = Enum.Font.SourceSansBold
+    return btn
+end
 
--- Boyama mantığı
-local function paintProvince(province, savedColor)
-    if not province then return end
-    if not player.Character:FindFirstChild("PaintBucket") then return end
+local function createToggle(text, default)
+    local frame = Instance.new("Frame", scrollFrame)
+    frame.Size = UDim2.new(1,0,0,40)
+    frame.BackgroundColor3 = Color3.fromRGB(49,49,64)
+    frame.BorderSizePixel = 0
 
-    -- Boyama döngüsü
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(0.7,0,1,0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(255,255,255)
+    label.TextScaled = true
+    label.Font = Enum.Font.SourceSansBold
+    label.TextXAlignment = Enum.TextXAlignment.Left
+
+    local toggle = Instance.new("TextButton", frame)
+    toggle.Size = UDim2.new(0.3,0,1,0)
+    toggle.Position = UDim2.new(0.7,0,0,0)
+    toggle.BackgroundColor3 = default and Color3.fromRGB(53,227,153) or Color3.fromRGB(241,33,103)
+    toggle.Text = ""
+    toggle.AutoButtonColor = false
+    return toggle
+end
+
+-- Buttons
+local addButton = createButton("Add Province")
+local removeButton = createButton("Remove Province")
+local clearButton = createButton("Clear Provinces")
+local doneButton = createButton("Done")
+doneButton.Visible = false
+local fastPaintToggle = createToggle("Fast Paint", false)
+local safeModeToggle = createToggle("Safe Mode", false)
+local keepColorToggle = createToggle("Keep Territory Color", false)
+local randomColorButton = createButton("Randomize Color")
+
+-- Painting Logic
+local function paintProvinceLoop(province)
+    local savedColor = color
     coroutine.wrap(function()
         while painting do
-            if province.Color ~= color then
+            if province.Color ~= color or (keepTerColor and province.Color ~= savedColor) then
                 local args = {
                     [1] = "PaintPart",
-                    [2] = {
-                        ["Part"] = province,
-                        ["Color"] = keepTerColor and savedColor or color
-                    },
+                    [2] = {["Part"]=province,["Color"]=keepTerColor and savedColor or color},
                     [3] = "Peace"
                 }
-                game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
-                provincespersecond = provincespersecond + 1
+                local pb = player.Character:FindFirstChild("PaintBucket")
+                if pb then
+                    pb.Remotes.ServerControls:InvokeServer(unpack(args))
+                    provincespersecond += 1
+                end
             end
-            -- FPS düşüşünü telafi etmek için wait kısa ve sabit
             if safeMode then
-                wait(0.2)
+                task.wait(0.5)
             elseif newpaint then
-                wait(0)
+                task.wait(0)
             else
-                wait(0.05)
-            end
-
-            -- Eğer renk değiştiyse veya boyama tamamlandıysa döngüyü bitir
-            if province.Color == color or not painting then
-                break
+                task.wait(0.1)
             end
         end
     end)()
 end
 
--- Mouse tıklama eventi
-mouse.Button1Down:Connect(function()
-    if mouse.Target and mouse.Target.Name == "Province" then
-        local savedColor = mouse.Target.Color
-
-        if selectColorMode then
-            color = mouse.Target.Color
-            selectColorMode = false
-            UIHolder.Visible = true
-            button2.BackgroundColor3 = color
-        end
-
-        if selectProvincesMode then
-            provinceSound:Play()
-            local clone = mouse.Target:Clone()
-            clone.Position -= Vector3.new(0,0.01,0)
-            clone.Material = "Glass"
-            clone.Transparency = 1
-            clone.Parent = provincesFolder
-
-            paintProvince(mouse.Target, savedColor)
-        end
-
-        if removeProvincesMode then
-            for _, info in pairs(provinces) do
-                if mouse.Target == info.Province then
-                    coroutine.close(info.Coroutine)
-                    info.Event:Disconnect()
-                    info.Highlight:Destroy()
-                end
-            end
-        end
+-- Button Functions
+addButton.MouseButton1Click:Connect(function()
+    -- logic to add province
+end)
+removeButton.MouseButton1Click:Connect(function()
+    -- logic to remove province
+end)
+clearButton.MouseButton1Click:Connect(function()
+    for _,info in pairs(provinces) do
+        info:Destroy()
     end
 end)
-
--- Paint/second göstergesi
-runService.RenderStepped:Connect(function()
-    pss.Text = provincespersecond.." paint/second"
-    provincespersecond = 0
+doneButton.MouseButton1Click:Connect(function()
+    doneButton.Visible = false
+end)
+fastPaintToggle.MouseButton1Click:Connect(function()
+    newpaint = not newpaint
+    fastPaintToggle.BackgroundColor3 = newpaint and Color3.fromRGB(53,227,153) or Color3.fromRGB(241,33,103)
+end)
+safeModeToggle.MouseButton1Click:Connect(function()
+    safeMode = not safeMode
+    safeModeToggle.BackgroundColor3 = safeMode and Color3.fromRGB(53,227,153) or Color3.fromRGB(241,33,103)
+end)
+keepColorToggle.MouseButton1Click:Connect(function()
+    keepTerColor = not keepTerColor
+    keepColorToggle.BackgroundColor3 = keepTerColor and Color3.fromRGB(53,227,153) or Color3.fromRGB(241,33,103)
+end)
+randomColorButton.MouseButton1Click:Connect(function()
+    color = Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255))
 end)
 
--- Toggle switchleri ve UI eventleri orijinal scriptteki gibi çalışacak
--- [UI butonları ve toggle kodları burada orijinal gibi kalacak]
+-- Paint/Second Counter
+RunService.RenderStepped:Connect(function()
+    pssLabel.Text = provincespersecond.." paint/second"
+    provincespersecond = 0
+end)
