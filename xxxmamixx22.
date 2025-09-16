@@ -1,0 +1,143 @@
+-- Settings --
+local color = Color3.fromRGB(255,255,255)
+
+-- Services --
+local userInputService = game:GetService("UserInputService")
+local runService = game:GetService("RunService")
+local tweenService = game:GetService("TweenService")
+local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
+
+-- UI Setup --
+local UI = Instance.new("ScreenGui", player.PlayerGui)
+local UIHolder = Instance.new("Frame", UI)
+UIHolder.AnchorPoint = Vector2.new(0.5,0.5)
+UIHolder.BackgroundTransparency = 1
+UIHolder.Position = UDim2.new(0.5,0,0.5,0)
+UIHolder.Size = UDim2.new(0,0,0,0)
+
+local mainFrame = Instance.new("Frame", UIHolder)
+mainFrame.BackgroundColor3 = Color3.fromRGB(33,33,42)
+mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
+mainFrame.Position = UDim2.new(0.5,0,0.5,0)
+mainFrame.Size = UDim2.new(0.5,0,0.276,0)
+mainFrame.Rotation = 359
+
+-- Top bar --
+local topBar = Instance.new("Frame", mainFrame)
+topBar.BorderColor3 = Color3.fromRGB(0,0,0)
+topBar.BackgroundColor3 = Color3.fromRGB(49,49,64)
+topBar.Size = UDim2.new(1,0,0.14,0)
+
+local panelTitle = Instance.new("TextLabel", topBar)
+panelTitle.AnchorPoint = Vector2.new(0,0.5)
+panelTitle.BackgroundTransparency = 1
+panelTitle.Position = UDim2.new(0.02,0,0.5,0)
+panelTitle.Size = UDim2.new(1,0,0.5,0)
+panelTitle.Text = '<b>Paint Admin Panel</b><font size="6"> PRO</font>'
+panelTitle.RichText = true
+panelTitle.TextScaled = true
+panelTitle.TextColor3 = Color3.fromRGB(255,255,255)
+panelTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local pss = Instance.new("TextLabel", topBar)
+pss.Text = "0 paint/second"
+pss.AnchorPoint = Vector2.new(0,0.5)
+pss.Size = UDim2.new(0.974,0,0.5,0)
+pss.Position = UDim2.new(0,0,0.5,0)
+pss.TextColor3 = Color3.fromRGB(255,255,255)
+pss.BackgroundTransparency = 1
+pss.TextScaled = true
+pss.TextXAlignment = Enum.TextXAlignment.Right
+
+-- Scroll frame --
+local scrollFrame = Instance.new("ScrollingFrame", mainFrame)
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.Position = UDim2.new(0,0,0.14,0)
+scrollFrame.Size = UDim2.new(1,0,0.86,0)
+scrollFrame.ScrollBarThickness = 0
+
+local listlayout = Instance.new("UIListLayout", scrollFrame)
+listlayout.Padding = UDim.new(0,10)
+
+local uipadding = Instance.new("UIPadding", scrollFrame)
+uipadding.PaddingTop = UDim.new(0,10)
+uipadding.PaddingLeft = UDim.new(0,10)
+uipadding.PaddingRight = UDim.new(0,10)
+uipadding.PaddingBottom = UDim.new(0,10)
+
+-- Done Button --
+local doneButton = Instance.new("TextButton", UI)
+doneButton.Visible = false
+doneButton.AnchorPoint = Vector2.new(0.5,0)
+doneButton.BackgroundColor3 = Color3.fromRGB(0,247,159)
+doneButton.Position = UDim2.new(0.5,0,0,0)
+doneButton.Size = UDim2.new(0.3,0,0.1,0)
+doneButton.TextColor3 = Color3.fromRGB(255,255,255)
+doneButton.TextScaled = true
+doneButton.Text = "Done"
+doneButton.AutoButtonColor = false
+doneButton.BorderSizePixel = 0
+
+-- Close Button (Çarpı) --
+local closeButton = Instance.new("TextButton", mainFrame)
+closeButton.Text = "✕"
+closeButton.BackgroundColor3 = Color3.fromRGB(235, 8, 10)
+closeButton.Size = UDim2.new(0.05,0,0.2,0)
+closeButton.Position = UDim2.new(0.95,0,0,0)
+closeButton.AnchorPoint = Vector2.new(1,0)
+closeButton.TextScaled = true
+closeButton.TextColor3 = Color3.fromRGB(255,255,255)
+closeButton.BorderSizePixel = 0
+closeButton.MouseButton1Down:Connect(function()
+    UI:Destroy()
+end)
+
+-- Painting variables --
+local provinces = {}
+local provincespersecond = 0
+local pps = 0
+local painting = true
+local newpaint = false
+local safeMode = false
+local keepTerColor = false
+
+-- Fast Paint function with safe mode and correct count --
+local function paintProvince(province)
+    local savedColor = color
+    coroutine.wrap(function()
+        repeat
+            if painting then
+                local args = {
+                    [1] = "PaintPart",
+                    [2] = {["Part"] = province, ["Color"] = savedColor},
+                    [3] = "Peace"
+                }
+                game.Players.LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+                provincespersecond += 1
+            end
+            if safeMode then
+                task.wait(0.1) -- small delay for safe mode
+            else
+                task.wait(0) -- max speed without blocking device
+            end
+        until province.Color == savedColor
+    end)()
+end
+
+-- Example: painting when clicking province --
+mouse.Button1Down:Connect(function()
+    if mouse.Target and mouse.Target.Name == "Province" then
+        paintProvince(mouse.Target)
+    end
+end)
+
+-- UI Loop to update paints/sec --
+task.spawn(function()
+    while true do
+        task.wait(1)
+        pss.Text = provincespersecond.." paint/second"
+        pps = provincespersecond
+        provincespersecond = 0
+    end
+end)
