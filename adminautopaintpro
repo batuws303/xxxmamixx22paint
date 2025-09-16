@@ -1,0 +1,204 @@
+-- Settings --
+
+local color = Color3.fromRGB(255,255,255)
+
+-- Services --
+
+local userInputService = game:GetService("UserInputService")
+local runService = game:GetService("RunService")
+local tweenService = game:GetService("TweenService")
+
+local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
+
+-- Folders / Highlights --
+
+local provincesFolder = Instance.new("Model")
+provincesFolder.Parent = workspace
+
+local highlight = Instance.new("Highlight")
+highlight.FillColor = color
+highlight.FillTransparency = 0.8
+highlight.Parent = workspace
+highlight.Adornee = provincesFolder
+
+-- UI Setup --
+
+local UI = Instance.new("ScreenGui",player.PlayerGui)
+local UIHolder = Instance.new("Frame",UI)
+UIHolder.AnchorPoint = Vector2.new(0.5,0.5)
+UIHolder.BackgroundTransparency = 1
+UIHolder.Position = UDim2.new(0.5,0,0.5,0)
+UIHolder.Size = UDim2.new(0,0,0,0)
+local aspectratio = Instance.new("UIAspectRatioConstraint",UIHolder)
+local mainFrame = Instance.new("Frame",UIHolder)
+mainFrame.BackgroundColor3 = Color3.fromRGB(33,33,42)
+mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
+mainFrame.Position = UDim2.new(0.5,0,0.5,0)
+mainFrame.Size = UDim2.new(0.5,0,0.276,0)
+mainFrame.Rotation = 359
+
+-- Top Bar --
+
+local topBar = Instance.new("Frame",mainFrame)
+topBar.BorderColor3 = Color3.fromRGB(0,0,0)
+topBar.BackgroundColor3 = Color3.fromRGB(49,49,64)
+topBar.Size = UDim2.new(1,0,0.14,0)
+
+local pss = Instance.new("TextLabel",topBar)
+pss.Text = "0 paint/second"
+pss.AnchorPoint = Vector2.new(0,0.5)
+pss.Size = UDim2.new(0.974,0,0.5,0)
+pss.Position = UDim2.new(0,0,0.5,0)
+pss.TextColor3 = Color3.fromRGB(255,255,255)
+pss.BackgroundTransparency = 1
+pss.TextScaled = true
+pss.TextXAlignment = Enum.TextXAlignment.Right
+
+local panelTitle = Instance.new("TextLabel",topBar)
+panelTitle.AnchorPoint = Vector2.new(0,0.5)
+panelTitle.BackgroundTransparency = 1
+panelTitle.Position = UDim2.new(0.02,0,0.5,0)
+panelTitle.Size = UDim2.new(1,0,0.5,0)
+panelTitle.Text = '<b>Paint Admin Panel</b><font size="6"> PRO</font>'
+panelTitle.RichText = true
+panelTitle.TextScaled = true
+panelTitle.TextColor3 = Color3.fromRGB(255,255,255)
+panelTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local scrollFrame = Instance.new("ScrollingFrame",mainFrame)
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.Position = UDim2.new(0,0,0.14,0)
+scrollFrame.Size = UDim2.new(1,0,0.86,0)
+scrollFrame.ScrollBarThickness = 0
+
+local listlayout = Instance.new("UIListLayout",scrollFrame)
+listlayout.Padding = UDim.new(0,10)
+local uipadding = Instance.new("UIPadding",scrollFrame)
+uipadding.PaddingTop = UDim.new(0,10)
+uipadding.PaddingLeft = UDim.new(0,10)
+uipadding.PaddingRight = UDim.new(0,10)
+uipadding.PaddingBottom = UDim.new(0,10)
+
+-- Done Button --
+
+local doneButton = Instance.new("TextButton",UI)
+doneButton.Visible = false
+doneButton.AnchorPoint = Vector2.new(0.5,0)
+doneButton.BackgroundColor3 = Color3.fromRGB(0,247,159)
+doneButton.Position = UDim2.new(0.5,0,0,0)
+doneButton.Size = UDim2.new(0.3,0,0.1,0)
+doneButton.TextColor3 = Color3.fromRGB(255,255,255)
+doneButton.TextScaled = true
+doneButton.Text = "Done"
+doneButton.AutoButtonColor = false
+doneButton.BorderSizePixel = 0
+
+local whiteFrame = Instance.new("Frame",mainFrame)
+whiteFrame.Size = UDim2.new(1,0,1,0)
+whiteFrame.BackgroundColor3 = Color3.fromRGB(255,255,255)
+
+-- Sounds --
+
+local sound = Instance.new("Sound")
+sound.SoundId = "rbxassetid://4612386227"
+sound.Parent = workspace
+
+local changecolor = Instance.new("Sound")
+changecolor.SoundId = "rbxassetid://4612383790"
+changecolor.Parent = workspace
+
+local sound2 = Instance.new("Sound")
+sound2.SoundId = "rbxassetid://7486747911"
+sound2.Parent = workspace
+sound2.PlaybackSpeed = 2
+
+local provinceSound = Instance.new("Sound")
+provinceSound.SoundId = "rbxassetid://5694665239"
+provinceSound.Parent = workspace
+
+-- Variables --
+
+local provinces = {}
+local provincespersecond = 0
+local pps = 0
+
+local selectColorMode = false
+local removeProvincesMode = false
+local selectProvincesMode = false
+local safeMode = false
+local newpaint = false
+local painting = true
+local keepTerColor = false
+
+local provinceCodeGenerator = 0
+
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+-- Functions --
+
+local function paintProvinceLoop(province,coro,highlighty)
+    local savedColor = color
+    local db = true
+    local event = runService.RenderStepped:Connect(function()
+        if db and painting then
+            if player.Character:FindFirstChild("PaintBucket") then
+                if province.Color ~= color and not keepTerColor or keepTerColor and province.Color ~= savedColor then
+                    local args = {
+                        [1] = "PaintPart",
+                        [2] = {
+                            ["Part"] = province,
+                            ["Color"] = keepTerColor and savedColor or color
+                        },
+                        [3] = "Peace"
+                    }
+                    game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+                    provincespersecond = provincespersecond + 1
+                end
+            end
+            -- Safe Mode veya Hızlı Boyama
+            if safeMode then
+                wait(0.05)
+            elseif newpaint then
+                wait(0)
+            else
+                wait(0.03)
+            end
+        end
+    end)
+    table.insert(provinces,{
+        Province = province,
+        Coroutine = coro,
+        Event = event,
+        Highlight = highlighty
+    })
+    provinceCodeGenerator += 1
+end
+
+-- Buraya UI tuşları ve tüm özellikleri ekle
+-- Buttonlar: Color, Protect, Remove, Clear, SafeMode, TogglePaint, FastPaint, KeepTerritoryColor, RandomColor
+-- Done button, çarpı butonu vs.
+-- Mouse ve Key input eventleri
+
+-- Paint sayacı
+task.spawn(function()
+    while true do
+        task.wait(1)
+        pss.Text = provincespersecond.." paint/second"
+        if provincespersecond < 50 then
+            pss.TextColor3 = Color3.fromRGB(80, 255, 123)
+        elseif provincespersecond < 100 then
+            pss.TextColor3 = Color3.fromRGB(247, 226, 112)
+        elseif provincespersecond < 300 then
+            pss.TextColor3 = Color3.fromRGB(245, 128, 37)
+        elseif provincespersecond < 1000 then
+            pss.TextColor3 = Color3.fromRGB(235, 8, 10)
+        else
+            pss.TextColor3 = Color3.fromRGB(235, 0, 120)
+        end
+        provincespersecond = 0
+    end
+end)
