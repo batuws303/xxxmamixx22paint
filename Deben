@@ -1,15 +1,13 @@
 -- Settings --
 local color = Color3.fromRGB(255,255,255)
 
--- Services --
+-- Values --
 local userInputService = game:GetService("UserInputService")
 local runService = game:GetService("RunService")
 local tweenService = game:GetService("TweenService")
-local players = game:GetService("Players")
-local player = players.LocalPlayer
+local player = game.Players.LocalPlayer
 local mouse = player:GetMouse()
 
--- UI Elements --
 local provincesFolder = Instance.new("Model")
 provincesFolder.Parent = workspace
 local highlight = Instance.new("Highlight")
@@ -48,7 +46,7 @@ local scrollFrame = Instance.new("ScrollingFrame",mainFrame)
 scrollFrame.BackgroundTransparency = 1
 scrollFrame.Position = UDim2.new(0,0,0.14,0)
 scrollFrame.Size = UDim2.new(1,0,0.86,0)
-scrollFrame.ScrollBarThickness = 5
+scrollFrame.ScrollBarThickness = 8
 local panelTitle = Instance.new("TextLabel",topBar)
 panelTitle.AnchorPoint = Vector2.new(0,0.5)
 panelTitle.BackgroundTransparency = 1
@@ -77,19 +75,23 @@ doneButton.TextScaled = true
 doneButton.Text = "Done"
 doneButton.AutoButtonColor = false
 doneButton.BorderSizePixel = 0
-
--- Sounds --
-local sound = Instance.new("Sound", workspace)
+local whiteFrame = Instance.new("Frame",mainFrame)
+whiteFrame.Size = UDim2.new(1,0,1,0)
+whiteFrame.BackgroundColor3 = Color3.fromRGB(255,255,255)
+local sound = Instance.new("Sound")
 sound.SoundId = "rbxassetid://4612386227"
-local changecolor = Instance.new("Sound", workspace)
+sound.Parent = workspace
+local changecolor = Instance.new("Sound")
 changecolor.SoundId = "rbxassetid://4612383790"
-local sound2 = Instance.new("Sound", workspace)
+changecolor.Parent = workspace
+local sound2 = Instance.new("Sound")
 sound2.SoundId = "rbxassetid://7486747911"
+sound2.Parent = workspace
 sound2.PlaybackSpeed = 2
-local provinceSound = Instance.new("Sound", workspace)
+local provinceSound = Instance.new("Sound")
 provinceSound.SoundId = "rbxassetid://5694665239"
+provinceSound.Parent = workspace
 
--- Variables --
 local provinces = {}
 local provincespersecond = 0
 local pps = 0
@@ -101,9 +103,8 @@ local safeMode = false
 local newpaint = false
 local painting = true
 local keepTerColor = false
-local provinceCodeGenerator = 0
 
--- Dragging variables --
+local provinceCodeGenerator = 0
 local dragging
 local dragInput
 local dragStart
@@ -113,24 +114,43 @@ local startPos
 local function paintProvinceLoop(province,coro,highlighty)
 	local savedColor = color
 	local db = true
-	local painted = false
-	local event
-	event = runService.Heartbeat:Connect(function(deltaTime)
+	local event = runService.Stepped:Connect(function()
 		if db and painting then
-			if province and province.Parent then
-				if province.Color ~= color or (keepTerColor and province.Color ~= savedColor) then
-					local args = {
-						"PaintPart",
-						{["Part"]=province,["Color"]=keepTerColor and savedColor or color},
-						"Peace"
-					}
-					provincespersecond = provincespersecond + 1
-					game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
-					painted = true
-				end
-			else
-				event:Disconnect()
+			if newpaint == false or safeMode then
+				db = false
 			end
+			if pps <= 1000 then
+				if player.Character:FindFirstChild("PaintBucket") then
+					if province.Color ~= color and keepTerColor == false or keepTerColor == true and province.Color ~= savedColor then
+						local args = {
+							[1] = "PaintPart",
+							[2] = {
+								["Part"] = province,
+								["Color"] = color
+							},
+							[3] = "Peace"
+						}
+						if keepTerColor then
+							args = {
+								[1] = "PaintPart",
+								[2] = {
+									["Part"] = province,
+									["Color"] = savedColor
+								},
+								[3] = "Peace"
+							}
+						end
+						provincespersecond += 1
+						game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+					end
+				end
+				if safeMode then
+					task.wait(0.5)
+				elseif newpaint then
+					task.wait(0.01)
+				end
+			end
+			db = true
 		end
 	end)
 	local provinceInfo = {
@@ -158,6 +178,7 @@ local function createNewOption(optionType,text,customText,enabled)
 	textlabel.Font = Enum.Font.SourceSansBold
 	textlabel.TextColor3 = Color3.fromRGB(255,255,255)
 	textlabel.TextXAlignment = Enum.TextXAlignment.Left
+
 	if optionType == "switch" then
 		local switchFrame = Instance.new("Frame",optionFrame)
 		switchFrame.BackgroundColor3 = Color3.fromRGB(241, 33, 103)
@@ -168,6 +189,7 @@ local function createNewOption(optionType,text,customText,enabled)
 		switch.AutoButtonColor = false
 		switch.BorderSizePixel = 0
 		switch.Size = UDim2.new(1,0,1,0)
+		switch.BackgroundColor3 = Color3.fromRGB(255,255,255)
 		local aspectRatio = Instance.new("UIAspectRatioConstraint",switch)
 		if enabled then
 			tweenService:Create(switch.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
@@ -200,23 +222,24 @@ local function createNewOption(optionType,text,customText,enabled)
 	end
 end
 
--- Drag logic
+-- UI Dragging
 local function update(input)
 	local delta = input.Position - dragStart
 	mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 end
 
--- Initialization
-wait(1)
+-- Script Init
+task.wait(1)
 sound:Play()
+
 if userInputService.MouseEnabled == false then
 	tweenService:Create(UIHolder,TweenInfo.new(0.5),{Size = UDim2.new(1.5,0,1.5,0)}):Play()
 else
 	tweenService:Create(UIHolder,TweenInfo.new(0.5),{Size = UDim2.new(0.75,0,0.75,0)}):Play()
 end
 tweenService:Create(mainFrame,TweenInfo.new(0.5),{Rotation = 0}):Play()
+tweenService:Create(whiteFrame,TweenInfo.new(4),{BackgroundTransparency = 1}):Play()
 
--- Drag Connections
 topBar.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 		dragging = true
@@ -229,18 +252,20 @@ topBar.InputBegan:Connect(function(input)
 		end)
 	end
 end)
+
 topBar.InputChanged:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
 		dragInput = input
 	end
 end)
+
 userInputService.InputChanged:Connect(function(input)
 	if input == dragInput and dragging then
 		update(input)
 	end
 end)
 
--- Options
+-- Buttons
 local button2 = createNewOption("color","Country Color")
 local button1 = createNewOption("custom","Protect Province","Add")
 local button5 = createNewOption("custom","Unprotect Province","Remove")
@@ -250,58 +275,3 @@ local togglePaintButton = createNewOption("switch","Toggle Paint",nil,true)
 local newPaintButton = createNewOption("switch","Fast Paint")
 local territoryColorButton = createNewOption("switch","Keep Territory Color (NEW)")
 local randomColorButton = createNewOption("custom","Randomize color (NEW)","Change")
-
--- Mouse interactions
-mouse.Button1Down:Connect(function()
-	if mouse.Target and mouse.Target.Name == "Province" then
-		if selectColorMode then
-			color = mouse.Target.Color
-			selectColorMode = false
-			UIHolder.Visible = true
-			button2.BackgroundColor3 = color
-			changecolor:Play()
-		end
-		if selectProvincesMode then
-			provinceSound:Play()
-			local clone = mouse.Target:Clone()
-			local coro = coroutine.create(paintProvinceLoop)
-			coroutine.resume(coro,mouse.Target,coro,clone)
-			clone.Position -= Vector3.new(0,0.01,0)
-			clone.Material = "Glass"
-			clone.Transparency = 1000000
-			clone.Parent = provincesFolder
-		end
-		if removeProvincesMode then
-			for _,info in pairs(provinces) do
-				if mouse.Target == info.Province then
-					coroutine.close(info.Coroutine)
-					info.Event:Disconnect()
-					info.Highlight:Destroy()
-				end
-			end
-		end
-	end
-end)
-
--- Buttons logic (Safe Mode, Fast Paint, Toggle, etc.) remain same as original
--- Randomize color
-randomColorButton.MouseButton1Down:Connect(function()
-	color = Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255))
-	button2.BackgroundColor3 = color
-	changecolor:Play()
-end)
-
--- Paint per second display
-spawn(function()
-	while true do
-		task.wait(1)
-		pss.TextColor3 = Color3.fromRGB(80, 255, 123)
-		if provincespersecond >= 50 then pss.TextColor3 = Color3.fromRGB(247, 226, 112) end
-		if provincespersecond >= 100 then pss.TextColor3 = Color3.fromRGB(245, 128, 37) end
-		if provincespersecond >= 300 then pss.TextColor3 = Color3.fromRGB(235, 8, 10) end
-		if provincespersecond >= 1000 then pss.TextColor3 = Color3.fromRGB(235, 0, 120) end
-		pss.Text = tostring(provincespersecond).." paint/second"
-		pps = provincespersecond
-		provincespersecond = 0
-	end
-end)
