@@ -1,189 +1,233 @@
---// Settings
-local defaultColor = Color3.fromRGB(255, 255, 255)
+-- Settings --
+local color = Color3.fromRGB(255,255,255)
 
---// Services
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
+-- Services --
+local userInputService = game:GetService("UserInputService")
+local runService = game:GetService("RunService")
+local tweenService = game:GetService("TweenService")
+local players = game:GetService("Players")
 
---// Player
-local player = Players.LocalPlayer
+local player = players.LocalPlayer
 local mouse = player:GetMouse()
 
---// UI Setup
-local UI = Instance.new("ScreenGui", player.PlayerGui)
-UI.ResetOnSpawn = false
-
-local UIHolder = Instance.new("Frame", UI)
-UIHolder.AnchorPoint = Vector2.new(0.5, 0.5)
-UIHolder.Position = UDim2.new(0.5, 0, 0.5, 0)
+-- UI --
+local UI = Instance.new("ScreenGui",player.PlayerGui)
+local UIHolder = Instance.new("Frame",UI)
+UIHolder.AnchorPoint = Vector2.new(0.5,0.5)
 UIHolder.BackgroundTransparency = 1
-UIHolder.Size = UDim2.new(0.6, 0, 0.4, 0) -- Ekran çözünürlüğüne göre ayarlandı
+UIHolder.Position = UDim2.new(0.5,0,0.5,0)
+UIHolder.Size = UDim2.new(0.5,0,0.5,0)
 
-local mainFrame = Instance.new("Frame", UIHolder)
-mainFrame.BackgroundColor3 = Color3.fromRGB(33, 33, 42)
-mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-mainFrame.Size = UDim2.new(1, 0, 1, 0)
-mainFrame.BorderSizePixel = 0
-mainFrame.ClipsDescendants = true
+local mainFrame = Instance.new("Frame",UIHolder)
+mainFrame.BackgroundColor3 = Color3.fromRGB(33,33,42)
+mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
+mainFrame.Position = UDim2.new(0.5,0,0.5,0)
+mainFrame.Size = UDim2.new(0.5,0,0.276,0)
 
--- Top bar
-local topBar = Instance.new("Frame", mainFrame)
-topBar.BackgroundColor3 = Color3.fromRGB(49, 49, 64)
-topBar.Size = UDim2.new(1, 0, 0.15, 0)
+local topBar = Instance.new("Frame",mainFrame)
+topBar.BackgroundColor3 = Color3.fromRGB(49,49,64)
+topBar.Size = UDim2.new(1,0,0.14,0)
 
-local title = Instance.new("TextLabel", topBar)
-title.Text = "<b>Paint Admin Panel</b><font size='6'> PRO</font>"
-title.RichText = true
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.TextScaled = true
-title.BackgroundTransparency = 1
-title.Size = UDim2.new(0.7, 0, 1, 0)
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.Position = UDim2.new(0.02, 0, 0, 0)
+local panelTitle = Instance.new("TextLabel",topBar)
+panelTitle.Text = '<b>Paint Admin Panel</b><font size="6"> PRO</font>'
+panelTitle.RichText = true
+panelTitle.TextScaled = true
+panelTitle.TextColor3 = Color3.fromRGB(255,255,255)
+panelTitle.TextXAlignment = Enum.TextXAlignment.Left
+panelTitle.AnchorPoint = Vector2.new(0,0.5)
+panelTitle.Position = UDim2.new(0.02,0,0.5,0)
+panelTitle.BackgroundTransparency = 1
 
-local ppsLabel = Instance.new("TextLabel", topBar)
-ppsLabel.Text = "0 paint/sec"
-ppsLabel.TextColor3 = Color3.fromRGB(80, 255, 123)
-ppsLabel.TextScaled = true
-ppsLabel.BackgroundTransparency = 1
-ppsLabel.Size = UDim2.new(0.3, 0, 1, 0)
-ppsLabel.TextXAlignment = Enum.TextXAlignment.Right
-ppsLabel.Position = UDim2.new(0.7, 0, 0, 0)
+local pss = Instance.new("TextLabel",topBar)
+pss.Text = "0 paint/second"
+pss.AnchorPoint = Vector2.new(0,0.5)
+pss.Size = UDim2.new(0.974,0,0.5,0)
+pss.Position = UDim2.new(0,0,0.5,0)
+pss.TextColor3 = Color3.fromRGB(255,255,255)
+pss.BackgroundTransparency = 1
+pss.TextScaled = true
+pss.TextXAlignment = Enum.TextXAlignment.Right
 
--- Scrollable options
-local scrollFrame = Instance.new("ScrollingFrame", mainFrame)
-scrollFrame.Position = UDim2.new(0, 0, 0.15, 0)
-scrollFrame.Size = UDim2.new(1, 0, 0.85, 0)
+-- Scroll Frame for options --
+local scrollFrame = Instance.new("ScrollingFrame",mainFrame)
 scrollFrame.BackgroundTransparency = 1
-scrollFrame.ScrollBarThickness = 4
+scrollFrame.Position = UDim2.new(0,0,0.14,0)
+scrollFrame.Size = UDim2.new(1,0,0.86,0)
+scrollFrame.ScrollBarThickness = 6
 
-local layout = Instance.new("UIListLayout", scrollFrame)
-layout.Padding = UDim.new(0, 10)
+local listlayout = Instance.new("UIListLayout",scrollFrame)
+listlayout.Padding = UDim.new(0,10)
+local uipadding = Instance.new("UIPadding",scrollFrame)
+uipadding.PaddingTop = UDim.new(0,10)
+uipadding.PaddingLeft = UDim.new(0,10)
+uipadding.PaddingRight = UDim.new(0,10)
+uipadding.PaddingBottom = UDim.new(0,10)
 
-local padding = Instance.new("UIPadding", scrollFrame)
-padding.PaddingTop = UDim.new(0, 10)
-padding.PaddingLeft = UDim.new(0, 10)
-padding.PaddingRight = UDim.new(0, 10)
-padding.PaddingBottom = UDim.new(0, 10)
+-- Sounds --
+local sound = Instance.new("Sound",workspace)
+sound.SoundId = "rbxassetid://4612386227"
 
---// Variables
-local color = defaultColor
+local changecolor = Instance.new("Sound",workspace)
+changecolor.SoundId = "rbxassetid://4612383790"
+
+local sound2 = Instance.new("Sound",workspace)
+sound2.SoundId = "rbxassetid://7486747911"
+sound2.PlaybackSpeed = 2
+
+local provinceSound = Instance.new("Sound",workspace)
+provinceSound.SoundId = "rbxassetid://5694665239"
+
+-- Variables --
 local provinces = {}
-local painting = true
-local newpaint = false
+local provincespersecond = 0
+local pps = 0
+
+local selectColorMode = false
+local removeProvincesMode = false
+local selectProvincesMode = false
 local safeMode = false
-local keepTerritoryColor = false
+local newpaint = false
+local painting = true
+local keepTerColor = false
 
-local provincesPerSecond = 0
-
---// Functions
-local function createButton(name, parent, width, height)
-    local btn = Instance.new("TextButton", parent)
-    btn.Text = name
-    btn.Size = UDim2.new(width, 0, height, 0)
-    btn.BackgroundColor3 = Color3.fromRGB(241, 33, 103) -- Kapalı kırmızı
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.AutoButtonColor = false
-    return btn
+-- UI Functions --
+local function createButton(text,parent)
+	local btn = Instance.new("TextButton",parent)
+	btn.Text = text
+	btn.Size = UDim2.new(1,0,0.075,0)
+	btn.BackgroundColor3 = Color3.fromRGB(49,49,64)
+	btn.TextColor3 = Color3.fromRGB(255,255,255)
+	btn.TextScaled = true
+	btn.Font = Enum.Font.SourceSansBold
+	return btn
 end
 
-local function toggleButton(btn, state)
-    if state then
-        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-    else
-        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-    end
+local function toggleButtonColor(btn,state)
+	if state then
+		btn.BackgroundColor3 = Color3.fromRGB(53,227,153)
+	else
+		btn.BackgroundColor3 = Color3.fromRGB(241,33,103)
+	end
 end
 
--- Add, Remove, Clear, Color buttons
-local addBtn = createButton("Add Province", scrollFrame, 1, 0.08)
-local removeBtn = createButton("Remove Province", scrollFrame, 1, 0.08)
-local clearBtn = createButton("Clear Provinces", scrollFrame, 1, 0.08)
-local colorBtn = createButton("Select Color", scrollFrame, 1, 0.08)
+-- Options Buttons --
+local colorButton = createButton("Country Color",scrollFrame)
+local addButton = createButton("Add Province",scrollFrame)
+local removeButton = createButton("Remove Province",scrollFrame)
+local clearButton = createButton("Clear Provinces",scrollFrame)
+local fastPaintButton = createButton("Fast Paint",scrollFrame)
+local togglePaintButton = createButton("Toggle Paint",scrollFrame)
+local safeModeButton = createButton("Safe Mode",scrollFrame)
+local keepColorButton = createButton("Keep Territory Color",scrollFrame)
+local randomColorButton = createButton("Random Color",scrollFrame)
 
--- Fast paint & safe mode
-local fastPaintBtn = createButton("Fast Paint", scrollFrame, 1, 0.08)
-local safeModeBtn = createButton("Safe Mode", scrollFrame, 1, 0.08)
-
---// Painting Logic
-local function paintProvince(province)
-    if not province then return end
-    if painting then
-        local targetColor = color
-        if keepTerritoryColor then targetColor = province.Color end
-        province.Color = targetColor
-        provincesPerSecond += 1
-    end
+-- Paint Function --
+local function paintProvinceLoop(province)
+	if not province then return end
+	local savedColor = color
+	while painting do
+		local targetColor = color
+		if keepTerColor then targetColor = savedColor end
+		if province.Color ~= targetColor then
+			local args = {
+				[1] = "PaintPart",
+				[2] = {["Part"] = province,["Color"] = targetColor},
+				[3] = "Peace"
+			}
+			game.Players.LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+			provincespersecond = provincespersecond + 1
+		end
+		if safeMode then
+			wait(0.2)
+		elseif newpaint then
+			wait(0.001) -- hızlı boyama
+		else
+			wait(0.05)
+		end
+	end
 end
 
--- Safe mode painting: çevre -> orta
-local function paintProvinceSafe(province)
-    if not province then return end
-    local steps = 5
-    for i = 1, steps do
-        province.Color = color:Lerp(province.Color, i/steps)
-        RunService.RenderStepped:Wait()
-    end
-end
-
---// Connections
-addBtn.MouseButton1Click:Connect(function()
-    toggleButton(addBtn, true)
-    painting = true
-end)
-
-removeBtn.MouseButton1Click:Connect(function()
-    toggleButton(removeBtn, true)
-end)
-
-clearBtn.MouseButton1Click:Connect(function()
-    for _, p in pairs(provinces) do
-        p.Color = defaultColor
-    end
-end)
-
-colorBtn.MouseButton1Click:Connect(function()
-    local target = mouse.Target
-    if target then
-        color = target.Color
-        toggleButton(colorBtn, true)
-    end
-end)
-
-fastPaintBtn.MouseButton1Click:Connect(function()
-    newpaint = not newpaint
-    toggleButton(fastPaintBtn, newpaint)
-end)
-
-safeModeBtn.MouseButton1Click:Connect(function()
-    safeMode = not safeMode
-    toggleButton(safeModeBtn, safeMode)
-end)
-
--- Update pps
-spawn(function()
-    while true do
-        wait(1)
-        ppsLabel.Text = provincesPerSecond.." paint/sec"
-        provincesPerSecond = 0
-    end
-end)
-
--- Mouse painting
+-- Mouse Events --
 mouse.Button1Down:Connect(function()
-    if mouse.Target then
-        if painting then
-            if safeMode then
-                paintProvinceSafe(mouse.Target)
-            elseif newpaint then
-                -- Hızlı boyama
-                paintProvince(mouse.Target)
-            else
-                paintProvince(mouse.Target)
-            end
-        end
-    end
+	if mouse.Target and mouse.Target.Name == "Province" then
+		if selectColorMode then
+			color = mouse.Target.Color
+			selectColorMode = false
+			colorButton.BackgroundColor3 = color
+			changecolor:Play()
+		end
+		if selectProvincesMode then
+			provinceSound:Play()
+			local coro = coroutine.create(paintProvinceLoop)
+			coroutine.resume(coro,mouse.Target)
+			table.insert(provinces,{Province=mouse.Target,Coroutine=coro})
+			toggleButtonColor(addButton,true)
+		end
+		if removeProvincesMode then
+			for i,info in pairs(provinces) do
+				if info.Province == mouse.Target then
+					coroutine.close(info.Coroutine)
+					table.remove(provinces,i)
+					toggleButtonColor(removeButton,true)
+				end
+			end
+		end
+	end
+end)
+
+-- Button Actions --
+colorButton.MouseButton1Down:Connect(function()
+	selectColorMode = true
+end)
+
+addButton.MouseButton1Down:Connect(function()
+	selectProvincesMode = true
+	toggleButtonColor(addButton,true)
+end)
+
+removeButton.MouseButton1Down:Connect(function()
+	removeProvincesMode = true
+	toggleButtonColor(removeButton,true)
+end)
+
+clearButton.MouseButton1Down:Connect(function()
+	for _,info in pairs(provinces) do
+		coroutine.close(info.Coroutine)
+	end
+	provinces = {}
+end)
+
+fastPaintButton.MouseButton1Down:Connect(function()
+	newpaint = not newpaint
+	toggleButtonColor(fastPaintButton,newpaint)
+end)
+
+togglePaintButton.MouseButton1Down:Connect(function()
+	painting = not painting
+	toggleButtonColor(togglePaintButton,painting)
+end)
+
+safeModeButton.MouseButton1Down:Connect(function()
+	safeMode = not safeMode
+	toggleButtonColor(safeModeButton,safeMode)
+end)
+
+keepColorButton.MouseButton1Down:Connect(function()
+	keepTerColor = not keepTerColor
+	toggleButtonColor(keepColorButton,keepTerColor)
+end)
+
+randomColorButton.MouseButton1Down:Connect(function()
+	color = Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255))
+	colorButton.BackgroundColor3 = color
+	changecolor:Play()
+end)
+
+-- PPS Update --
+spawn(function()
+	while true do
+		pss.Text = provincespersecond.." paint/second"
+		provincespersecond = 0
+		wait(1)
+	end
 end)
