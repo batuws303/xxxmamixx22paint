@@ -16,13 +16,13 @@ local UIHolder = Instance.new("Frame",UI)
 UIHolder.AnchorPoint = Vector2.new(0.5,0.5)
 UIHolder.BackgroundTransparency = 1
 UIHolder.Position = UDim2.new(0.5,0,0.5,0)
-UIHolder.Size = UDim2.new(0.5,0,0.5,0)
+UIHolder.Size = UDim2.new(0.7,0,0.7,0) -- Boyutu biraz büyüttük
 
 local mainFrame = Instance.new("Frame",UIHolder)
 mainFrame.BackgroundColor3 = Color3.fromRGB(33,33,42)
 mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
 mainFrame.Position = UDim2.new(0.5,0,0.5,0)
-mainFrame.Size = UDim2.new(0.5,0,0.276,0)
+mainFrame.Size = UDim2.new(0.7,0,0.35,0)
 
 local topBar = Instance.new("Frame",mainFrame)
 topBar.BackgroundColor3 = Color3.fromRGB(49,49,64)
@@ -89,6 +89,8 @@ local safeMode = false
 local newpaint = false
 local painting = true
 local keepTerColor = false
+
+local dragging, dragInput, dragStart, startPos
 
 -- UI Functions --
 local function createButton(text,parent)
@@ -195,6 +197,8 @@ clearButton.MouseButton1Down:Connect(function()
 		coroutine.close(info.Coroutine)
 	end
 	provinces = {}
+	toggleButtonColor(addButton,false)
+	toggleButtonColor(removeButton,false)
 end)
 
 fastPaintButton.MouseButton1Down:Connect(function()
@@ -223,11 +227,6 @@ randomColorButton.MouseButton1Down:Connect(function()
 	changecolor:Play()
 end)
 
--- PPS Update --
-spawn(function()
-	while true do
-		pss.Text = provincespersecond.." paint/second"
-		provincespersecond = 0
-		wait(1)
-	end
-end)
+-- Drag UI --
+topBar.InputBegan:Connect(function(input)
+	if input.UserInputType
