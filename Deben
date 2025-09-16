@@ -1,0 +1,42 @@
+-- Paint Loop Düzenlemesi (FPS düşse bile hız sabit ve doğru blok sayısı)
+
+local function paintProvinceLoop(province, coro, highlighty)
+	local savedColor = color
+	local painted = false
+	local event
+	event = runService.Heartbeat:Connect(function(deltaTime)
+		if painting and not painted then
+			if player.Character:FindFirstChild("PaintBucket") then
+				-- Eğer renk farklıysa veya keepTerColor açıksa
+				if (province.Color ~= color and not keepTerColor) or (keepTerColor and province.Color ~= savedColor) then
+					local args = {
+						[1] = "PaintPart",
+						[2] = {
+							["Part"] = province,
+							["Color"] = keepTerColor and savedColor or color
+						},
+						[3] = "Peace"
+					}
+					game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+					provincespersecond += 1
+				end
+			end
+			-- Safe mode veya normal mode gecikmesi
+			if safeMode then
+				task.wait(0.5) -- biraz gecikme
+			elseif newpaint then
+				task.wait(0) -- hızlı paint, FPS düşse bile etkilenmez
+			end
+			painted = true -- tek seferlik boyama, seçilen bölgeyi tamamen boyar
+		end
+	end)
+	
+	local provinceInfo = {
+		["Province"] = province,
+		["Coroutine"] = coro,
+		["Event"] = event,
+		["Highlight"] = highlighty
+	}
+	table.insert(provinces, provinceInfo)
+	provinceCodeGenerator += 1
+end
