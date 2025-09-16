@@ -16,17 +16,18 @@ local UIHolder = Instance.new("Frame",UI)
 UIHolder.AnchorPoint = Vector2.new(0.5,0.5)
 UIHolder.BackgroundTransparency = 1
 UIHolder.Position = UDim2.new(0.5,0,0.5,0)
-UIHolder.Size = UDim2.new(0.5,0,0.5,0)
+UIHolder.Size = UDim2.new(0.6,0,0.6,0) -- biraz daha büyük
 
 local mainFrame = Instance.new("Frame",UIHolder)
 mainFrame.BackgroundColor3 = Color3.fromRGB(33,33,42)
 mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
 mainFrame.Position = UDim2.new(0.5,0,0.5,0)
-mainFrame.Size = UDim2.new(0.5,0,0.276,0)
+mainFrame.Size = UDim2.new(0.6,0,0.35,0)
 
 local topBar = Instance.new("Frame",mainFrame)
 topBar.BackgroundColor3 = Color3.fromRGB(49,49,64)
 topBar.Size = UDim2.new(1,0,0.14,0)
+topBar.Name = "TopBar"
 
 local panelTitle = Instance.new("TextLabel",topBar)
 panelTitle.Text = '<b>Paint Admin Panel</b><font size="6"> PRO</font>'
@@ -90,6 +91,10 @@ local newpaint = false
 local painting = true
 local keepTerColor = false
 
+-- Dragging Variables --
+local dragging = false
+local dragInput, dragStart, startPos
+
 -- UI Functions --
 local function createButton(text,parent)
 	local btn = Instance.new("TextButton",parent)
@@ -107,6 +112,11 @@ local colorButton = createButton("Country Color",scrollFrame)
 local addButton = createButton("Add Province",scrollFrame)
 local removeButton = createButton("Remove Province",scrollFrame)
 local clearButton = createButton("Clear Provinces",scrollFrame)
+local fastPaintButton = createButton("Fast Paint",scrollFrame)
+local togglePaintButton = createButton("Toggle Paint",scrollFrame)
+local safeModeButton = createButton("Safe Mode",scrollFrame)
+local keepColorButton = createButton("Keep Territory Color",scrollFrame)
+local randomColorButton = createButton("Random Color",scrollFrame)
 
 -- Paint Function --
 local function paintProvinceLoop(province)
@@ -153,54 +163,45 @@ mouse.Button1Down:Connect(function()
 end)
 
 -- Button Actions --
-colorButton.MouseButton1Down:Connect(function()
-	selectColorMode = true
-end)
-
-addButton.MouseButton1Down:Connect(function()
-	selectProvincesMode = true
-end)
-
-removeButton.MouseButton1Down:Connect(function()
-	removeProvincesMode = true
-end)
-
-clearButton.MouseButton1Down:Connect(function()
-	for _,info in pairs(provinces) do
-		coroutine.close(info.Coroutine)
-	end
-	provinces = {}
-end)
-
--- Paint toggle and Fast paint buttons
-local fastPaintButton = createButton("Fast Paint",scrollFrame)
-fastPaintButton.MouseButton1Down:Connect(function()
-	newpaint = not newpaint
-end)
-
-local togglePaintButton = createButton("Toggle Paint",scrollFrame)
-togglePaintButton.MouseButton1Down:Connect(function()
-	painting = not painting
-end)
-
--- Safe mode button
-local safeModeButton = createButton("Safe Mode",scrollFrame)
-safeModeButton.MouseButton1Down:Connect(function()
-	safeMode = not safeMode
-end)
-
--- Keep Territory Color
-local keepColorButton = createButton("Keep Territory Color",scrollFrame)
-keepColorButton.MouseButton1Down:Connect(function()
-	keepTerColor = not keepTerColor
-end)
-
--- Random Color
-local randomColorButton = createButton("Random Color",scrollFrame)
+colorButton.MouseButton1Down:Connect(function() selectColorMode = true end)
+addButton.MouseButton1Down:Connect(function() selectProvincesMode = true end)
+removeButton.MouseButton1Down:Connect(function() removeProvincesMode = true end)
+clearButton.MouseButton1Down:Connect(function for _,info in pairs(provinces) do coroutine.close(info.Coroutine) end provinces = {} end)
+fastPaintButton.MouseButton1Down:Connect(function() newpaint = not newpaint end)
+togglePaintButton.MouseButton1Down:Connect(function() painting = not painting end)
+safeModeButton.MouseButton1Down:Connect(function() safeMode = not safeMode end)
+keepColorButton.MouseButton1Down:Connect(function() keepTerColor = not keepTerColor end)
 randomColorButton.MouseButton1Down:Connect(function()
 	color = Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255))
 	colorButton.BackgroundColor3 = color
 	changecolor:Play()
+end)
+
+-- Dragging --
+topBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = mainFrame.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+topBar.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+userInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		mainFrame.Position = UDim2.new(startPos.X.Scale,startPos.X.Offset + delta.X,startPos.Y.Scale,startPos.Y.Offset + delta.Y)
+	end
 end)
 
 -- PPS Update --
