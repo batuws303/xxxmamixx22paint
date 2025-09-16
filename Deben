@@ -1,7 +1,7 @@
--- Settings --
+-- Settings
 local color = Color3.fromRGB(255,255,255)
 
--- Services --
+-- Services
 local userInputService = game:GetService("UserInputService")
 local runService = game:GetService("RunService")
 local tweenService = game:GetService("TweenService")
@@ -10,23 +10,20 @@ local players = game:GetService("Players")
 local player = players.LocalPlayer
 local mouse = player:GetMouse()
 
--- UI --
+-- UI
 local UI = Instance.new("ScreenGui",player.PlayerGui)
-UI.ResetOnSpawn = false
-
 local UIHolder = Instance.new("Frame",UI)
 UIHolder.AnchorPoint = Vector2.new(0.5,0.5)
 UIHolder.BackgroundTransparency = 1
 UIHolder.Position = UDim2.new(0.5,0,0.5,0)
-UIHolder.Size = UDim2.new(0.7,0,0.7,0)
+UIHolder.Size = UDim2.new(0.75,0,0.75,0)
 
 local mainFrame = Instance.new("Frame",UIHolder)
 mainFrame.BackgroundColor3 = Color3.fromRGB(33,33,42)
 mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
 mainFrame.Position = UDim2.new(0.5,0,0.5,0)
-mainFrame.Size = UDim2.new(0.7,0,0.35,0)
+mainFrame.Size = UDim2.new(0.5,0,0.5,0)
 
--- Top Bar for dragging
 local topBar = Instance.new("Frame",mainFrame)
 topBar.BackgroundColor3 = Color3.fromRGB(49,49,64)
 topBar.Size = UDim2.new(1,0,0.14,0)
@@ -51,7 +48,7 @@ pss.BackgroundTransparency = 1
 pss.TextScaled = true
 pss.TextXAlignment = Enum.TextXAlignment.Right
 
--- Scroll Frame --
+-- Scroll Frame
 local scrollFrame = Instance.new("ScrollingFrame",mainFrame)
 scrollFrame.BackgroundTransparency = 1
 scrollFrame.Position = UDim2.new(0,0,0.14,0)
@@ -66,18 +63,24 @@ uipadding.PaddingLeft = UDim.new(0,10)
 uipadding.PaddingRight = UDim.new(0,10)
 uipadding.PaddingBottom = UDim.new(0,10)
 
--- Sounds --
-local provinceSound = Instance.new("Sound",workspace)
-provinceSound.SoundId = "rbxassetid://5694665239"
-provinceSound.Volume = 1
+-- Sounds
+local sound = Instance.new("Sound",workspace)
+sound.SoundId = "rbxassetid://4612386227"
 
 local changecolor = Instance.new("Sound",workspace)
 changecolor.SoundId = "rbxassetid://4612383790"
-changecolor.Volume = 1
 
--- Variables --
+local sound2 = Instance.new("Sound",workspace)
+sound2.SoundId = "rbxassetid://7486747911"
+sound2.PlaybackSpeed = 2
+
+local provinceSound = Instance.new("Sound",workspace)
+provinceSound.SoundId = "rbxassetid://5694665239"
+
+-- Variables
 local provinces = {}
 local provincespersecond = 0
+local pps = 0
 
 local selectColorMode = false
 local removeProvincesMode = false
@@ -87,7 +90,7 @@ local newpaint = false
 local painting = true
 local keepTerColor = false
 
--- UI Functions --
+-- UI Functions
 local function createButton(text,parent)
 	local btn = Instance.new("TextButton",parent)
 	btn.Text = text
@@ -99,15 +102,7 @@ local function createButton(text,parent)
 	return btn
 end
 
-local function toggleButtonColor(btn,state)
-	if state then
-		btn.BackgroundColor3 = Color3.fromRGB(53,227,153)
-	else
-		btn.BackgroundColor3 = Color3.fromRGB(241,33,103)
-	end
-end
-
--- Buttons --
+-- Buttons
 local colorButton = createButton("Country Color",scrollFrame)
 local addButton = createButton("Add Province",scrollFrame)
 local removeButton = createButton("Remove Province",scrollFrame)
@@ -118,33 +113,60 @@ local safeModeButton = createButton("Safe Mode",scrollFrame)
 local keepColorButton = createButton("Keep Territory Color",scrollFrame)
 local randomColorButton = createButton("Random Color",scrollFrame)
 
--- Paint Loop --
-local function paintProvinceLoop(province)
-	if not province then return end
+-- UI Drag
+local dragging, dragInput, dragStart, startPos
+local function update(input)
+	local delta = input.Position - dragStart
+	mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+topBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = mainFrame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+topBar.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+userInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		update(input)
+	end
+end)
+
+-- Province painting
+local function paintProvince(province)
 	local savedColor = color
 	while painting do
-		local targetColor = color
-		if keepTerColor then targetColor = savedColor end
-		if province.Color ~= targetColor then
+		if province.Color ~= color then
 			local args = {
 				[1] = "PaintPart",
-				[2] = {["Part"] = province,["Color"] = targetColor},
+				[2] = {["Part"] = province,["Color"] = color},
 				[3] = "Peace"
 			}
-			game.Players.LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
-			provincespersecond += 1
+			if player.Character:FindFirstChild("PaintBucket") then
+				game.Players.LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+				provincespersecond = provincespersecond + 1
+			end
 		end
-		if safeMode then
-			wait(0.2)
-		elseif newpaint then
-			wait(0.001)
-		else
-			wait(0.05)
-		end
+		if safeMode then wait(0.5) else wait(0.01) end
+		if newpaint then wait(0.005) end
 	end
 end
 
--- Mouse Events --
+-- Mouse Click
 mouse.Button1Down:Connect(function()
 	if mouse.Target and mouse.Target.Name == "Province" then
 		if selectColorMode then
@@ -155,10 +177,9 @@ mouse.Button1Down:Connect(function()
 		end
 		if selectProvincesMode then
 			provinceSound:Play()
-			local coro = coroutine.create(paintProvinceLoop)
-			coroutine.resume(coro,mouse.Target)
+			local coro = coroutine.create(paintProvince)
+			coroutine.resume(coro, mouse.Target)
 			table.insert(provinces,{Province=mouse.Target,Coroutine=coro})
-			toggleButtonColor(addButton,true)
 		end
 		if removeProvincesMode then
 			for i,info in pairs(provinces) do
@@ -167,69 +188,58 @@ mouse.Button1Down:Connect(function()
 					table.remove(provinces,i)
 				end
 			end
-			toggleButtonColor(removeButton,true)
 		end
 	end
 end)
 
--- Button Actions --
-colorButton.MouseButton1Down:Connect(function() selectColorMode = true end)
-addButton.MouseButton1Down:Connect(function() 
-	selectProvincesMode = true 
-	toggleButtonColor(addButton,true) 
-	toggleButtonColor(removeButton,false)
+-- Button Actions
+colorButton.MouseButton1Down:Connect(function()
+	selectColorMode = true
 end)
-removeButton.MouseButton1Down:Connect(function() 
-	removeProvincesMode = true 
-	toggleButtonColor(removeButton,true)
-	toggleButtonColor(addButton,false)
+
+addButton.MouseButton1Down:Connect(function()
+	selectProvincesMode = true
 end)
+
+removeButton.MouseButton1Down:Connect(function()
+	removeProvincesMode = true
+end)
+
 clearButton.MouseButton1Down:Connect(function()
 	for _,info in pairs(provinces) do
 		coroutine.close(info.Coroutine)
 	end
 	provinces = {}
-	toggleButtonColor(addButton,false)
-	toggleButtonColor(removeButton,false)
 end)
-fastPaintButton.MouseButton1Down:Connect(function() newpaint = not newpaint toggleButtonColor(fastPaintButton,newpaint) end)
-togglePaintButton.MouseButton1Down:Connect(function() painting = not painting toggleButtonColor(togglePaintButton,painting) end)
-safeModeButton.MouseButton1Down:Connect(function() safeMode = not safeMode toggleButtonColor(safeModeButton,safeMode) end)
-keepColorButton.MouseButton1Down:Connect(function() keepTerColor = not keepTerColor toggleButtonColor(keepColorButton,keepTerColor) end)
-randomColorButton.MouseButton1Down:Connect(function() color = Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255)) colorButton.BackgroundColor3=color changecolor:Play() end)
 
--- PPS Update --
+fastPaintButton.MouseButton1Down:Connect(function()
+	newpaint = not newpaint
+end)
+
+togglePaintButton.MouseButton1Down:Connect(function()
+	painting = not painting
+end)
+
+safeModeButton.MouseButton1Down:Connect(function()
+	safeMode = not safeMode
+end)
+
+keepColorButton.MouseButton1Down:Connect(function()
+	keepTerColor = not keepTerColor
+end)
+
+randomColorButton.MouseButton1Down:Connect(function()
+	color = Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255))
+	colorButton.BackgroundColor3 = color
+	changecolor:Play()
+end)
+
+-- PPS Display
 spawn(function()
 	while true do
 		pss.Text = provincespersecond.." paint/second"
+		pps = provincespersecond
 		provincespersecond = 0
 		wait(1)
-	end
-end)
-
--- Dragging UI --
-local dragging, dragInput, dragStart, startPos
-topBar.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = true
-		dragStart = input.Position
-		startPos = UIHolder.Position
-
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
-	end
-end)
-topBar.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement then
-		dragInput = input
-	end
-end)
-userInputService.InputChanged:Connect(function(input)
-	if input == dragInput and dragging then
-		local delta = input.Position - dragStart
-		UIHolder.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 	end
 end)
