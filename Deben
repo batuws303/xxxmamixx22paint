@@ -1,5 +1,5 @@
--- Orijinal scriptin tamamı buraya gelecek (hiçbir şeyi değiştirmeden) --
--- [Senin gönderdiğin script] --
+-- ORİJİNAL SCRIPT BAŞLANGICI (Senin attığın scriptin tamamı buraya gelecek) --
+-- [Senin scriptin tamamı aynen kopyalanacak] --
 
 -- ---- YENİ ÖZELLİKLER BAŞLANGICI ---- --
 
@@ -25,7 +25,7 @@ local function redo()
     end
 end
 
--- Layer sistemi
+-- Katman sistemi (Layers)
 local layers = {}
 local currentLayer = 1
 local function createLayer(name)
@@ -69,7 +69,7 @@ end
 local brushSize = 1
 local shapeTool = "Free" -- "Free", "Rectangle", "Ellipse", "Fill"
 
--- Geliştirilmiş paintProvinceLoop
+-- Hızlandırılmış paintProvinceLoop (tam uyumlu)
 local oldPaintProvinceLoop = paintProvinceLoop
 paintProvinceLoop = function(province, coro, highlighty)
     local savedColor = color
