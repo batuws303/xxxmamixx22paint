@@ -49,8 +49,8 @@ local scrollFrame = Instance.new("ScrollingFrame",mainFrame)
 scrollFrame.BackgroundTransparency = 1
 scrollFrame.Position = UDim2.new(0,0,0.14,0)
 scrollFrame.Size = UDim2.new(1,0,0.86,0)
-scrollFrame.ScrollBarThickness = 5
-scrollFrame.CanvasSize = UDim2.new(0,0,0,600) -- PIXEl CİNSİNDEN YÜKSEK CANVAS
+scrollFrame.ScrollBarThickness = 0
+scrollFrame.CanvasSize = UDim2.new(0,0,0,800) -- BÜYÜK CANVAS
 local panelTitle = Instance.new("TextLabel",topBar)
 panelTitle.AnchorPoint = Vector2.new(0,0.5)
 panelTitle.BackgroundTransparency = 1
@@ -102,113 +102,11 @@ local isDragging = false
 local dragConnection = nil
 local selectedInDrag = {}
 
--- AI ASSISTANT VARIABLES --
-local autoRepairMode = false
-local autoRepairConnection = nil
-local enemyColors = {}
-local playerOriginalColor = Color3.fromRGB(255,255,255)
+-- ULTRA DEFENSE VARIABLES --
+local ultraFastMode = false
+local ultraDefenseConnection = nil
 
--- AI ASSISTANT FUNCTIONS --
-local function detectEnemyColors()
-	local detectedColors = {}
-	-- Workspace'deki tüm Province'leri tara
-	for _, obj in pairs(workspace:GetDescendants()) do
-		if obj.Name == "Province" and obj:IsA("BasePart") then
-			if obj.Color ~= color and obj.Color ~= playerOriginalColor then
-				-- Bu düşman rengi mi kontrol et
-				local isEnemyColor = true
-				for _, friendlyColor in pairs({color, playerOriginalColor}) do
-					if obj.Color == friendlyColor then
-						isEnemyColor = false
-						break
-					end
-				end
-				
-				if isEnemyColor then
-					local colorExists = false
-					for _, existingColor in pairs(detectedColors) do
-						if existingColor == obj.Color then
-							colorExists = true
-							break
-						end
-					end
-					if not colorExists then
-						table.insert(detectedColors, obj.Color)
-					end
-				end
-			end
-		end
-	end
-	return detectedColors
-end
-
-local function startAutoRepair()
-	if autoRepairConnection then
-		autoRepairConnection:Disconnect()
-	end
-	
-	autoRepairConnection = task.spawn(function()
-		while autoRepairMode do
-			-- Korunan province'leri kontrol et
-			for _, info in pairs(provinces) do
-				if info.Province and info.Province.Parent then
-					-- Eğer province düşman rengindeyse, otomatik geri al
-					if info.Province.Color ~= color then
-						print("🤖 AI: Repairing lost province:", info.Province.Name)
-						
-						-- Hemen boyama yap
-						if player and player.Character and player.Character:FindFirstChild("PaintBucket") then
-							local args = {
-								[1] = "PaintPart",
-								[2] = {
-									["Part"] = info.Province,
-									["Color"] = color
-								},
-								[3] = "Peace"
-							}
-							pcall(function()
-								game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
-							end)
-						end
-					end
-				end
-			end
-			
-			task.wait(0.5) -- Her 0.5 saniyede kontrol et
-		end
-	end)
-end
-
-local function findNewTargets()
-	local newTargets = {}
-	-- Korunan province'lerin çevresindeki düşman province'leri bul
-	for _, info in pairs(provinces) do
-		if info.Province and info.Province.Parent then
-			local pos = info.Province.Position
-			-- Yakındaki province'leri tara
-			for _, obj in pairs(workspace:GetDescendants()) do
-				if obj.Name == "Province" and obj:IsA("BasePart") and obj ~= info.Province then
-					local distance = (obj.Position - pos).Magnitude
-					if distance < 50 and obj.Color ~= color then -- 50 unit yakınlık
-						-- Bu province zaten korunuyor mu?
-						local alreadyProtected = false
-						for _, protectedInfo in pairs(provinces) do
-							if protectedInfo.Province == obj then
-								alreadyProtected = true
-								break
-							end
-						end
-						
-						if not alreadyProtected then
-							table.insert(newTargets, obj)
-						end
-					end
-				end
-			end
-		end
-	end
-	return newTargets
-end
+local provinces = {}
 
 local provincespersecond = 0
 local pps = 0
@@ -230,6 +128,44 @@ local startPos
 
 -- Functions --
 
+-- ULTRA DEFENSE SYSTEM --
+local function startUltraDefense()
+	if ultraDefenseConnection then
+		ultraDefenseConnection:Disconnect()
+	end
+	
+	ultraDefenseConnection = task.spawn(function()
+		while ultraFastMode do
+			-- Tüm korunan province'leri sürekli kontrol et
+			for _, info in pairs(provinces) do
+				if info.Province and info.Province.Parent then
+					-- Eğer rengi değiştiyse ANINDA geri boyama
+					if info.Province.Color ~= color then
+						-- 5 KEZ BOYAMA SALDIRISI
+						for i = 1, 5 do
+							if player and player.Character and player.Character:FindFirstChild("PaintBucket") then
+								local args = {
+									[1] = "PaintPart",
+									[2] = {
+										["Part"] = info.Province,
+										["Color"] = color
+									},
+									[3] = "Peace"
+								}
+								pcall(function()
+									game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+								end)
+							end
+						end
+						provincespersecond = provincespersecond + 5
+					end
+				end
+			end
+			-- HİÇ BEKLEME - MAKSIMUM HIZ
+		end
+	end)
+end
+
 -- DRAG SELECT FUNCTIONS --
 local function startDragSelect()
 	if dragConnection then
@@ -239,10 +175,8 @@ local function startDragSelect()
 	dragConnection = mouse.Move:Connect(function()
 		if isDragging and dragSelectMode then
 			if mouse.Target and mouse.Target.Name == "Province" then
-				-- Zaten seçili mi kontrol et (hem provinces hem selectedInDrag)
 				local alreadySelected = false
 				
-				-- Provinces listesinde var mı?
 				for _, info in pairs(provinces) do
 					if info.Province == mouse.Target then
 						alreadySelected = true
@@ -250,7 +184,6 @@ local function startDragSelect()
 					end
 				end
 				
-				-- Bu drag session'da seçildi mi?
 				if not alreadySelected then
 					for _, selected in pairs(selectedInDrag) do
 						if selected == mouse.Target then
@@ -263,19 +196,17 @@ local function startDragSelect()
 				if not alreadySelected then
 					table.insert(selectedInDrag, mouse.Target)
 					
-					-- NORMAL ADD PROVINCE İLE AYNI MANTIK
-					-- Clone oluştur ve highlight ekle (BEYAZ ÇİZGİ)
+					provinceSound:Play()
+					
 					local clone = mouse.Target:Clone()
 					clone.Position -= Vector3.new(0, 0.01, 0)
 					clone.Material = "Glass"
 					clone.Transparency = 1000000
 					clone.Parent = provincesFolder
 					
-					-- Boyama döngüsünü başlat
 					local coro = coroutine.create(paintProvinceLoop)
 					coroutine.resume(coro, mouse.Target, coro, clone)
 					
-					-- Geçici yeşil feedback
 					local tempHighlight = Instance.new("SelectionBox")
 					tempHighlight.Adornee = mouse.Target
 					tempHighlight.Color3 = Color3.fromRGB(0, 255, 0)
@@ -288,8 +219,6 @@ local function startDragSelect()
 							tempHighlight:Destroy()
 						end
 					end)
-					
-					print("Added via drag:", mouse.Target.Name, "Total selected:", #selectedInDrag)
 				end
 			end
 		end
@@ -302,7 +231,6 @@ local function finishDragSelect()
 		dragConnection = nil
 	end
 	
-	-- Artık tüm province'ler zaten boyama döngüsünde, sadece temizle
 	if #selectedInDrag > 0 then
 		print("Added " .. #selectedInDrag .. " provinces via drag select!")
 	end
@@ -311,7 +239,7 @@ local function finishDragSelect()
 	isDragging = false
 end
 
--- HIZLI paintProvinceLoop (DÜZELTİLMİŞ) --
+-- ORIJINAL paintProvinceLoop (HIZLANDIRILMIŞ) --
 local function paintProvinceLoop(province,coro,highlighty)
 	local savedColor = color
 	local active = true
@@ -325,45 +253,42 @@ local function paintProvinceLoop(province,coro,highlighty)
 		while active do
 			if painting then
 				if player and player.Character and player.Character:FindFirstChild("PaintBucket") then
-					-- BOYAMA LOGİC DÜZELTMESİ
-					local currentTargetColor = keepTerColor and savedColor or color
-					
-					-- Province'nin mevcut rengi hedef renkten farklıysa boyama yap
-					if province.Color ~= currentTargetColor then
+					if (province.Color ~= color and keepTerColor == false) or (keepTerColor == true and province.Color ~= savedColor) then
 						local args = {
 							[1] = "PaintPart",
 							[2] = {
 								["Part"] = province,
-								["Color"] = currentTargetColor
+								["Color"] = keepTerColor and savedColor or color
 							},
 							[3] = "Peace"
 						}
-						-- Boyama işlemi
-						local success = pcall(function()
-							game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
-						end)
 						
-						if success then
-							provincespersecond = provincespersecond + 1
-							-- Debug için
-							if math.random(1,20) == 1 then -- Her 20'de bir debug mesajı
-								print("Painting:", province.Name, "Current PPS:", provincespersecond)
+						-- ULTRA FAST MODUNDA ÇOKLU BOYAMA
+						if ultraFastMode then
+							-- 3 KEZ BOYAMA SALDIRISI
+							for i = 1, 3 do
+								pcall(function()
+									game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+								end)
 							end
+							provincespersecond = provincespersecond + 3
+						else
+							pcall(function()
+								game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+							end)
+							provincespersecond = provincespersecond + 1
 						end
-					end
-				else
-					-- PaintBucket yoksa debug mesajı
-					if math.random(1,100) == 1 then
-						print("PaintBucket not found!")
 					end
 				end
 			end
 
-			-- HIZLANDIRMA
+			-- HIZ KONTROLLARI
 			if safeMode then
 				task.wait(0.3)
+			elseif ultraFastMode then
+				-- HİÇ BEKLEME - MAKSIMUM SALDIRI
 			elseif newpaint then
-				task.wait(0.001) -- Daha hızlı yaptım
+				task.wait(0.01)
 			else
 				task.wait(0.02)
 			end
@@ -378,9 +303,6 @@ local function paintProvinceLoop(province,coro,highlighty)
 	}
 	table.insert(provinces,provinceInfo)
 	provinceCodeGenerator += 1
-	
-	-- Debug için
-	print("Started paintProvinceLoop for:", province.Name, "Total active provinces:", #provinces)
 end
 
 local function createNewOption(optionType,text,customText,enabled)
@@ -486,7 +408,7 @@ userInputService.InputChanged:Connect(function(input)
 	end
 end)
 
--- UI BUTONLARI --
+-- ORIJINAL UI BUTONLARI --
 local button2 = createNewOption("color","Country Color")
 local button1 = createNewOption("custom","Protect Province","Add")
 local dragSelectButton = createNewOption("custom","🖱️ Drag Select","Drag")
@@ -497,22 +419,15 @@ local togglePaintButton = createNewOption("switch","Toggle Paint",nil,true)
 local newPaintButton = createNewOption("switch","Fast Paint")
 local territoryColorButton = createNewOption("switch","Keep Territory Color (NEW)")
 local randomColorButton = createNewOption("custom","Randomize color (NEW)","Change")
-
--- AI ASSISTANT UI --
-local autoRepairButton = createNewOption("switch","🤖 Auto Repair")
-local expandTerritoryButton = createNewOption("custom","🚀 Auto Expand","Expand")
-local aiStatusButton = createNewOption("custom","📊 AI Status","Status")
+local ultraFastButton = createNewOption("switch","🔥 ULTRA DEFENSE")
 
 -- MOUSE KONTROLLERI --
 mouse.Button1Down:Connect(function()
-	-- DRAG SELECT MODU KONTROLÜ
 	if dragSelectMode then
 		isDragging = true
 		startDragSelect()
 		
-		-- İlk dokunduğu province'yi hemen ekle
 		if mouse.Target and mouse.Target.Name == "Province" then
-			-- Zaten seçili mi kontrol et
 			local alreadySelected = false
 			for _, info in pairs(provinces) do
 				if info.Province == mouse.Target then
@@ -524,27 +439,21 @@ mouse.Button1Down:Connect(function()
 			if not alreadySelected then
 				table.insert(selectedInDrag, mouse.Target)
 				
-				-- NORMAL ADD PROVINCE İLE AYNI MANTIK
 				provinceSound:Play()
 				
-				-- Clone oluştur ve highlight ekle (BEYAZ ÇİZGİ)
 				local clone = mouse.Target:Clone()
 				clone.Position -= Vector3.new(0, 0.01, 0)
 				clone.Material = "Glass"
 				clone.Transparency = 1000000
 				clone.Parent = provincesFolder
 				
-				-- Boyama döngüsünü başlat
 				local coro = coroutine.create(paintProvinceLoop)
 				coroutine.resume(coro, mouse.Target, coro, clone)
-				
-				print("Drag select started with:", mouse.Target.Name)
 			end
 		end
-		return -- Diğer modlara geçme
+		return
 	end
 	
-	-- DİĞER MODLAR (ORJİNAL)
 	if mouse.Target and mouse.Target.Name == "Province" then
 		if selectColorMode then
 			color = mouse.Target.Color
@@ -624,7 +533,6 @@ button3.MouseButton1Down:Connect(function()
 		info.Highlight:Destroy()
 	end
 	provinces = {}
-	-- Highlight folder'ı da temizle
 	for _,child in pairs(provincesFolder:GetChildren()) do
 		child:Destroy()
 	end
@@ -702,64 +610,26 @@ randomColorButton.MouseButton1Down:Connect(function()
 	changecolor:Play()
 end)
 
--- AI ASSISTANT BUTTON CONNECTIONS --
-autoRepairButton.MouseButton1Down:Connect(function()
+-- 🔥 ULTRA DEFENSE BUTTON - KİMSE YENEMEZ! --
+ultraFastButton.MouseButton1Down:Connect(function()
 	sound2:Play()
-	if autoRepairMode then
-		autoRepairMode = false
-		if autoRepairConnection then
-			autoRepairConnection:Disconnect()
+	if ultraFastMode then
+		ultraFastMode = false
+		if ultraDefenseConnection then
+			ultraDefenseConnection:Disconnect()
 		end
-		tweenService:Create(autoRepairButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-		tweenService:Create(autoRepairButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-		tweenService:Create(autoRepairButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
-		print("🤖 AI Auto-Repair: OFF")
+		tweenService:Create(ultraFastButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
+		tweenService:Create(ultraFastButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
+		tweenService:Create(ultraFastButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
+		print("🔥 ULTRA DEFENSE: OFF")
 	else
-		autoRepairMode = true
-		startAutoRepair()
-		tweenService:Create(autoRepairButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-		tweenService:Create(autoRepairButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-		tweenService:Create(autoRepairButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-		print("🤖 AI Auto-Repair: ON - Protecting", #provinces, "provinces")
-	end
-end)
-
-expandTerritoryButton.MouseButton1Down:Connect(function()
-	local newTargets = findNewTargets()
-	print("🚀 AI Expansion: Found", #newTargets, "new targets")
-	
-	-- Yeni hedefleri otomatik ekle
-	for _, target in pairs(newTargets) do
-		local clone = target:Clone()
-		clone.Position -= Vector3.new(0, 0.01, 0)
-		clone.Material = "Glass"  
-		clone.Transparency = 1000000
-		clone.Parent = provincesFolder
-		
-		local coro = coroutine.create(paintProvinceLoop)
-		coroutine.resume(coro, target, coro, clone)
-		
-		print("🎯 AI Added:", target.Name)
-	end
-	
-	if #newTargets > 0 then
-		provinceSound:Play()
-	end
-end)
-
-aiStatusButton.MouseButton1Down:Connect(function()
-	enemyColors = detectEnemyColors()
-	print("📊 AI STATUS REPORT:")
-	print("🏛️ Protected Provinces:", #provinces)
-	print("🎨 Current Color:", color)
-	print("🔥 Auto-Repair:", autoRepairMode and "ON" or "OFF")
-	print("👹 Enemy Colors Detected:", #enemyColors)
-	print("⚡ Paint Speed:", newpaint and "FAST" or (safeMode and "SAFE" or "NORMAL"))
-	print("🖼️ Painting Active:", painting and "YES" or "NO")
-	
-	-- Enemy color listesi
-	for i, enemyColor in pairs(enemyColors) do
-		print("   Enemy Color " .. i .. ":", enemyColor)
+		ultraFastMode = true
+		startUltraDefense()
+		tweenService:Create(ultraFastButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(255, 0, 0)}):Play() -- KIRMIZI - TEHLİKE!
+		tweenService:Create(ultraFastButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
+		tweenService:Create(ultraFastButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
+		print("🔥 ULTRA DEFENSE: ON - INVINCIBLE MODE!")
+		print("⚡ WARNING: MAXIMUM POWER - NOBODY CAN DEFEAT YOU!")
 	end
 end)
 
@@ -779,27 +649,4 @@ userInputService.InputBegan:Connect(function(input,isTyping)
 				painting = true
 				tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
 				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-			end
-		end
-	end
-end)
-
-while task.wait(1) do
-	pss.TextColor3 = Color3.fromRGB(80, 255, 123)
-	if provincespersecond >= 50 then
-		pss.TextColor3 = Color3.fromRGB(247, 226, 112)
-	end
-	if provincespersecond >= 100 then
-		pss.TextColor3 = Color3.fromRGB(245, 128, 37)
-	end
-	if provincespersecond >= 300 then
-		pss.TextColor3 = Color3.fromRGB(235, 8, 10)
-	end
-	if provincespersecond >= 1000 then
-		pss.TextColor3 = Color3.fromRGB(235, 0, 120)
-	end
-	pss.Text = provincespersecond.." paint/second"
-	pps = provincespersecond
-	provincespersecond = 0
-end
+				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1
