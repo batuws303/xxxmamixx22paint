@@ -188,8 +188,13 @@ local function finishDragSelect()
 		end
 		
 		if not alreadyExists then
-			-- BOYAMA DÖNGÜSÜNÜ BAŞLAT
-			local clone = province:Clone() 
+			-- BOYAMA DÖNGÜSÜNÜ BAŞLAT (AYNI METHOD NORMAL ADD GİBİ)
+			local clone = province:Clone()
+			clone.Position -= Vector3.new(0, 0.01, 0)
+			clone.Material = "Glass"
+			clone.Transparency = 1000000
+			clone.Parent = provincesFolder
+			
 			local coro = coroutine.create(paintProvinceLoop)
 			coroutine.resume(coro, province, coro, clone)
 		end
