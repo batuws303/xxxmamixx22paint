@@ -95,7 +95,7 @@ local provinceSound = Instance.new("Sound")
 provinceSound.SoundId = "rbxassetid://5694665239"
 provinceSound.Parent = workspace
 
--- YENİ ÖZELLİKLER --
+-- DRAG SELECT VARIABLES --
 local dragSelectMode = false
 local isDragging = false
 local dragConnection = nil
@@ -189,7 +189,7 @@ local function finishDragSelect()
 		
 		if not alreadyExists then
 			-- BOYAMA DÖNGÜSÜNÜ BAŞLAT
-			local clone = province:Clone()  -- Highlight için clone zaten var
+			local clone = province:Clone() 
 			local coro = coroutine.create(paintProvinceLoop)
 			coroutine.resume(coro, province, coro, clone)
 		end
@@ -204,7 +204,7 @@ local function finishDragSelect()
 	isDragging = false
 end
 
--- ORIJINAL HIZLI paintProvinceLoop --
+-- HIZLI paintProvinceLoop --
 local function paintProvinceLoop(province,coro,highlighty)
 	local savedColor = color
 	local active = true
@@ -359,9 +359,10 @@ userInputService.InputChanged:Connect(function(input)
 	end
 end)
 
+-- UI BUTONLARI --
 local button2 = createNewOption("color","Country Color")
 local button1 = createNewOption("custom","Protect Province","Add")
-local dragSelectButton = createNewOption("custom","🖱️ Drag Select","Drag") -- YENİ
+local dragSelectButton = createNewOption("custom","🖱️ Drag Select","Drag")
 local button5 = createNewOption("custom","Unprotect Province","Remove")
 local button3 = createNewOption("custom","Clear Provinces","Clear")
 local button4 = createNewOption("switch","Safe Mode")
@@ -370,7 +371,7 @@ local newPaintButton = createNewOption("switch","Fast Paint")
 local territoryColorButton = createNewOption("switch","Keep Territory Color (NEW)")
 local randomColorButton = createNewOption("custom","Randomize color (NEW)","Change")
 
--- MOUSE EVENT --
+-- MOUSE KONTROLLERI --
 mouse.Button1Down:Connect(function()
 	if dragSelectMode then
 		isDragging = true
@@ -416,6 +417,7 @@ mouse.Button1Up:Connect(function()
 	end
 end)
 
+-- BUTON BAĞLANTILARI --
 button2.BackgroundColor3 = color
 button2.MouseButton1Down:Connect(function()
 	UIHolder.Visible = false
@@ -428,7 +430,6 @@ button1.MouseButton1Down:Connect(function()
 	doneButton.Visible = true
 end)
 
--- YENİ DRAG SELECT BUTTON
 dragSelectButton.MouseButton1Down:Connect(function()
 	UIHolder.Visible = false
 	dragSelectMode = true
@@ -455,6 +456,11 @@ button3.MouseButton1Down:Connect(function()
 		coroutine.close(info.Coroutine)
 		info.Event:Disconnect()
 		info.Highlight:Destroy()
+	end
+	provinces = {}
+	-- Highlight folder'ı da temizle
+	for _,child in pairs(provincesFolder:GetChildren()) do
+		child:Destroy()
 	end
 end)
 
