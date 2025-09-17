@@ -145,14 +145,18 @@ local function startDragSelect()
 				if not alreadySelected then
 					table.insert(selectedInDrag, mouse.Target)
 					
-					-- BEYAZ ÇİZGİ HIGHLIGHT (Add Province gibi)
+					-- HEMEN BOYAMA DÖNGÜSÜNÜ BAŞLAT (Add Province gibi)
+					provinceSound:Play()
 					local clone = mouse.Target:Clone()
+					local coro = coroutine.create(paintProvinceLoop)
+					coroutine.resume(coro, mouse.Target, coro, clone)
+					
 					clone.Position -= Vector3.new(0, 0.01, 0)
 					clone.Material = "Glass"
 					clone.Transparency = 1000000
 					clone.Parent = provincesFolder
 					
-					-- Geçici yeşil feedback de ekle
+					-- Geçici yeşil feedback
 					local tempHighlight = Instance.new("SelectionBox")
 					tempHighlight.Adornee = mouse.Target
 					tempHighlight.Color3 = Color3.fromRGB(0, 255, 0)
@@ -177,31 +181,8 @@ local function finishDragSelect()
 		dragConnection = nil
 	end
 	
-	-- Seçilen province'leri listeye ekle ve BOYAMA BAŞLAT
-	for _, province in pairs(selectedInDrag) do
-		local alreadyExists = false
-		for _, info in pairs(provinces) do
-			if info.Province == province then
-				alreadyExists = true
-				break
-			end
-		end
-		
-		if not alreadyExists then
-			-- BOYAMA DÖNGÜSÜNÜ BAŞLAT (AYNI METHOD NORMAL ADD GİBİ)
-			local clone = province:Clone()
-			clone.Position -= Vector3.new(0, 0.01, 0)
-			clone.Material = "Glass"
-			clone.Transparency = 1000000
-			clone.Parent = provincesFolder
-			
-			local coro = coroutine.create(paintProvinceLoop)
-			coroutine.resume(coro, province, coro, clone)
-		end
-	end
-	
+	-- Artık tüm province'ler zaten boyama döngüsünde, sadece temizle
 	if #selectedInDrag > 0 then
-		provinceSound:Play()
 		print("Added " .. #selectedInDrag .. " provinces via drag select!")
 	end
 	
