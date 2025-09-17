@@ -129,13 +129,13 @@ local function startDragSelect()
 		dragConnection:Disconnect()
 	end
 	
-	selectedInDrag = {}
-	
 	dragConnection = mouse.Move:Connect(function()
 		if isDragging and dragSelectMode then
 			if mouse.Target and mouse.Target.Name == "Province" then
-				-- Zaten seçili mi kontrol et
+				-- Zaten seçili mi kontrol et (hem provinces hem selectedInDrag)
 				local alreadySelected = false
+				
+				-- Provinces listesinde var mı?
 				for _, info in pairs(provinces) do
 					if info.Province == mouse.Target then
 						alreadySelected = true
@@ -143,20 +143,20 @@ local function startDragSelect()
 					end
 				end
 				
-				-- Drag sırasında seçildi mi kontrol et
-				for _, selected in pairs(selectedInDrag) do
-					if selected == mouse.Target then
-						alreadySelected = true
-						break
+				-- Bu drag session'da seçildi mi?
+				if not alreadySelected then
+					for _, selected in pairs(selectedInDrag) do
+						if selected == mouse.Target then
+							alreadySelected = true
+							break
+						end
 					end
 				end
 				
 				if not alreadySelected then
 					table.insert(selectedInDrag, mouse.Target)
 					
-					-- NORMAL ADD PROVINCE İLE AYNI MANTIK - HEMEN EKİN VE BOYAMA BAŞLAT
-					provinceSound:Play()
-					
+					-- NORMAL ADD PROVINCE İLE AYNI MANTIK
 					-- Clone oluştur ve highlight ekle (BEYAZ ÇİZGİ)
 					local clone = mouse.Target:Clone()
 					clone.Position -= Vector3.new(0, 0.01, 0)
@@ -182,7 +182,7 @@ local function startDragSelect()
 						end
 					end)
 					
-					print("Drag selected and started painting:", mouse.Target.Name)
+					print("Added via drag:", mouse.Target.Name, "Total selected:", #selectedInDrag)
 				end
 			end
 		end
@@ -373,12 +373,46 @@ local randomColorButton = createNewOption("custom","Randomize color (NEW)","Chan
 
 -- MOUSE KONTROLLERI --
 mouse.Button1Down:Connect(function()
+	-- DRAG SELECT MODU KONTROLÜ
 	if dragSelectMode then
 		isDragging = true
 		startDragSelect()
-		return
+		
+		-- İlk dokunduğu province'yi hemen ekle
+		if mouse.Target and mouse.Target.Name == "Province" then
+			-- Zaten seçili mi kontrol et
+			local alreadySelected = false
+			for _, info in pairs(provinces) do
+				if info.Province == mouse.Target then
+					alreadySelected = true
+					break
+				end
+			end
+			
+			if not alreadySelected then
+				table.insert(selectedInDrag, mouse.Target)
+				
+				-- NORMAL ADD PROVINCE İLE AYNI MANTIK
+				provinceSound:Play()
+				
+				-- Clone oluştur ve highlight ekle (BEYAZ ÇİZGİ)
+				local clone = mouse.Target:Clone()
+				clone.Position -= Vector3.new(0, 0.01, 0)
+				clone.Material = "Glass"
+				clone.Transparency = 1000000
+				clone.Parent = provincesFolder
+				
+				-- Boyama döngüsünü başlat
+				local coro = coroutine.create(paintProvinceLoop)
+				coroutine.resume(coro, mouse.Target, coro, clone)
+				
+				print("Drag select started with:", mouse.Target.Name)
+			end
+		end
+		return -- Diğer modlara geçme
 	end
 	
+	-- DİĞER MODLAR (ORJİNAL)
 	if mouse.Target and mouse.Target.Name == "Province" then
 		if selectColorMode then
 			color = mouse.Target.Color
