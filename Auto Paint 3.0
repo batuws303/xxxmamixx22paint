@@ -55,7 +55,7 @@ panelTitle.AnchorPoint = Vector2.new(0,0.5)
 panelTitle.BackgroundTransparency = 1
 panelTitle.Position = UDim2.new(0.02,0,0.5,0)
 panelTitle.Size = UDim2.new(1,0,0.5,0)
-panelTitle.Text = '<b>Auto Paint  Panel</b><font size="8"> 3.0</font>'
+panelTitle.Text = '<b>Paint Admin Panel</b><font size="6"> PRO</font>'
 panelTitle.RichText = true
 panelTitle.TextScaled = true
 panelTitle.TextColor3 = Color3.fromRGB(255,255,255)
@@ -101,7 +101,113 @@ local isDragging = false
 local dragConnection = nil
 local selectedInDrag = {}
 
-local provinces = {}
+-- AI ASSISTANT VARIABLES --
+local autoRepairMode = false
+local autoRepairConnection = nil
+local enemyColors = {}
+local playerOriginalColor = Color3.fromRGB(255,255,255)
+
+-- AI ASSISTANT FUNCTIONS --
+local function detectEnemyColors()
+	local detectedColors = {}
+	-- Workspace'deki tüm Province'leri tara
+	for _, obj in pairs(workspace:GetDescendants()) do
+		if obj.Name == "Province" and obj:IsA("BasePart") then
+			if obj.Color ~= color and obj.Color ~= playerOriginalColor then
+				-- Bu düşman rengi mi kontrol et
+				local isEnemyColor = true
+				for _, friendlyColor in pairs({color, playerOriginalColor}) do
+					if obj.Color == friendlyColor then
+						isEnemyColor = false
+						break
+					end
+				end
+				
+				if isEnemyColor then
+					local colorExists = false
+					for _, existingColor in pairs(detectedColors) do
+						if existingColor == obj.Color then
+							colorExists = true
+							break
+						end
+					end
+					if not colorExists then
+						table.insert(detectedColors, obj.Color)
+					end
+				end
+			end
+		end
+	end
+	return detectedColors
+end
+
+local function startAutoRepair()
+	if autoRepairConnection then
+		autoRepairConnection:Disconnect()
+	end
+	
+	autoRepairConnection = task.spawn(function()
+		while autoRepairMode do
+			-- Korunan province'leri kontrol et
+			for _, info in pairs(provinces) do
+				if info.Province and info.Province.Parent then
+					-- Eğer province düşman rengindeyse, otomatik geri al
+					if info.Province.Color ~= color then
+						print("🤖 AI: Repairing lost province:", info.Province.Name)
+						
+						-- Hemen boyama yap
+						if player and player.Character and player.Character:FindFirstChild("PaintBucket") then
+							local args = {
+								[1] = "PaintPart",
+								[2] = {
+									["Part"] = info.Province,
+									["Color"] = color
+								},
+								[3] = "Peace"
+							}
+							pcall(function()
+								game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+							end)
+						end
+					end
+				end
+			end
+			
+			task.wait(0.5) -- Her 0.5 saniyede kontrol et
+		end
+	end)
+end
+
+local function findNewTargets()
+	local newTargets = {}
+	-- Korunan province'lerin çevresindeki düşman province'leri bul
+	for _, info in pairs(provinces) do
+		if info.Province and info.Province.Parent then
+			local pos = info.Province.Position
+			-- Yakındaki province'leri tara
+			for _, obj in pairs(workspace:GetDescendants()) do
+				if obj.Name == "Province" and obj:IsA("BasePart") and obj ~= info.Province then
+					local distance = (obj.Position - pos).Magnitude
+					if distance < 50 and obj.Color ~= color then -- 50 unit yakınlık
+						-- Bu province zaten korunuyor mu?
+						local alreadyProtected = false
+						for _, protectedInfo in pairs(provinces) do
+							if protectedInfo.Province == obj then
+								alreadyProtected = true
+								break
+							end
+						end
+						
+						if not alreadyProtected then
+							table.insert(newTargets, obj)
+						end
+					end
+				end
+			end
+		end
+	end
+	return newTargets
+end
 
 local provincespersecond = 0
 local pps = 0
@@ -391,6 +497,11 @@ local newPaintButton = createNewOption("switch","Fast Paint")
 local territoryColorButton = createNewOption("switch","Keep Territory Color (NEW)")
 local randomColorButton = createNewOption("custom","Randomize color (NEW)","Change")
 
+-- AI ASSISTANT UI --
+local autoRepairButton = createNewOption("switch","🤖 Auto Repair")
+local expandTerritoryButton = createNewOption("custom","🚀 Auto Expand","Expand")
+local aiStatusButton = createNewOption("custom","📊 AI Status","Status")
+
 -- MOUSE KONTROLLERI --
 mouse.Button1Down:Connect(function()
 	-- DRAG SELECT MODU KONTROLÜ
@@ -588,6 +699,67 @@ randomColorButton.MouseButton1Down:Connect(function()
 	color = Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255))
 	button2.BackgroundColor3 = color
 	changecolor:Play()
+end)
+
+-- AI ASSISTANT BUTTON CONNECTIONS --
+autoRepairButton.MouseButton1Down:Connect(function()
+	sound2:Play()
+	if autoRepairMode then
+		autoRepairMode = false
+		if autoRepairConnection then
+			autoRepairConnection:Disconnect()
+		end
+		tweenService:Create(autoRepairButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
+		tweenService:Create(autoRepairButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
+		tweenService:Create(autoRepairButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
+		print("🤖 AI Auto-Repair: OFF")
+	else
+		autoRepairMode = true
+		startAutoRepair()
+		tweenService:Create(autoRepairButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
+		tweenService:Create(autoRepairButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
+		tweenService:Create(autoRepairButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
+		print("🤖 AI Auto-Repair: ON - Protecting", #provinces, "provinces")
+	end
+end)
+
+expandTerritoryButton.MouseButton1Down:Connect(function()
+	local newTargets = findNewTargets()
+	print("🚀 AI Expansion: Found", #newTargets, "new targets")
+	
+	-- Yeni hedefleri otomatik ekle
+	for _, target in pairs(newTargets) do
+		local clone = target:Clone()
+		clone.Position -= Vector3.new(0, 0.01, 0)
+		clone.Material = "Glass"  
+		clone.Transparency = 1000000
+		clone.Parent = provincesFolder
+		
+		local coro = coroutine.create(paintProvinceLoop)
+		coroutine.resume(coro, target, coro, clone)
+		
+		print("🎯 AI Added:", target.Name)
+	end
+	
+	if #newTargets > 0 then
+		provinceSound:Play()
+	end
+end)
+
+aiStatusButton.MouseButton1Down:Connect(function()
+	enemyColors = detectEnemyColors()
+	print("📊 AI STATUS REPORT:")
+	print("🏛️ Protected Provinces:", #provinces)
+	print("🎨 Current Color:", color)
+	print("🔥 Auto-Repair:", autoRepairMode and "ON" or "OFF")
+	print("👹 Enemy Colors Detected:", #enemyColors)
+	print("⚡ Paint Speed:", newpaint and "FAST" or (safeMode and "SAFE" or "NORMAL"))
+	print("🖼️ Painting Active:", painting and "YES" or "NO")
+	
+	-- Enemy color listesi
+	for i, enemyColor in pairs(enemyColors) do
+		print("   Enemy Color " .. i .. ":", enemyColor)
+	end
 end)
 
 userInputService.InputBegan:Connect(function(input,isTyping)
