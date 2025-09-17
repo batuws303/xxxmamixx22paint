@@ -134,7 +134,16 @@ local function startDragSelect()
 	dragConnection = mouse.Move:Connect(function()
 		if isDragging and dragSelectMode then
 			if mouse.Target and mouse.Target.Name == "Province" then
+				-- Zaten seçili mi kontrol et
 				local alreadySelected = false
+				for _, info in pairs(provinces) do
+					if info.Province == mouse.Target then
+						alreadySelected = true
+						break
+					end
+				end
+				
+				-- Drag sırasında seçildi mi kontrol et
 				for _, selected in pairs(selectedInDrag) do
 					if selected == mouse.Target then
 						alreadySelected = true
@@ -145,16 +154,19 @@ local function startDragSelect()
 				if not alreadySelected then
 					table.insert(selectedInDrag, mouse.Target)
 					
-					-- HEMEN BOYAMA DÖNGÜSÜNÜ BAŞLAT (Add Province gibi)
+					-- NORMAL ADD PROVINCE İLE AYNI MANTIK - HEMEN EKİN VE BOYAMA BAŞLAT
 					provinceSound:Play()
-					local clone = mouse.Target:Clone()
-					local coro = coroutine.create(paintProvinceLoop)
-					coroutine.resume(coro, mouse.Target, coro, clone)
 					
+					-- Clone oluştur ve highlight ekle (BEYAZ ÇİZGİ)
+					local clone = mouse.Target:Clone()
 					clone.Position -= Vector3.new(0, 0.01, 0)
 					clone.Material = "Glass"
 					clone.Transparency = 1000000
 					clone.Parent = provincesFolder
+					
+					-- Boyama döngüsünü başlat
+					local coro = coroutine.create(paintProvinceLoop)
+					coroutine.resume(coro, mouse.Target, coro, clone)
 					
 					-- Geçici yeşil feedback
 					local tempHighlight = Instance.new("SelectionBox")
@@ -164,11 +176,13 @@ local function startDragSelect()
 					tempHighlight.Transparency = 0.3
 					
 					task.spawn(function()
-						task.wait(1)
+						task.wait(0.5)
 						if tempHighlight then
 							tempHighlight:Destroy()
 						end
 					end)
+					
+					print("Drag selected and started painting:", mouse.Target.Name)
 				end
 			end
 		end
