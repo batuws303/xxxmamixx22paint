@@ -204,7 +204,7 @@ local function finishDragSelect()
 	isDragging = false
 end
 
--- HIZLI paintProvinceLoop --
+-- HIZLI paintProvinceLoop (DÜZELTİLMİŞ) --
 local function paintProvinceLoop(province,coro,highlighty)
 	local savedColor = color
 	local active = true
@@ -218,19 +218,36 @@ local function paintProvinceLoop(province,coro,highlighty)
 		while active do
 			if painting then
 				if player and player.Character and player.Character:FindFirstChild("PaintBucket") then
-					if (province.Color ~= color and keepTerColor == false) or (keepTerColor == true and province.Color ~= savedColor) then
+					-- BOYAMA LOGİC DÜZELTMESİ
+					local currentTargetColor = keepTerColor and savedColor or color
+					
+					-- Province'nin mevcut rengi hedef renkten farklıysa boyama yap
+					if province.Color ~= currentTargetColor then
 						local args = {
 							[1] = "PaintPart",
 							[2] = {
 								["Part"] = province,
-								["Color"] = keepTerColor and savedColor or color
+								["Color"] = currentTargetColor
 							},
 							[3] = "Peace"
 						}
-						pcall(function()
+						-- Boyama işlemi
+						local success = pcall(function()
 							game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
 						end)
-						provincespersecond = provincespersecond + 1
+						
+						if success then
+							provincespersecond = provincespersecond + 1
+							-- Debug için
+							if math.random(1,20) == 1 then -- Her 20'de bir debug mesajı
+								print("Painting:", province.Name, "Current PPS:", provincespersecond)
+							end
+						end
+					end
+				else
+					-- PaintBucket yoksa debug mesajı
+					if math.random(1,100) == 1 then
+						print("PaintBucket not found!")
 					end
 				end
 			end
@@ -239,7 +256,7 @@ local function paintProvinceLoop(province,coro,highlighty)
 			if safeMode then
 				task.wait(0.3)
 			elseif newpaint then
-				task.wait()
+				task.wait(0.001) -- Daha hızlı yaptım
 			else
 				task.wait(0.02)
 			end
@@ -254,6 +271,9 @@ local function paintProvinceLoop(province,coro,highlighty)
 	}
 	table.insert(provinces,provinceInfo)
 	provinceCodeGenerator += 1
+	
+	-- Debug için
+	print("Started paintProvinceLoop for:", province.Name, "Total active provinces:", #provinces)
 end
 
 local function createNewOption(optionType,text,customText,enabled)
