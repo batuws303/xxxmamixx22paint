@@ -49,8 +49,8 @@ local scrollFrame = Instance.new("ScrollingFrame",mainFrame)
 scrollFrame.BackgroundTransparency = 1
 scrollFrame.Position = UDim2.new(0,0,0.14,0)
 scrollFrame.Size = UDim2.new(1,0,0.86,0)
-scrollFrame.ScrollBarThickness = 8 -- SCROLL BAR GÖSTER
-scrollFrame.CanvasSize = UDim2.new(0,0,4,0) -- DAHA BÜYÜK CANVAS
+scrollFrame.ScrollBarThickness = 5
+scrollFrame.CanvasSize = UDim2.new(0,0,0,600) -- PIXEl CİNSİNDEN YÜKSEK CANVAS
 local panelTitle = Instance.new("TextLabel",topBar)
 panelTitle.AnchorPoint = Vector2.new(0,0.5)
 panelTitle.BackgroundTransparency = 1
@@ -107,8 +107,6 @@ local autoRepairMode = false
 local autoRepairConnection = nil
 local enemyColors = {}
 local playerOriginalColor = Color3.fromRGB(255,255,255)
-local ultraFastMode = false -- YENİ ULTRA HIZ MODU
-local defenseBoostMode = false -- YENİ SAVUNMA BOOST
 
 -- AI ASSISTANT FUNCTIONS --
 local function detectEnemyColors()
@@ -497,7 +495,6 @@ local button3 = createNewOption("custom","Clear Provinces","Clear")
 local button4 = createNewOption("switch","Safe Mode")
 local togglePaintButton = createNewOption("switch","Toggle Paint",nil,true)
 local newPaintButton = createNewOption("switch","Fast Paint")
-local ultraPaintButton = createNewOption("switch","⚡ ULTRA Fast") -- YENİ ULTRA HIZ
 local territoryColorButton = createNewOption("switch","Keep Territory Color (NEW)")
 local randomColorButton = createNewOption("custom","Randomize color (NEW)","Change")
 
@@ -505,7 +502,6 @@ local randomColorButton = createNewOption("custom","Randomize color (NEW)","Chan
 local autoRepairButton = createNewOption("switch","🤖 Auto Repair")
 local expandTerritoryButton = createNewOption("custom","🚀 Auto Expand","Expand")
 local aiStatusButton = createNewOption("custom","📊 AI Status","Status")
-local defenseBoostButton = createNewOption("switch","🛡️ Defense Boost") -- YENİ SAVUNMA
 
 -- MOUSE KONTROLLERI --
 mouse.Button1Down:Connect(function()
@@ -679,29 +675,9 @@ newPaintButton.MouseButton1Down:Connect(function()
 		tweenService:Create(newPaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
 	else
 		newpaint = true
-		ultraFastMode = false -- Ultra mode kapat
 		tweenService:Create(newPaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
 		tweenService:Create(newPaintButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
 		tweenService:Create(newPaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-	end
-end)
-
--- YENİ ULTRA FAST BUTTON
-ultraPaintButton.MouseButton1Down:Connect(function()
-	sound2:Play()
-	if ultraFastMode then
-		ultraFastMode = false
-		tweenService:Create(ultraPaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-		tweenService:Create(ultraPaintButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-		tweenService:Create(ultraPaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
-		print("⚡ ULTRA FAST: OFF")
-	else
-		ultraFastMode = true
-		newpaint = false -- Normal fast mode kapat
-		tweenService:Create(ultraPaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(255, 0, 255)}):Play() -- MOR RENK ULTRA İÇİN
-		tweenService:Create(ultraPaintButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-		tweenService:Create(ultraPaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-		print("⚡ ULTRA FAST: ON - WARNING: EXTREMELY FAST!")
 	end
 end)
 
@@ -784,29 +760,6 @@ aiStatusButton.MouseButton1Down:Connect(function()
 	-- Enemy color listesi
 	for i, enemyColor in pairs(enemyColors) do
 		print("   Enemy Color " .. i .. ":", enemyColor)
-	end
-end)
-
--- YENİ DEFENSE BOOST BUTTON
-defenseBoostButton.MouseButton1Down:Connect(function()
-	sound2:Play()
-	if defenseBoostMode then
-		defenseBoostMode = false
-		tweenService:Create(defenseBoostButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-		tweenService:Create(defenseBoostButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-		tweenService:Create(defenseBoostButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
-		print("🛡️ Defense Boost: OFF")
-	else
-		defenseBoostMode = true
-		-- Defense boost aktifken otomatik ultra fast + auto repair aç
-		ultraFastMode = true
-		autoRepairMode = true
-		startAutoRepair()
-		tweenService:Create(defenseBoostButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(255, 215, 0)}):Play() -- ALTIN RENK
-		tweenService:Create(defenseBoostButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-		tweenService:Create(defenseBoostButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-		print("🛡️ DEFENSE BOOST: ON - MAXIMUM POWER!")
-		print("⚡ Auto-activated: Ultra Fast + Auto Repair")
 	end
 end)
 
