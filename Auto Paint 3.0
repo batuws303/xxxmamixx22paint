@@ -27,48 +27,57 @@ UIHolder.Position = UDim2.new(0.5,0,0.5,0)
 UIHolder.Size = UDim2.new(0,0,0,0)
 local aspectratio = Instance.new("UIAspectRatioConstraint",UIHolder)
 local mainFrame = Instance.new("Frame",UIHolder)
-mainFrame.BackgroundColor3 = Color3.fromRGB(33,33,42)
+mainFrame.BackgroundColor3 = Color3.fromRGB(24,25,28) -- Koyu modern renk
 mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
 mainFrame.Position = UDim2.new(0.5,0,0.5,0)
-mainFrame.Size = UDim2.new(0.5,0,0.276,0)
+mainFrame.Size = UDim2.new(0.45,0,0.65,0) -- Daha uzun panel
 mainFrame.Rotation = 359
+-- Modern köşe yuvarlama
+local corner = Instance.new("UICorner",mainFrame)
+corner.CornerRadius = UDim.new(0,12)
 local topBar = Instance.new("Frame",mainFrame)
 topBar.BorderColor3 = Color3.fromRGB(0,0,0)
-topBar.BackgroundColor3 = Color3.fromRGB(49,49,64)
-topBar.Size = UDim2.new(1,0,0.14,0)
+topBar.BackgroundColor3 = Color3.fromRGB(32,34,37) -- Modern header rengi
+topBar.Size = UDim2.new(1,0,0.08,0) -- Daha ince header
+-- Header köşe yuvarlama
+local headerCorner = Instance.new("UICorner",topBar)
+headerCorner.CornerRadius = UDim.new(0,12)
 local pss = Instance.new("TextLabel",topBar)
-pss.Text = "0 paint/second"
-pss.AnchorPoint = Vector2.new(0,0.5)
-pss.Size = UDim2.new(0.974,0,0.5,0)
-pss.Position = UDim2.new(0,0,0.5,0)
-pss.TextColor3 = Color3.fromRGB(255,255,255)
+pss.Text = "0 p/s"
+pss.AnchorPoint = Vector2.new(1,0.5)
+pss.Size = UDim2.new(0.25,0,0.6,0) -- Kompakt boyut
+pss.Position = UDim2.new(0.97,0,0.5,0)
+pss.TextColor3 = Color3.fromRGB(120,120,120) -- Subtle renk
 pss.BackgroundTransparency = 1
 pss.TextScaled = true
 pss.TextXAlignment = Enum.TextXAlignment.Right
+pss.Font = Enum.Font.Gotham
 local scrollFrame = Instance.new("ScrollingFrame",mainFrame)
 scrollFrame.BackgroundTransparency = 1
-scrollFrame.Position = UDim2.new(0,0,0.14,0)
-scrollFrame.Size = UDim2.new(1,0,0.86,0)
-scrollFrame.ScrollBarThickness = 6
-scrollFrame.CanvasSize = UDim2.new(0,0,0,1200) -- ÇOK DAHA BÜYÜK CANVAS
-scrollFrame.ScrollingDirection = Enum.ScrollingDirection.Y -- Sadece Y ekseni scroll
+scrollFrame.Position = UDim2.new(0,0,0.08,0) -- Header boyutuna uygun
+scrollFrame.Size = UDim2.new(1,0,0.92,0)
+scrollFrame.ScrollBarThickness = 3 -- İnce modern scroll bar
+scrollFrame.CanvasSize = UDim2.new(0,0,0,800)
+scrollFrame.ScrollingDirection = Enum.ScrollingDirection.Y
+scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(120,120,120) -- Modern scroll rengi
 local panelTitle = Instance.new("TextLabel",topBar)
 panelTitle.AnchorPoint = Vector2.new(0,0.5)
 panelTitle.BackgroundTransparency = 1
-panelTitle.Position = UDim2.new(0.02,0,0.5,0)
-panelTitle.Size = UDim2.new(1,0,0.5,0)
-panelTitle.Text = '<b>Paint Admin Panel</b><font size="6"> PRO</font>'
-panelTitle.RichText = true
+panelTitle.Position = UDim2.new(0.03,0,0.5,0)
+panelTitle.Size = UDim2.new(0.6,0,0.7,0) -- Küçük title
+panelTitle.Text = 'Paint Admin'
+panelTitle.RichText = false
 panelTitle.TextScaled = true
 panelTitle.TextColor3 = Color3.fromRGB(255,255,255)
 panelTitle.TextXAlignment = Enum.TextXAlignment.Left
+panelTitle.Font = Enum.Font.GothamBold -- Modern font
 local listlayout = Instance.new("UIListLayout",scrollFrame)
-listlayout.Padding = UDim.new(0,10)
+listlayout.Padding = UDim.new(0,6) -- Küçük padding
 local uipadding = Instance.new("UIPadding",scrollFrame)
-uipadding.PaddingTop = UDim.new(0,10)
-uipadding.PaddingLeft = UDim.new(0,10)
-uipadding.PaddingRight = UDim.new(0,10)
-uipadding.PaddingBottom = UDim.new(0,10)
+uipadding.PaddingTop = UDim.new(0,12)
+uipadding.PaddingLeft = UDim.new(0,12)
+uipadding.PaddingRight = UDim.new(0,12)
+uipadding.PaddingBottom = UDim.new(0,12)
 local doneButton = Instance.new("TextButton",UI)
 doneButton.Visible = false
 doneButton.AnchorPoint = Vector2.new(0.5,0)
@@ -308,58 +317,70 @@ end
 
 local function createNewOption(optionType,text,customText,enabled)
 	local optionFrame = Instance.new("Frame",scrollFrame)
-	optionFrame.BorderColor3 = Color3.fromRGB(0,0,0)
-	optionFrame.BackgroundColor3 = Color3.fromRGB(49, 49, 64)
-	optionFrame.Size = UDim2.new(1,0,0.075,0)
+	optionFrame.BorderSizePixel = 0
+	optionFrame.BackgroundColor3 = Color3.fromRGB(32,34,37) -- Modern card rengi
+	optionFrame.Size = UDim2.new(1,0,0,45) -- Sabit pixel boyut
 	optionFrame.Parent = scrollFrame
+	-- Modern köşe yuvarlama
+	local frameCorner = Instance.new("UICorner",optionFrame)
+	frameCorner.CornerRadius = UDim.new(0,8)
+	
 	local textlabel = Instance.new("TextLabel",optionFrame)
 	textlabel.BackgroundTransparency = 1
-	textlabel.Position = UDim2.new(0.02,0,0.2,0)
-	textlabel.Size = UDim2.new(1,0,0.6,0)
-	textlabel.TextScaled = true
+	textlabel.Position = UDim2.new(0,12,0,0)
+	textlabel.Size = UDim2.new(0.6,0,1,0)
+	textlabel.TextSize = 14 -- Sabit text boyutu
 	textlabel.Text = text
-	textlabel.Font = Enum.Font.SourceSansBold
-	textlabel.TextColor3 = Color3.fromRGB(255,255,255)
+	textlabel.Font = Enum.Font.Gotham
+	textlabel.TextColor3 = Color3.fromRGB(220,220,220)
 	textlabel.TextXAlignment = Enum.TextXAlignment.Left
+	textlabel.TextYAlignment = Enum.TextYAlignment.Center
+	
 	if optionType == "switch" then
 		local switchFrame = Instance.new("Frame",optionFrame)
-		switchFrame.BackgroundColor3 = Color3.fromRGB(241, 33, 103)
-		switchFrame.Position = UDim2.new(0.865,0,0.125,0)
-		switchFrame.Size = UDim2.new(0.125,0,0.75,0)
+		switchFrame.BackgroundColor3 = Color3.fromRGB(60,60,60)
+		switchFrame.Position = UDim2.new(1,-60,0.5,-10)
+		switchFrame.Size = UDim2.new(0,50,0,20) -- Küçük modern switch
 		switchFrame.BorderSizePixel = 0
+		local switchCorner = Instance.new("UICorner",switchFrame)
+		switchCorner.CornerRadius = UDim.new(0,10)
+		
 		local switch = Instance.new("ImageButton",switchFrame)
 		switch.AutoButtonColor = false
 		switch.BorderSizePixel = 0
-		switch.Size = UDim2.new(1,0,1,0)
+		switch.Size = UDim2.new(0,18,0,18)
+		switch.Position = UDim2.new(0,1,0,1)
 		switch.BackgroundColor3 = Color3.fromRGB(255,255,255)
-		local aspectRatio = Instance.new("UIAspectRatioConstraint",switch)
+		local switchButtonCorner = Instance.new("UICorner",switch)
+		switchButtonCorner.CornerRadius = UDim.new(0,9)
+		
 		if enabled then
-			tweenService:Create(switch.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-			tweenService:Create(switch,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-			tweenService:Create(switch,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
+			switchFrame.BackgroundColor3 = Color3.fromRGB(0,122,255) -- Modern mavi
+			switch.Position = UDim2.new(1,-19,0,1)
 		end
 		return switch
 	elseif optionType == "color" then
 		local colorButton = Instance.new("ImageButton",optionFrame)
-		colorButton.Position = UDim2.new(0.928,0,0.125,0)
+		colorButton.Position = UDim2.new(1,-35,0.5,-12)
 		colorButton.AutoButtonColor = false
-		colorButton.Size = UDim2.new(0.062,0,0.75,0)
+		colorButton.Size = UDim2.new(0,24,0,24) -- Küçük color button
+		colorButton.BackgroundColor3 = color
+		local colorCorner = Instance.new("UICorner",colorButton)
+		colorCorner.CornerRadius = UDim.new(0,6)
 		return colorButton
 	elseif optionType == "custom" then
-		local button = Instance.new("ImageButton",optionFrame)
-		button.BackgroundColor3 = Color3.fromRGB(100,100,100)
-		button.Position = UDim2.new(0.865,0,0.125,0)
-		button.Size = UDim2.new(0.125,0,0.75,0)
+		local button = Instance.new("TextButton",optionFrame)
+		button.BackgroundColor3 = Color3.fromRGB(0,122,255) -- Modern mavi
+		button.Position = UDim2.new(1,-70,0.5,-12)
+		button.Size = UDim2.new(0,60,0,24) -- Küçük button
 		button.AutoButtonColor = false
-		local textlabel = Instance.new("TextLabel",button)
-		textlabel.BackgroundTransparency = 1
-		textlabel.Position = UDim2.new(0.5,0,0.5,0)
-		textlabel.AnchorPoint = Vector2.new(0.5,0.5)
-		textlabel.Size = UDim2.new(0.8,0,0.8,0)
-		textlabel.Text = customText
-		textlabel.TextScaled = true
-		textlabel.Font = Enum.Font.SourceSansBold
-		textlabel.TextColor3 = Color3.fromRGB(255,255,255)
+		button.BorderSizePixel = 0
+		button.Text = customText
+		button.TextSize = 12
+		button.Font = Enum.Font.GothamMedium
+		button.TextColor3 = Color3.fromRGB(255,255,255)
+		local buttonCorner = Instance.new("UICorner",button)
+		buttonCorner.CornerRadius = UDim.new(0,6)
 		return button
 	end
 end
