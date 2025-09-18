@@ -19,111 +19,68 @@ highlight.FillTransparency = 0.8
 highlight.Parent = workspace
 highlight.Adornee = provincesFolder
 
--- MODERN UI CREATION --
 local UI = Instance.new("ScreenGui",player.PlayerGui)
-UI.ResetOnSpawn = false
-UI.IgnoreGuiInset = true
-
--- Main Container
-local mainContainer = Instance.new("Frame",UI)
-mainContainer.Size = UDim2.new(0,320,0,480)
-mainContainer.Position = UDim2.new(0.5,-160,0.5,-240)
-mainContainer.BackgroundColor3 = Color3.fromRGB(25,25,25)
-mainContainer.BorderSizePixel = 0
-
--- Modern Corner Radius
-local mainCorner = Instance.new("UICorner",mainContainer)
-mainCorner.CornerRadius = UDim.new(0,16)
-
--- Modern Shadow Effect
-local shadow = Instance.new("Frame",UI)
-shadow.Size = UDim2.new(0,324,0,484)
-shadow.Position = UDim2.new(0.5,-162,0.5,-238)
-shadow.BackgroundColor3 = Color3.fromRGB(0,0,0)
-shadow.BackgroundTransparency = 0.8
-shadow.ZIndex = -1
-local shadowCorner = Instance.new("UICorner",shadow)
-shadowCorner.CornerRadius = UDim.new(0,16)
-
--- Header Bar
-local headerBar = Instance.new("Frame",mainContainer)
-headerBar.Size = UDim2.new(1,0,0,50)
-headerBar.BackgroundColor3 = Color3.fromRGB(32,32,32)
-headerBar.BorderSizePixel = 0
-local headerCorner = Instance.new("UICorner",headerBar)
-headerCorner.CornerRadius = UDim.new(0,16)
-
--- Header Bottom Fix
-local headerFix = Instance.new("Frame",headerBar)
-headerFix.Size = UDim2.new(1,0,0,16)
-headerFix.Position = UDim2.new(0,0,1,-16)
-headerFix.BackgroundColor3 = Color3.fromRGB(32,32,32)
-headerFix.BorderSizePixel = 0
-
--- Title
-local titleLabel = Instance.new("TextLabel",headerBar)
-titleLabel.Size = UDim2.new(0,150,1,0)
-titleLabel.Position = UDim2.new(0,16,0,0)
-titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "Paint Admin"
-titleLabel.TextColor3 = Color3.fromRGB(255,255,255)
-titleLabel.TextSize = 16
-titleLabel.Font = Enum.Font.GothamSemiBold
-titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-
--- Close Button
-local closeButton = Instance.new("TextButton",headerBar)
-closeButton.Size = UDim2.new(0,30,0,30)
-closeButton.Position = UDim2.new(1,-40,0,10)
-closeButton.BackgroundColor3 = Color3.fromRGB(255,69,69)
-closeButton.BorderSizePixel = 0
-closeButton.Text = "✕"
-closeButton.TextColor3 = Color3.fromRGB(255,255,255)
-closeButton.TextSize = 14
-closeButton.Font = Enum.Font.GothamBold
-local closeCorner = Instance.new("UICorner",closeButton)
-closeCorner.CornerRadius = UDim.new(0,8)
-
--- Minimize Button
-local minimizeButton = Instance.new("TextButton",headerBar)
-minimizeButton.Size = UDim2.new(0,30,0,30)
-minimizeButton.Position = UDim2.new(1,-80,0,10)
-minimizeButton.BackgroundColor3 = Color3.fromRGB(255,189,69)
-minimizeButton.BorderSizePixel = 0
-minimizeButton.Text = "−"
-minimizeButton.TextColor3 = Color3.fromRGB(255,255,255)
-minimizeButton.TextSize = 16
-minimizeButton.Font = Enum.Font.GothamBold
-local minimizeCorner = Instance.new("UICorner",minimizeButton)
-minimizeCorner.CornerRadius = UDim.new(0,8)
-
--- Stats Display
-local statsLabel = Instance.new("TextLabel",headerBar)
-statsLabel.Size = UDim2.new(0,80,1,0)
-statsLabel.Position = UDim2.new(1,-130,0,0)
-statsLabel.BackgroundTransparency = 1
-statsLabel.Text = "0 p/s"
-statsLabel.TextColor3 = Color3.fromRGB(170,170,170)
-statsLabel.TextSize = 12
-statsLabel.Font = Enum.Font.Gotham
-statsLabel.TextXAlignment = Enum.TextXAlignment.Right
-
--- Content Area
-local contentFrame = Instance.new("ScrollingFrame",mainContainer)
-contentFrame.Size = UDim2.new(1,-20,1,-70)
-contentFrame.Position = UDim2.new(0,10,0,60)
-contentFrame.BackgroundTransparency = 1
-contentFrame.BorderSizePixel = 0
-contentFrame.ScrollBarThickness = 4
-contentFrame.ScrollBarImageColor3 = Color3.fromRGB(80,80,80)
-contentFrame.CanvasSize = UDim2.new(0,0,0,0)
-contentFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
-
--- Content Layout
-local contentLayout = Instance.new("UIListLayout",contentFrame)
-contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
-contentLayout.Padding = UDim.new(0,8)
-
+local UIHolder = Instance.new("Frame",UI)
+UIHolder.AnchorPoint = Vector2.new(0.5,0.5)
+UIHolder.BackgroundTransparency = 1
+UIHolder.Position = UDim2.new(0.5,0,0.5,0)
+UIHolder.Size = UDim2.new(0,0,0,0)
+local aspectratio = Instance.new("UIAspectRatioConstraint",UIHolder)
+local mainFrame = Instance.new("Frame",UIHolder)
+mainFrame.BackgroundColor3 = Color3.fromRGB(33,33,42)
+mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
+mainFrame.Position = UDim2.new(0.5,0,0.5,0)
+mainFrame.Size = UDim2.new(0.5,0,0.276,0)
+mainFrame.Rotation = 359
+local topBar = Instance.new("Frame",mainFrame)
+topBar.BorderColor3 = Color3.fromRGB(0,0,0)
+topBar.BackgroundColor3 = Color3.fromRGB(49,49,64)
+topBar.Size = UDim2.new(1,0,0.14,0)
+local pss = Instance.new("TextLabel",topBar)
+pss.Text = "0 paint/second"
+pss.AnchorPoint = Vector2.new(0,0.5)
+pss.Size = UDim2.new(0.974,0,0.5,0)
+pss.Position = UDim2.new(0,0,0.5,0)
+pss.TextColor3 = Color3.fromRGB(255,255,255)
+pss.BackgroundTransparency = 1
+pss.TextScaled = true
+pss.TextXAlignment = Enum.TextXAlignment.Right
+local scrollFrame = Instance.new("ScrollingFrame",mainFrame)
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.Position = UDim2.new(0,0,0.14,0)
+scrollFrame.Size = UDim2.new(1,0,0.86,0)
+scrollFrame.ScrollBarThickness = 0
+local panelTitle = Instance.new("TextLabel",topBar)
+panelTitle.AnchorPoint = Vector2.new(0,0.5)
+panelTitle.BackgroundTransparency = 1
+panelTitle.Position = UDim2.new(0.02,0,0.5,0)
+panelTitle.Size = UDim2.new(1,0,0.5,0)
+panelTitle.Text = '<b>Paint Admin Panel</b><font size="6"> PRO</font>'
+panelTitle.RichText = true
+panelTitle.TextScaled = true
+panelTitle.TextColor3 = Color3.fromRGB(255,255,255)
+panelTitle.TextXAlignment = Enum.TextXAlignment.Left
+local listlayout = Instance.new("UIListLayout",scrollFrame)
+listlayout.Padding = UDim.new(0,10)
+local uipadding = Instance.new("UIPadding",scrollFrame)
+uipadding.PaddingTop = UDim.new(0,10)
+uipadding.PaddingLeft = UDim.new(0,10)
+uipadding.PaddingRight = UDim.new(0,10)
+uipadding.PaddingBottom = UDim.new(0,10)
+local doneButton = Instance.new("TextButton",UI)
+doneButton.Visible = false
+doneButton.AnchorPoint = Vector2.new(0.5,0)
+doneButton.BackgroundColor3 = Color3.fromRGB(0,247,159)
+doneButton.Position = UDim2.new(0.5,0,0,0)
+doneButton.Size = UDim2.new(0.3,0,0.1,0)
+doneButton.TextColor3 = Color3.fromRGB(255,255,255)
+doneButton.TextScaled = true
+doneButton.Text = "Done"
+doneButton.AutoButtonColor = false
+doneButton.BorderSizePixel = 0
+local whiteFrame = Instance.new("Frame",mainFrame)
+whiteFrame.Size = UDim2.new(1,0,1,0)
+whiteFrame.BackgroundColor3 = Color3.fromRGB(255,255,255)
 local sound = Instance.new("Sound")
 sound.SoundId = "rbxassetid://4612386227"
 sound.Parent = workspace
@@ -138,18 +95,197 @@ local provinceSound = Instance.new("Sound")
 provinceSound.SoundId = "rbxassetid://5694665239"
 provinceSound.Parent = workspace
 
--- Variables
+-- DRAG SELECT VARIABLES --
 local dragSelectMode = false
 local isDragging = false
 local dragConnection = nil
 local selectedInDrag = {}
-local ultraFastMode = false
-local ultraDefenseConnection = nil
-local isMinimized = false
 
-local provinces = {}
+-- AI ASSISTANT VARIABLES --
+local autoRepairMode = false
+local autoRepairConnection = nil
+local enemyColors = {}
+local playerOriginalColor = Color3.fromRGB(255,255,255)
+
+-- ADVANCED AI PROTECTION VARIABLES --
+local superProtectionMode = false
+local protectionConnections = {}
+local protectionZones = {} -- Korunan bölgelerin listesi
+local lastColorCheck = {}  -- Her bölge için son renk kontrolü
+local protectionStrength = "ULTRA" -- Normal, High, Ultra seviyeleri
+local antiBypassMode = true -- Bypass koruması
+local instantProtection = true -- Anında koruma
+local protectionRadius = 50 -- Koruma yarıçapı
+
+-- GELIŞMIŞ AI KORUMA FONKSİYONLARI --
+local function addToProtectionZone(province)
+    if not protectionZones[province] then
+        protectionZones[province] = {
+            ["Province"] = province,
+            ["OriginalColor"] = color,
+            ["LastCheck"] = tick(),
+            ["ProtectionLevel"] = protectionStrength,
+            ["Violations"] = 0
+        }
+        lastColorCheck[province] = province.Color
+        print("🛡️ PROTECTION: Added", province.Name, "to protection zone")
+    end
+end
+
+local function removeFromProtectionZone(province)
+    if protectionZones[province] then
+        protectionZones[province] = nil
+        lastColorCheck[province] = nil
+        print("🛡️ PROTECTION: Removed", province.Name, "from protection zone")
+    end
+end
+
+local function instantProtectionRepair(province, intruderColor)
+    -- ANINDA KORUMA - 3 KATLI SAVUNMA
+    
+    -- 1. KAT: Hızlı Boyama (0.001 saniye)
+    task.spawn(function()
+        for i = 1, 3 do
+            if province.Color ~= color then
+                local args = {
+                    [1] = "PaintPart",
+                    [2] = {
+                        ["Part"] = province,
+                        ["Color"] = color
+                    },
+                    [3] = "Peace"
+                }
+                pcall(function()
+                    game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+                end)
+                task.wait(0.001) -- Ultra hızlı
+            end
+        end
+    end)
+    
+    -- 2. KAT: Çevre Koruma (Yakın bölgeleri de kontrol et)
+    task.spawn(function()
+        local pos = province.Position
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj.Name == "Province" and obj:IsA("BasePart") and obj ~= province then
+                local distance = (obj.Position - pos).Magnitude
+                if distance < protectionRadius and obj.Color == intruderColor then
+                    -- Düşman rengindeki yakın bölgeleri de boyar
+                    local args = {
+                        [1] = "PaintPart",
+                        [2] = {
+                            ["Part"] = obj,
+                            ["Color"] = color
+                        },
+                        [3] = "Peace"
+                    }
+                    pcall(function()
+                        game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+                    end)
+                end
+            end
+        end
+    end)
+    
+    -- 3. KAT: Sürekli İzleme (Bu bölgeyi 5 saniye daha yoğun izle)
+    task.spawn(function()
+        for i = 1, 50 do -- 5 saniye boyunca her 0.1 saniyede
+            if province.Color ~= color then
+                local args = {
+                    [1] = "PaintPart",
+                    [2] = {
+                        ["Part"] = province,
+                        ["Color"] = color
+                    },
+                    [3] = "Peace"
+                }
+                pcall(function()
+                    game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+                end)
+            end
+            task.wait(0.1)
+        end
+    end)
+    
+    print("🚨 INSTANT PROTECTION: Defended", province.Name, "from", intruderColor)
+end
+
+local function startSuperProtection()
+    if protectionConnections.main then
+        protectionConnections.main:Disconnect()
+    end
+    
+    protectionConnections.main = runService.Heartbeat:Connect(function()
+        if superProtectionMode then
+            -- Her frame'de tüm korunan bölgeleri kontrol et
+            for province, info in pairs(protectionZones) do
+                if province and province.Parent then
+                    local currentColor = province.Color
+                    local expectedColor = info.OriginalColor
+                    
+                    -- Renk değişti mi kontrol et
+                    if currentColor ~= expectedColor then
+                        info.Violations = info.Violations + 1
+                        
+                        -- ANINDA MÜDAHALE
+                        instantProtectionRepair(province, currentColor)
+                        
+                        -- İstatistik güncelle
+                        provincespersecond = provincespersecond + 1
+                        
+                        print("⚡ SUPER PROTECTION: Violation #" .. info.Violations .. " on " .. province.Name)
+                    end
+                    
+                    lastColorCheck[province] = currentColor
+                end
+            end
+        end
+    end)
+    
+    -- SECONDARY PROTECTION - BackgroundTask
+    protectionConnections.secondary = task.spawn(function()
+        while superProtectionMode do
+            for province, info in pairs(protectionZones) do
+                if province and province.Parent and province.Color ~= info.OriginalColor then
+                    -- Çift kontrol sistemi
+                    task.spawn(function()
+                        local args = {
+                            [1] = "PaintPart",
+                            [2] = {
+                                ["Part"] = province,
+                                ["Color"] = info.OriginalColor
+                            },
+                            [3] = "Peace"
+                        }
+                        pcall(function()
+                            game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+                        end)
+                    end)
+                end
+            end
+            task.wait(0.05) -- Her 0.05 saniyede ek kontrol
+        end
+    end)
+    
+    print("🛡️ SUPER PROTECTION: ACTIVATED - Protecting", table.getn(protectionZones), "zones")
+end
+
+local function stopSuperProtection()
+    if protectionConnections.main then
+        protectionConnections.main:Disconnect()
+        protectionConnections.main = nil
+    end
+    if protectionConnections.secondary then
+        task.cancel(protectionConnections.secondary)
+        protectionConnections.secondary = nil
+    end
+    print("🛡️ SUPER PROTECTION: DEACTIVATED")
+end
+
+-- EXISTING FUNCTIONS (Original code continues...)
 local provincespersecond = 0
 local pps = 0
+
 local selectColorMode = false
 local removeProvincesMode = false
 local selectProvincesMode = false
@@ -157,565 +293,791 @@ local safeMode = false
 local newpaint = false
 local painting = true
 local keepTerColor = false
+
 local provinceCodeGenerator = 0
 
--- Done Button
-local doneButton = Instance.new("TextButton",UI)
-doneButton.Size = UDim2.new(0,100,0,35)
-doneButton.Position = UDim2.new(0.5,-50,0.5,-200)
-doneButton.BackgroundColor3 = Color3.fromRGB(52,199,89)
-doneButton.BorderSizePixel = 0
-doneButton.Text = "Done"
-doneButton.TextColor3 = Color3.fromRGB(255,255,255)
-doneButton.TextSize = 14
-doneButton.Font = Enum.Font.GothamSemiBold
-doneButton.Visible = false
-local doneCorner = Instance.new("UICorner",doneButton)
-doneCorner.CornerRadius = UDim.new(0,8)
+local dragging
+local dragInput
+local dragStart
+local startPos
 
--- Dragging Variables
-local dragging = false
-local dragStart = nil
-local startPos = nil
+-- Existing functions... (keeping original paintProvinceLoop, detectEnemyColors etc.)
 
--- Functions --
-
--- ULTRA DEFENSE SYSTEM (OPTIMIZED) --
-local function startUltraDefense()
-	if ultraDefenseConnection then
-		ultraDefenseConnection:Disconnect()
-	end
-	
-	-- Optimized defense with proper timing
-	ultraDefenseConnection = runService.Heartbeat:Connect(function()
-		if not ultraFastMode then return end
-		
-		-- Check only every few frames to prevent lag
-		if tick() % 0.1 < 0.016 then -- Every 0.1 seconds
-			for _, info in pairs(provinces) do
-				if info.Province and info.Province.Parent and info.Province.Color ~= color then
-					-- Single repair attempt per check
-					if player and player.Character and player.Character:FindFirstChild("PaintBucket") then
-						local args = {
-							[1] = "PaintPart",
-							[2] = {
-								["Part"] = info.Province,
-								["Color"] = color
-							},
-							[3] = "Peace"
-						}
-						pcall(function()
-							game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
-						end)
-						provincespersecond = provincespersecond + 1
-					end
-				end
-			end
-		end
-	end)
+local function detectEnemyColors()
+    local detectedColors = {}
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj.Name == "Province" and obj:IsA("BasePart") then
+            if obj.Color ~= color and obj.Color ~= playerOriginalColor then
+                local isEnemyColor = true
+                for _, friendlyColor in pairs({color, playerOriginalColor}) do
+                    if obj.Color == friendlyColor then
+                        isEnemyColor = false
+                        break
+                    end
+                end
+                
+                if isEnemyColor then
+                    local colorExists = false
+                    for _, existingColor in pairs(detectedColors) do
+                        if existingColor == obj.Color then
+                            colorExists = true
+                            break
+                        end
+                    end
+                    if not colorExists then
+                        table.insert(detectedColors, obj.Color)
+                    end
+                end
+            end
+        end
+    end
+    return detectedColors
 end
 
--- DRAG SELECT FUNCTIONS --
+local function startAutoRepair()
+    if autoRepairConnection then
+        autoRepairConnection:Disconnect()
+    end
+    
+    autoRepairConnection = task.spawn(function()
+        while autoRepairMode do
+            for _, info in pairs(provinces) do
+                if info.Province and info.Province.Parent then
+                    if info.Province.Color ~= color then
+                        print("🤖 AI: Repairing lost province:", info.Province.Name)
+                        
+                        if player and player.Character and player.Character:FindFirstChild("PaintBucket") then
+                            local args = {
+                                [1] = "PaintPart",
+                                [2] = {
+                                    ["Part"] = info.Province,
+                                    ["Color"] = color
+                                },
+                                [3] = "Peace"
+                            }
+                            pcall(function()
+                                game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+                            end)
+                        end
+                    end
+                end
+            end
+            
+            task.wait(0.5)
+        end
+    end)
+end
+
+local function findNewTargets()
+    local newTargets = {}
+    for _, info in pairs(provinces) do
+        if info.Province and info.Province.Parent then
+            local pos = info.Province.Position
+            for _, obj in pairs(workspace:GetDescendants()) do
+                if obj.Name == "Province" and obj:IsA("BasePart") and obj ~= info.Province then
+                    local distance = (obj.Position - pos).Magnitude
+                    if distance < 50 and obj.Color ~= color then
+                        local alreadyProtected = false
+                        for _, protectedInfo in pairs(provinces) do
+                            if protectedInfo.Province == obj then
+                                alreadyProtected = true
+                                break
+                            end
+                        end
+                        
+                        if not alreadyProtected then
+                            table.insert(newTargets, obj)
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return newTargets
+end
+
 local function startDragSelect()
-	if dragConnection then
-		dragConnection:Disconnect()
-	end
-	
-	dragConnection = mouse.Move:Connect(function()
-		if isDragging and dragSelectMode then
-			if mouse.Target and mouse.Target.Name == "Province" then
-				local alreadySelected = false
-				
-				for _, info in pairs(provinces) do
-					if info.Province == mouse.Target then
-						alreadySelected = true
-						break
-					end
-				end
-				
-				if not alreadySelected then
-					for _, selected in pairs(selectedInDrag) do
-						if selected == mouse.Target then
-							alreadySelected = true
-							break
-						end
-					end
-				end
-				
-				if not alreadySelected then
-					table.insert(selectedInDrag, mouse.Target)
-					
-					provinceSound:Play()
-					
-					local clone = mouse.Target:Clone()
-					clone.Position -= Vector3.new(0, 0.01, 0)
-					clone.Material = "Glass"
-					clone.Transparency = 1000000
-					clone.Parent = provincesFolder
-					
-					local coro = coroutine.create(paintProvinceLoop)
-					coroutine.resume(coro, mouse.Target, coro, clone)
-					
-					local tempHighlight = Instance.new("SelectionBox")
-					tempHighlight.Adornee = mouse.Target
-					tempHighlight.Color3 = Color3.fromRGB(52,199,89)
-					tempHighlight.Parent = mouse.Target
-					tempHighlight.Transparency = 0.3
-					
-					task.spawn(function()
-						task.wait(0.5)
-						if tempHighlight then
-							tempHighlight:Destroy()
-						end
-					end)
-				end
-			end
-		end
-	end)
+    if dragConnection then
+        dragConnection:Disconnect()
+    end
+    
+    dragConnection = mouse.Move:Connect(function()
+        if isDragging and dragSelectMode then
+            if mouse.Target and mouse.Target.Name == "Province" then
+                local alreadySelected = false
+                
+                for _, info in pairs(provinces) do
+                    if info.Province == mouse.Target then
+                        alreadySelected = true
+                        break
+                    end
+                end
+                
+                if not alreadySelected then
+                    for _, selected in pairs(selectedInDrag) do
+                        if selected == mouse.Target then
+                            alreadySelected = true
+                            break
+                        end
+                    end
+                end
+                
+                if not alreadySelected then
+                    table.insert(selectedInDrag, mouse.Target)
+                    
+                    local clone = mouse.Target:Clone()
+                    clone.Position -= Vector3.new(0, 0.01, 0)
+                    clone.Material = "Glass"
+                    clone.Transparency = 1000000
+                    clone.Parent = provincesFolder
+                    
+                    local coro = coroutine.create(paintProvinceLoop)
+                    coroutine.resume(coro, mouse.Target, coro, clone)
+                    
+                    local tempHighlight = Instance.new("SelectionBox")
+                    tempHighlight.Adornee = mouse.Target
+                    tempHighlight.Color3 = Color3.fromRGB(0, 255, 0)
+                    tempHighlight.Parent = mouse.Target
+                    tempHighlight.Transparency = 0.3
+                    
+                    task.spawn(function()
+                        task.wait(0.5)
+                        if tempHighlight then
+                            tempHighlight:Destroy()
+                        end
+                    end)
+                    
+                    print("Added via drag:", mouse.Target.Name, "Total selected:", #selectedInDrag)
+                end
+            end
+        end
+    end)
 end
 
 local function finishDragSelect()
-	if dragConnection then
-		dragConnection:Disconnect()
-		dragConnection = nil
-	end
-	
-	selectedInDrag = {}
-	isDragging = false
+    if dragConnection then
+        dragConnection:Disconnect()
+        dragConnection = nil
+    end
+    
+    if #selectedInDrag > 0 then
+        print("Added " .. #selectedInDrag .. " provinces via drag select!")
+    end
+    
+    selectedInDrag = {}
+    isDragging = false
 end
 
--- OPTIMIZED paintProvinceLoop --
 local function paintProvinceLoop(province,coro,highlighty)
-	local savedColor = color
-	local active = true
+    local savedColor = color
+    local active = true
 
-	local eventObject = {}
-	function eventObject:Disconnect()
-		active = false
-	end
+    local eventObject = {}
+    function eventObject:Disconnect()
+        active = false
+    end
 
-	task.spawn(function()
-		while active do
-			if painting then
-				if player and player.Character and player.Character:FindFirstChild("PaintBucket") then
-					if (province.Color ~= color and keepTerColor == false) or (keepTerColor == true and province.Color ~= savedColor) then
-						local args = {
-							[1] = "PaintPart",
-							[2] = {
-								["Part"] = province,
-								["Color"] = keepTerColor and savedColor or color
-							},
-							[3] = "Peace"
-						}
-						
-						-- Optimized painting based on mode
-						if ultraFastMode then
-							-- Double paint for ultra mode but not excessive
-							pcall(function()
-								game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
-							end)
-							pcall(function()
-								game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
-							end)
-							provincespersecond = provincespersecond + 2
-						else
-							pcall(function()
-								game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
-							end)
-							provincespersecond = provincespersecond + 1
-						end
-					end
-				end
-			end
+    task.spawn(function()
+        while active do
+            if painting then
+                if player and player.Character and player.Character:FindFirstChild("PaintBucket") then
+                    local currentTargetColor = keepTerColor and savedColor or color
+                    
+                    if province.Color ~= currentTargetColor then
+                        local args = {
+                            [1] = "PaintPart",
+                            [2] = {
+                                ["Part"] = province,
+                                ["Color"] = currentTargetColor
+                            },
+                            [3] = "Peace"
+                        }
+                        local success = pcall(function()
+                            game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+                        end)
+                        
+                        if success then
+                            provincespersecond = provincespersecond + 1
+                            if math.random(1,20) == 1 then
+                                print("Painting:", province.Name, "Current PPS:", provincespersecond)
+                            end
+                        end
+                    end
+                else
+                    if math.random(1,100) == 1 then
+                        print("PaintBucket not found!")
+                    end
+                end
+            end
 
-			-- Optimized timing
-			if safeMode then
-				task.wait(0.3)
-			elseif ultraFastMode then
-				task.wait(0.05) -- Faster but not laggy
-			elseif newpaint then
-				task.wait(0.01)
-			else
-				task.wait(0.02)
-			end
-		end
-	end)
+            if safeMode then
+                task.wait(0.3)
+            elseif newpaint then
+                task.wait(0.001)
+            else
+                task.wait(0.02)
+            end
+        end
+    end)
 
-	local provinceInfo = {
-		["Province"] = province,
-		["Coroutine"] = coro,
-		["Event"] = eventObject,
-		["Highlight"] = highlighty
-	}
-	table.insert(provinces,provinceInfo)
-	provinceCodeGenerator += 1
+    local provinceInfo = {
+        ["Province"] = province,
+        ["Coroutine"] = coro,
+        ["Event"] = eventObject,
+        ["Highlight"] = highlighty
+    }
+    table.insert(provinces,provinceInfo)
+    provinceCodeGenerator += 1
+    
+    print("Started paintProvinceLoop for:", province.Name, "Total active provinces:", #provinces)
 end
 
--- MODERN OPTION CREATOR --
-local function createModernOption(optionType, text, customText, enabled)
-	local optionFrame = Instance.new("Frame", contentFrame)
-	optionFrame.Size = UDim2.new(1,0,0,40)
-	optionFrame.BackgroundColor3 = Color3.fromRGB(35,35,35)
-	optionFrame.BorderSizePixel = 0
-	
-	local optionCorner = Instance.new("UICorner", optionFrame)
-	optionCorner.CornerRadius = UDim.new(0,8)
-	
-	local optionLabel = Instance.new("TextLabel", optionFrame)
-	optionLabel.Size = UDim2.new(1,-100,1,0)
-	optionLabel.Position = UDim2.new(0,12,0,0)
-	optionLabel.BackgroundTransparency = 1
-	optionLabel.Text = text
-	optionLabel.TextColor3 = Color3.fromRGB(220,220,220)
-	optionLabel.TextSize = 13
-	optionLabel.Font = Enum.Font.Gotham
-	optionLabel.TextXAlignment = Enum.TextXAlignment.Left
-	
-	if optionType == "switch" then
-		local switchBg = Instance.new("Frame", optionFrame)
-		switchBg.Size = UDim2.new(0,40,0,20)
-		switchBg.Position = UDim2.new(1,-50,0.5,-10)
-		switchBg.BackgroundColor3 = enabled and Color3.fromRGB(52,199,89) or Color3.fromRGB(60,60,60)
-		switchBg.BorderSizePixel = 0
-		local switchBgCorner = Instance.new("UICorner", switchBg)
-		switchBgCorner.CornerRadius = UDim.new(0,10)
-		
-		local switchButton = Instance.new("TextButton", switchBg)
-		switchButton.Size = UDim2.new(0,16,0,16)
-		switchButton.Position = enabled and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2)
-		switchButton.BackgroundColor3 = Color3.fromRGB(255,255,255)
-		switchButton.BorderSizePixel = 0
-		switchButton.Text = ""
-		local switchButtonCorner = Instance.new("UICorner", switchButton)
-		switchButtonCorner.CornerRadius = UDim.new(0,8)
-		
-		return switchButton
-		
-	elseif optionType == "color" then
-		local colorButton = Instance.new("TextButton", optionFrame)
-		colorButton.Size = UDim2.new(0,30,0,20)
-		colorButton.Position = UDim2.new(1,-40,0.5,-10)
-		colorButton.BackgroundColor3 = color
-		colorButton.BorderSizePixel = 0
-		colorButton.Text = ""
-		local colorCorner = Instance.new("UICorner", colorButton)
-		colorCorner.CornerRadius = UDim.new(0,6)
-		
-		return colorButton
-		
-	elseif optionType == "custom" then
-		local customButton = Instance.new("TextButton", optionFrame)
-		customButton.Size = UDim2.new(0,60,0,24)
-		customButton.Position = UDim2.new(1,-70,0.5,-12)
-		customButton.BackgroundColor3 = Color3.fromRGB(0,122,255)
-		customButton.BorderSizePixel = 0
-		customButton.Text = customText
-		customButton.TextColor3 = Color3.fromRGB(255,255,255)
-		customButton.TextSize = 12
-		customButton.Font = Enum.Font.GothamSemiBold
-		local customCorner = Instance.new("UICorner", customButton)
-		customCorner.CornerRadius = UDim.new(0,6)
-		
-		return customButton
-	end
+local function createNewOption(optionType,text,customText,enabled)
+    local optionFrame = Instance.new("Frame",scrollFrame)
+    optionFrame.BorderColor3 = Color3.fromRGB(0,0,0)
+    optionFrame.BackgroundColor3 = Color3.fromRGB(49, 49, 64)
+    optionFrame.Size = UDim2.new(1,0,0.075,0)
+    optionFrame.Parent = scrollFrame
+    local textlabel = Instance.new("TextLabel",optionFrame)
+    textlabel.BackgroundTransparency = 1
+    textlabel.Position = UDim2.new(0.02,0,0.2,0)
+    textlabel.Size = UDim2.new(1,0,0.6,0)
+    textlabel.TextScaled = true
+    textlabel.Text = text
+    textlabel.Font = Enum.Font.SourceSansBold
+    textlabel.TextColor3 = Color3.fromRGB(255,255,255)
+    textlabel.TextXAlignment = Enum.TextXAlignment.Left
+    if optionType == "switch" then
+        local switchFrame = Instance.new("Frame",optionFrame)
+        switchFrame.BackgroundColor3 = Color3.fromRGB(241, 33, 103)
+        switchFrame.Position = UDim2.new(0.865,0,0.125,0)
+        switchFrame.Size = UDim2.new(0.125,0,0.75,0)
+        switchFrame.BorderSizePixel = 0
+        local switch = Instance.new("ImageButton",switchFrame)
+        switch.AutoButtonColor = false
+        switch.BorderSizePixel = 0
+        switch.Size = UDim2.new(1,0,1,0)
+        switch.BackgroundColor3 = Color3.fromRGB(255,255,255)
+        local aspectRatio = Instance.new("UIAspectRatioConstraint",switch)
+        if enabled then
+            tweenService:Create(switch.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
+            tweenService:Create(switch,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
+            tweenService:Create(switch,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
+        end
+        return switch
+    elseif optionType == "color" then
+        local colorButton = Instance.new("ImageButton",optionFrame)
+        colorButton.Position = UDim2.new(0.928,0,0.125,0)
+        colorButton.AutoButtonColor = false
+        colorButton.Size = UDim2.new(0.062,0,0.75,0)
+        return colorButton
+    elseif optionType == "custom" then
+        local button = Instance.new("ImageButton",optionFrame)
+        button.BackgroundColor3 = Color3.fromRGB(100,100,100)
+        button.Position = UDim2.new(0.865,0,0.125,0)
+        button.Size = UDim2.new(0.125,0,0.75,0)
+        button.AutoButtonColor = false
+        local textlabel = Instance.new("TextLabel",button)
+        textlabel.BackgroundTransparency = 1
+        textlabel.Position = UDim2.new(0.5,0,0.5,0)
+        textlabel.AnchorPoint = Vector2.new(0.5,0.5)
+        textlabel.Size = UDim2.new(0.8,0,0.8,0)
+        textlabel.Text = customText
+        textlabel.TextScaled = true
+        textlabel.Font = Enum.Font.SourceSansBold
+        textlabel.TextColor3 = Color3.fromRGB(255,255,255)
+        return button
+    end
 end
 
--- Window Controls
-local function toggleMinimize()
-	isMinimized = not isMinimized
-	local targetSize = isMinimized and UDim2.new(0,320,0,50) or UDim2.new(0,320,0,480)
-	tweenService:Create(mainContainer, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {Size = targetSize}):Play()
-	contentFrame.Visible = not isMinimized
+local function update(input)
+    local delta = input.Position - dragStart
+    mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 end
 
--- Event Connections
-closeButton.MouseButton1Click:Connect(function()
-	UI:Destroy()
+-- Script --
+
+wait(1)
+
+sound:Play()
+
+if userInputService.MouseEnabled == false then
+    tweenService:Create(UIHolder,TweenInfo.new(0.5),{Size = UDim2.new(1.5,0,1.5,0)}):Play()
+else
+    tweenService:Create(UIHolder,TweenInfo.new(0.5),{Size = UDim2.new(0.75,0,0.75,0)}):Play()
+end
+tweenService:Create(mainFrame,TweenInfo.new(0.5),{Rotation = 0}):Play()
+tweenService:Create(whiteFrame,TweenInfo.new(4),{BackgroundTransparency = 1}):Play()
+
+topBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
 end)
 
-minimizeButton.MouseButton1Click:Connect(function()
-	toggleMinimize()
-end)
-
--- Window Dragging
-headerBar.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = true
-		dragStart = input.Position
-		startPos = mainContainer.Position
-		
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
-	end
-end)
-
-headerBar.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement then
-		dragInput = input
-	end
+topBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
 end)
 
 userInputService.InputChanged:Connect(function(input)
-	if input == dragInput and dragging then
-		local delta = input.Position - dragStart
-		mainContainer.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-	end
+    if input == dragInput and dragging then
+        update(input)
+    end
 end)
 
--- Create Options
-local button2 = createModernOption("color","Country Color")
-local button1 = createModernOption("custom","Protect Province","Add")
-local dragSelectButton = createModernOption("custom","Drag Select","Drag")
-local button5 = createModernOption("custom","Unprotect Province","Remove")
-local button3 = createModernOption("custom","Clear Provinces","Clear")
-local button4 = createModernOption("switch","Safe Mode")
-local togglePaintButton = createModernOption("switch","Toggle Paint",nil,true)
-local newPaintButton = createModernOption("switch","Fast Paint")
-local territoryColorButton = createModernOption("switch","Keep Territory Color")
-local randomColorButton = createModernOption("custom","Random Color","Random")
-local ultraFastButton = createModernOption("switch","Ultra Defense")
+-- UI BUTONLARI --
+local button2 = createNewOption("color","Country Color")
+local button1 = createNewOption("custom","Protect Province","Add")
+local dragSelectButton = createNewOption("custom","🖱️ Drag Select","Drag")
+local button5 = createNewOption("custom","Unprotect Province","Remove")
+local button3 = createNewOption("custom","Clear Provinces","Clear")
+local button4 = createNewOption("switch","Safe Mode")
+local togglePaintButton = createNewOption("switch","Toggle Paint",nil,true)
+local newPaintButton = createNewOption("switch","Fast Paint")
+local territoryColorButton = createNewOption("switch","Keep Territory Color (NEW)")
+local randomColorButton = createNewOption("custom","Randomize color (NEW)","Change")
 
--- Initialize
-wait(1)
-sound:Play()
+-- AI ASSISTANT UI --
+local autoRepairButton = createNewOption("switch","🤖 Auto Repair")
+local expandTerritoryButton = createNewOption("custom","🚀 Auto Expand","Expand")
+local aiStatusButton = createNewOption("custom","📊 AI Status","Status")
 
--- Smooth entrance animation
-mainContainer.Position = UDim2.new(0.5,-160,1,100)
-tweenService:Create(mainContainer, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-	Position = UDim2.new(0.5,-160,0.5,-240)
-}):Play()
+-- NEW SUPER PROTECTION UI --
+local superProtectionButton = createNewOption("switch","🛡️ SUPER PROTECTION")
+local protectZoneButton = createNewOption("custom","🏰 Protect Zone","Protect")
+local clearZoneButton = createNewOption("custom","🧹 Clear Zones","Clear")
+local protectionStatsButton = createNewOption("custom","📈 Protection Stats","Stats")
 
--- Mouse Events
+-- MOUSE KONTROLLERI --
 mouse.Button1Down:Connect(function()
-	if dragSelectMode then
-		isDragging = true
-		startDragSelect()
-		
-		if mouse.Target and mouse.Target.Name == "Province" then
-			local alreadySelected = false
-			for _, info in pairs(provinces) do
-				if info.Province == mouse.Target then
-					alreadySelected = true
-					break
-				end
-			end
-			
-			if not alreadySelected then
-				table.insert(selectedInDrag, mouse.Target)
-				
-				provinceSound:Play()
-				
-				local clone = mouse.Target:Clone()
-				clone.Position -= Vector3.new(0, 0.01, 0)
-				clone.Material = "Glass"
-				clone.Transparency = 1000000
-				clone.Parent = provincesFolder
-				
-				local coro = coroutine.create(paintProvinceLoop)
-				coroutine.resume(coro, mouse.Target, coro, clone)
-			end
-		end
-		return
-	end
-	
-	if mouse.Target and mouse.Target.Name == "Province" then
-		if selectColorMode then
-			color = mouse.Target.Color
-			selectColorMode = false
-			mainContainer.Visible = true
-			button2.BackgroundColor3 = color
-			changecolor:Play()
-		end
-		if selectProvincesMode then
-			provinceSound:Play()
-			local clone = mouse.Target:Clone()
+    if dragSelectMode then
+        isDragging = true
+        startDragSelect()
+        
+        if mouse.Target and mouse.Target.Name == "Province" then
+            local alreadySelected = false
+            for _, info in pairs(provinces) do
+                if info.Province == mouse.Target then
+                    alreadySelected = true
+                    break
+                end
+            end
+            
+            if not alreadySelected then
+                table.insert(selectedInDrag, mouse.Target)
+                
+                provinceSound:Play()
+                
+                local clone = mouse.Target:Clone()
+                clone.Position -= Vector3.new(0, 0.01, 0)
+                clone.Material = "Glass"
+                clone.Transparency = 1000000
+                clone.Parent = provincesFolder
+                
+                local coro = coroutine.create(paintProvinceLoop)
+                coroutine.resume(coro, mouse.Target, coro, clone)
+                
+                print("Drag select started with:", mouse.Target.Name)
+            end
+        end
+        return
+    end
+    
+    if mouse.Target and mouse.Target.Name == "Province" then
+        if selectColorMode then
+            color = mouse.Target.Color
+            selectColorMode = false
+            UIHolder.Visible = true
+            button2.BackgroundColor3 = color
+            changecolor:Play()
+        end
+        if selectProvincesMode then
+            provinceSound:Play()
+            local clone = mouse.Target:Clone()
 
-			local coro = coroutine.create(paintProvinceLoop)
-			coroutine.resume(coro,mouse.Target,coro,clone)
+            local coro = coroutine.create(paintProvinceLoop)
+            coroutine.resume(coro,mouse.Target,coro,clone)
 
-			clone.Position -= Vector3.new(0,0.01,0)
-			clone.Material = "Glass"
-			clone.Transparency = 1000000
-			clone.Parent = provincesFolder
-		end
-		if removeProvincesMode then
-			for _,info in pairs(provinces) do
-				if mouse.Target == info.Province then
-					coroutine.close(info.Coroutine)
-					info.Event:Disconnect()
-					info.Highlight:Destroy()
-				end
-			end
-		end
-	end
+            clone.Position -= Vector3.new(0,0.01,0)
+            clone.Material = "Glass"
+            clone.Transparency = 1000000
+            clone.Parent = provincesFolder
+        end
+        if removeProvincesMode then
+            for _,info in pairs(provinces) do
+                if mouse.Target == info.Province then
+                    coroutine.close(info.Coroutine)
+                    info.Event:Disconnect()
+                    info.Highlight:Destroy()
+                end
+            end
+        end
+    end
 end)
 
 mouse.Button1Up:Connect(function()
-	if dragSelectMode and isDragging then
-		finishDragSelect()
-	end
+    if dragSelectMode and isDragging then
+        finishDragSelect()
+    end
 end)
 
--- Button Events
+-- ORIGINAL BUTTON CONNECTIONS --
 button2.BackgroundColor3 = color
-button2.MouseButton1Click:Connect(function()
-	mainContainer.Visible = false
-	selectColorMode = true
+button2.MouseButton1Down:Connect(function()
+    UIHolder.Visible = false
+    selectColorMode = true
 end)
 
-button1.MouseButton1Click:Connect(function()
-	mainContainer.Visible = false
-	selectProvincesMode = true
-	doneButton.Visible = true
+button1.MouseButton1Down:Connect(function()
+    UIHolder.Visible = false
+    selectProvincesMode = true
+    doneButton.Visible = true
 end)
 
-dragSelectButton.MouseButton1Click:Connect(function()
-	mainContainer.Visible = false
-	dragSelectMode = true
-	doneButton.Visible = true
-	doneButton.Text = "Finish Drag"
+dragSelectButton.MouseButton1Down:Connect(function()
+    UIHolder.Visible = false
+    dragSelectMode = true
+    doneButton.Visible = true
+    doneButton.Text = "Finish Drag"
 end)
 
-doneButton.MouseButton1Click:Connect(function()
-	removeProvincesMode = false
-	selectProvincesMode = false
-	dragSelectMode = false
-	mainContainer.Visible = true
-	doneButton.Visible = false
-	doneButton.Text = "Done"
-	
-	if dragConnection then
-		dragConnection:Disconnect()
-		dragConnection = nil
-	end
+doneButton.MouseButton1Down:Connect(function()
+    removeProvincesMode = false
+    selectProvincesMode = false
+    dragSelectMode = false
+    UIHolder.Visible = true
+    doneButton.Visible = false
+    doneButton.Text = "Done"
+    
+    if dragConnection then
+        dragConnection:Disconnect()
+        dragConnection = nil
+    end
 end)
 
-button3.MouseButton1Click:Connect(function()
-	for _,info in pairs(provinces) do
-		coroutine.close(info.Coroutine)
-		info.Event:Disconnect()
-		info.Highlight:Destroy()
-	end
-	provinces = {}
-	for _,child in pairs(provincesFolder:GetChildren()) do
-		child:Destroy()
-	end
+button3.MouseButton1Down:Connect(function()
+    for _,info in pairs(provinces) do
+        coroutine.close(info.Coroutine)
+        info.Event:Disconnect()
+        info.Highlight:Destroy()
+    end
+    provinces = {}
+    for _,child in pairs(provincesFolder:GetChildren()) do
+        child:Destroy()
+    end
 end)
 
-button4.MouseButton1Click:Connect(function()
-	sound2:Play()
-	safeMode = not safeMode
-	local bg = button4.Parent
-	local newColor = safeMode and Color3.fromRGB(52,199,89) or Color3.fromRGB(60,60,60)
-	local newPos = safeMode and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2)
-	
-	tweenService:Create(bg, TweenInfo.new(0.2), {BackgroundColor3 = newColor}):Play()
-	tweenService:Create(button4, TweenInfo.new(0.2), {Position = newPos}):Play()
+button4.MouseButton1Down:Connect(function()
+    sound2:Play()
+    if safeMode then
+        safeMode = false
+        tweenService:Create(button4.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
+        tweenService:Create(button4,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
+        tweenService:Create(button4,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
+    else
+        safeMode = true
+        tweenService:Create(button4.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
+        tweenService:Create(button4,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
+        tweenService:Create(button4,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
+    end
 end)
 
-button5.MouseButton1Click:Connect(function()
-	mainContainer.Visible = false
-	removeProvincesMode = true
-	doneButton.Visible = true
+button5.MouseButton1Down:Connect(function()
+    UIHolder.Visible = false
+    removeProvincesMode = true
+    doneButton.Visible = true
 end)
 
-togglePaintButton.MouseButton1Click:Connect(function()
-	sound2:Play()
-	painting = not painting
-	local bg = togglePaintButton.Parent
-	local newColor = painting and Color3.fromRGB(52,199,89) or Color3.fromRGB(60,60,60)
-	local newPos = painting and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2)
-	
-	tweenService:Create(bg, TweenInfo.new(0.2), {BackgroundColor3 = newColor}):Play()
-	tweenService:Create(togglePaintButton, TweenInfo.new(0.2), {Position = newPos}):Play()
+togglePaintButton.MouseButton1Down:Connect(function()
+    sound2:Play()
+    if painting then
+        painting = false
+        tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
+        tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
+        tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
+    else
+        painting = true
+        tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
+        tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
+        tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
+    end
 end)
 
-newPaintButton.MouseButton1Click:Connect(function()
-	sound2:Play()
-	newpaint = not newpaint
-	local bg = newPaintButton.Parent
-	local newColor = newpaint and Color3.fromRGB(52,199,89) or Color3.fromRGB(60,60,60)
-	local newPos = newpaint and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2)
-	
-	tweenService:Create(bg, TweenInfo.new(0.2), {BackgroundColor3 = newColor}):Play()
-	tweenService:Create(newPaintButton, TweenInfo.new(0.2), {Position = newPos}):Play()
+newPaintButton.MouseButton1Down:Connect(function()
+    sound2:Play()
+    if newpaint then
+        newpaint = false
+        tweenService:Create(newPaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
+        tweenService:Create(newPaintButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
+        tweenService:Create(newPaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
+    else
+        newpaint = true
+        tweenService:Create(newPaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
+        tweenService:Create(newPaintButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
+        tweenService:Create(newPaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
+    end
 end)
 
-territoryColorButton.MouseButton1Click:Connect(function()
-	sound2:Play()
-	keepTerColor = not keepTerColor
-	local bg = territoryColorButton.Parent
-	local newColor = keepTerColor and Color3.fromRGB(52,199,89) or Color3.fromRGB(60,60,60)
-	local newPos = keepTerColor and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2)
-	
-	tweenService:Create(bg, TweenInfo.new(0.2), {BackgroundColor3 = newColor}):Play()
-	tweenService:Create(territoryColorButton, TweenInfo.new(0.2), {Position = newPos}):Play()
+territoryColorButton.MouseButton1Down:Connect(function()
+    sound2:Play()
+    if keepTerColor then
+        keepTerColor = false
+        tweenService:Create(territoryColorButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
+        tweenService:Create(territoryColorButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
+        tweenService:Create(territoryColorButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
+    else
+        keepTerColor = true
+        tweenService:Create(territoryColorButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
+        tweenService:Create(territoryColorButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
+        tweenService:Create(territoryColorButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
+    end
 end)
 
-randomColorButton.MouseButton1Click:Connect(function()
-	color = Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255))
-	button2.BackgroundColor3 = color
-	changecolor:Play()
+randomColorButton.MouseButton1Down:Connect(function()
+    color = Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255))
+    button2.BackgroundColor3 = color
+    changecolor:Play()
 end)
 
--- Ultra Defense (Optimized)
-ultraFastButton.MouseButton1Click:Connect(function()
-	sound2:Play()
-	ultraFastMode = not ultraFastMode
-	
-	if ultraFastMode then
-		startUltraDefense()
-		print("🔥 ULTRA DEFENSE: ON (Optimized)")
-	else
-		if ultraDefenseConnection then
-			ultraDefenseConnection:Disconnect()
-		end
-		print("🔥 ULTRA DEFENSE: OFF")
-	end
-	
-	local bg = ultraFastButton.Parent
-	local newColor = ultraFastMode and Color3.fromRGB(255,69,69) or Color3.fromRGB(60,60,60)
-	local newPos = ultraFastMode and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2)
-	
-	tweenService:Create(bg, TweenInfo.new(0.2), {BackgroundColor3 = newColor}):Play()
-	tweenService:Create(ultraFastButton, TweenInfo.new(0.2), {Position = newPos}):Play()
+-- AI ASSISTANT BUTTON CONNECTIONS --
+autoRepairButton.MouseButton1Down:Connect(function()
+    sound2:Play()
+    if autoRepairMode then
+        autoRepairMode = false
+        if autoRepairConnection then
+            autoRepairConnection:Disconnect()
+        end
+        tweenService:Create(autoRepairButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
+        tweenService:Create(autoRepairButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
+        tweenService:Create(autoRepairButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
+        print("🤖 AI Auto-Repair: OFF")
+    else
+        autoRepairMode = true
+        startAutoRepair()
+        tweenService:Create(autoRepairButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
+        tweenService:Create(autoRepairButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
+        tweenService:Create(autoRepairButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
+        print("🤖 AI Auto-Repair: ON - Protecting", #provinces, "provinces")
+    end
 end)
 
--- Keyboard shortcuts
+expandTerritoryButton.MouseButton1Down:Connect(function()
+    local newTargets = findNewTargets()
+    print("🚀 AI Expansion: Found", #newTargets, "new targets")
+    
+    for _, target in pairs(newTargets) do
+        local clone = target:Clone()
+        clone.Position -= Vector3.new(0, 0.01, 0)
+        clone.Material = "Glass"  
+        clone.Transparency = 1000000
+        clone.Parent = provincesFolder
+        
+        local coro = coroutine.create(paintProvinceLoop)
+        coroutine.resume(coro, target, coro, clone)
+        
+        print("🎯 AI Added:", target.Name)
+    end
+    
+    if #newTargets > 0 then
+        provinceSound:Play()
+    end
+end)
+
+aiStatusButton.MouseButton1Down:Connect(function()
+    enemyColors = detectEnemyColors()
+    print("📊 AI STATUS REPORT:")
+    print("🏛️ Protected Provinces:", #provinces)
+    print("🎨 Current Color:", color)
+    print("🔥 Auto-Repair:", autoRepairMode and "ON" or "OFF")
+    print("👹 Enemy Colors Detected:", #enemyColors)
+    print("⚡ Paint Speed:", newpaint and "FAST" or (safeMode and "SAFE" or "NORMAL"))
+    print("🖼️ Painting Active:", painting and "YES" or "NO")
+    print("🛡️ Super Protection:", superProtectionMode and "ACTIVE" or "INACTIVE")
+    print("🏰 Protected Zones:", table.getn(protectionZones))
+    
+    for i, enemyColor in pairs(enemyColors) do
+        print("   Enemy Color " .. i .. ":", enemyColor)
+    end
+end)
+
+-- NEW SUPER PROTECTION BUTTON CONNECTIONS --
+superProtectionButton.MouseButton1Down:Connect(function()
+    sound2:Play()
+    if superProtectionMode then
+        superProtectionMode = false
+        stopSuperProtection()
+        tweenService:Create(superProtectionButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
+        tweenService:Create(superProtectionButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
+        tweenService:Create(superProtectionButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
+        print("🛡️ SUPER PROTECTION: DISABLED")
+    else
+        superProtectionMode = true
+        startSuperProtection()
+        tweenService:Create(superProtectionButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
+        tweenService:Create(superProtectionButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
+        tweenService:Create(superProtectionButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
+        print("🛡️ SUPER PROTECTION: ENABLED")
+        
+        -- Mevcut tüm province'leri koruma altına al
+        for _, info in pairs(provinces) do
+            if info.Province then
+                addToProtectionZone(info.Province)
+            end
+        end
+    end
+end)
+
+protectZoneButton.MouseButton1Down:Connect(function()
+    UIHolder.Visible = false
+    doneButton.Visible = true
+    doneButton.Text = "Done Protecting"
+    
+    -- Özel koruma modu - tıklanan bölgeleri sadece koruma altına al
+    local protectMode = true
+    local tempConnection
+    
+    tempConnection = mouse.Button1Down:Connect(function()
+        if mouse.Target and mouse.Target.Name == "Province" and protectMode then
+            addToProtectionZone(mouse.Target)
+            provinceSound:Play()
+            
+            -- Görsel feedback
+            local tempHighlight = Instance.new("SelectionBox")
+            tempHighlight.Adornee = mouse.Target
+            tempHighlight.Color3 = Color3.fromRGB(0, 255, 255) -- Cyan renk
+            tempHighlight.Parent = mouse.Target
+            tempHighlight.Transparency = 0.2
+            
+            task.spawn(function()
+                task.wait(2)
+                if tempHighlight then
+                    tempHighlight:Destroy()
+                end
+            end)
+            
+            print("🏰 Added to protection zone:", mouse.Target.Name)
+        end
+    end)
+    
+    -- Done butonu basıldığında koruma modunu kapat
+    local originalDoneConnection = doneButton.MouseButton1Down:Connect(function()
+        protectMode = false
+        if tempConnection then
+            tempConnection:Disconnect()
+        end
+    end)
+end)
+
+clearZoneButton.MouseButton1Down:Connect(function()
+    -- Tüm koruma bölgelerini temizle
+    protectionZones = {}
+    lastColorCheck = {}
+    print("🧹 All protection zones cleared!")
+    changecolor:Play()
+end)
+
+protectionStatsButton.MouseButton1Down:Connect(function()
+    print("📈 PROTECTION STATISTICS:")
+    print("🛡️ Total Protected Zones:", table.getn(protectionZones))
+    print("🚨 Protection Mode:", superProtectionMode and "ACTIVE" or "INACTIVE")
+    print("⚡ Protection Strength:", protectionStrength)
+    print("🏃‍♂️ Instant Protection:", instantProtection and "ON" or "OFF")
+    print("📏 Protection Radius:", protectionRadius, "units")
+    
+    local totalViolations = 0
+    for province, info in pairs(protectionZones) do
+        totalViolations = totalViolations + info.Violations
+        if info.Violations > 0 then
+            print("   ⚠️", province.Name, "- Violations:", info.Violations)
+        end
+    end
+    print("🔢 Total Violations Blocked:", totalViolations)
+end)
+
+-- KEYBOARD SHORTCUTS --
 userInputService.InputBegan:Connect(function(input,isTyping)
-	if isTyping == false then
-		if input.KeyCode == Enum.KeyCode.R then
-			color = Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255))
-			button2.BackgroundColor3 = color
-			changecolor:Play()
-		elseif input.KeyCode == Enum.KeyCode.Q then
-			painting = not painting
-		end
-	end
+    if isTyping == false then
+        if input.KeyCode == Enum.KeyCode.R then
+            color = Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255))
+            button2.BackgroundColor3 = color
+            changecolor:Play()
+        elseif input.KeyCode == Enum.KeyCode.Q then
+            if painting then
+                painting = false
+                tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
+                tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
+                tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
+            else
+                painting = true
+                tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
+                tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
+                tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
+            end
+        elseif input.KeyCode == Enum.KeyCode.P then
+            -- P tuşu ile hızlı super protection toggle
+            superProtectionMode = not superProtectionMode
+            if superProtectionMode then
+                startSuperProtection()
+                print("🛡️ SUPER PROTECTION: ENABLED (Hotkey)")
+            else
+                stopSuperProtection()
+                print("🛡️ SUPER PROTECTION: DISABLED (Hotkey)")
+            end
+        end
+    end
 end)
 
--- Stats Update Loop
+-- PERFORMANCE MONITORING LOOP --
 while task.wait(1) do
-	-- Modern color coding
-	local statColor = Color3.fromRGB(170,170,170)
-	if provincespersecond >= 50 then
-		statColor = Color3.fromRGB(255,214,10)
-	end
-	if provincespersecond >= 100 then
-		statColor = Color3.fromRGB(255,149,0)
-	end
-	if provincespersecond >= 300 then
-		statColor = Color3.fromRGB(255,69,58)
-	end
-	if provincespersecond >= 1000 then
-		statColor = Color3.fromRGB(191,90,242)
-	end
-	
-	statsLabel.TextColor3 = statColor
-	statsLabel.Text = provincespersecond.." p/s"
-	pps = provincespersecond
-	provincespersecond = 0
+    pss.TextColor3 = Color3.fromRGB(80, 255, 123)
+    if provincespersecond >= 50 then
+        pss.TextColor3 = Color3.fromRGB(247, 226, 112)
+    end
+    if provincespersecond >= 100 then
+        pss.TextColor3 = Color3.fromRGB(245, 128, 37)
+    end
+    if provincespersecond >= 300 then
+        pss.TextColor3 = Color3.fromRGB(235, 8, 10)
+    end
+    if provincespersecond >= 1000 then
+        pss.TextColor3 = Color3.fromRGB(235, 0, 120)
+    end
+    
+    -- Super Protection aktifse özel gösterge
+    local protectionText = ""
+    if superProtectionMode then
+        protectionText = " 🛡️"
+    end
+    
+    pss.Text = provincespersecond.." paint/second"..protectionText
+    pps = provincespersecond
+    provincespersecond = 0
+    
+    -- Her saniye koruma durumunu kontrol et
+    if superProtectionMode then
+        local activeZones = 0
+        for province, info in pairs(protectionZones) do
+            if province and province.Parent then
+                activeZones = activeZones + 1
+            else
+                -- Silinmiş province'leri temizle
+                protectionZones[province] = nil
+                lastColorCheck[province] = nil
+            end
+        end
+        
+        if activeZones > 0 and math.random(1, 10) == 1 then -- Her 10 saniyede bir log
+            print("🛡️ Active Protection Zones:", activeZones)
+        end
+    end
 end
