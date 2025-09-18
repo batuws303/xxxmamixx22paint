@@ -19,79 +19,111 @@ highlight.FillTransparency = 0.8
 highlight.Parent = workspace
 highlight.Adornee = provincesFolder
 
+-- MODERN UI CREATION --
 local UI = Instance.new("ScreenGui",player.PlayerGui)
-local UIHolder = Instance.new("Frame",UI)
-UIHolder.AnchorPoint = Vector2.new(0.5,0.5)
-UIHolder.BackgroundTransparency = 1
-UIHolder.Position = UDim2.new(0.5,0,0.5,0)
-UIHolder.Size = UDim2.new(0,0,0,0)
-local aspectratio = Instance.new("UIAspectRatioConstraint",UIHolder)
-local mainFrame = Instance.new("Frame",UIHolder)
-mainFrame.BackgroundColor3 = Color3.fromRGB(24,25,28) -- Koyu modern renk
-mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
-mainFrame.Position = UDim2.new(0.5,0,0.5,0)
-mainFrame.Size = UDim2.new(0.45,0,0.65,0) -- Daha uzun panel
-mainFrame.Rotation = 359
--- Modern köşe yuvarlama
-local corner = Instance.new("UICorner",mainFrame)
-corner.CornerRadius = UDim.new(0,12)
-local topBar = Instance.new("Frame",mainFrame)
-topBar.BorderColor3 = Color3.fromRGB(0,0,0)
-topBar.BackgroundColor3 = Color3.fromRGB(32,34,37) -- Modern header rengi
-topBar.Size = UDim2.new(1,0,0.08,0) -- Daha ince header
--- Header köşe yuvarlama
-local headerCorner = Instance.new("UICorner",topBar)
-headerCorner.CornerRadius = UDim.new(0,12)
-local pss = Instance.new("TextLabel",topBar)
-pss.Text = "0 p/s"
-pss.AnchorPoint = Vector2.new(1,0.5)
-pss.Size = UDim2.new(0.25,0,0.6,0) -- Kompakt boyut
-pss.Position = UDim2.new(0.97,0,0.5,0)
-pss.TextColor3 = Color3.fromRGB(120,120,120) -- Subtle renk
-pss.BackgroundTransparency = 1
-pss.TextScaled = true
-pss.TextXAlignment = Enum.TextXAlignment.Right
-pss.Font = Enum.Font.Gotham
-local scrollFrame = Instance.new("ScrollingFrame",mainFrame)
-scrollFrame.BackgroundTransparency = 1
-scrollFrame.Position = UDim2.new(0,0,0.08,0) -- Header boyutuna uygun
-scrollFrame.Size = UDim2.new(1,0,0.92,0)
-scrollFrame.ScrollBarThickness = 3 -- İnce modern scroll bar
-scrollFrame.CanvasSize = UDim2.new(0,0,0,800)
-scrollFrame.ScrollingDirection = Enum.ScrollingDirection.Y
-scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(120,120,120) -- Modern scroll rengi
-local panelTitle = Instance.new("TextLabel",topBar)
-panelTitle.AnchorPoint = Vector2.new(0,0.5)
-panelTitle.BackgroundTransparency = 1
-panelTitle.Position = UDim2.new(0.03,0,0.5,0)
-panelTitle.Size = UDim2.new(0.6,0,0.7,0) -- Küçük title
-panelTitle.Text = 'Paint Admin'
-panelTitle.RichText = false
-panelTitle.TextScaled = true
-panelTitle.TextColor3 = Color3.fromRGB(255,255,255)
-panelTitle.TextXAlignment = Enum.TextXAlignment.Left
-panelTitle.Font = Enum.Font.GothamBold -- Modern font
-local listlayout = Instance.new("UIListLayout",scrollFrame)
-listlayout.Padding = UDim.new(0,6) -- Küçük padding
-local uipadding = Instance.new("UIPadding",scrollFrame)
-uipadding.PaddingTop = UDim.new(0,12)
-uipadding.PaddingLeft = UDim.new(0,12)
-uipadding.PaddingRight = UDim.new(0,12)
-uipadding.PaddingBottom = UDim.new(0,12)
-local doneButton = Instance.new("TextButton",UI)
-doneButton.Visible = false
-doneButton.AnchorPoint = Vector2.new(0.5,0)
-doneButton.BackgroundColor3 = Color3.fromRGB(0,247,159)
-doneButton.Position = UDim2.new(0.5,0,0,0)
-doneButton.Size = UDim2.new(0.3,0,0.1,0)
-doneButton.TextColor3 = Color3.fromRGB(255,255,255)
-doneButton.TextScaled = true
-doneButton.Text = "Done"
-doneButton.AutoButtonColor = false
-doneButton.BorderSizePixel = 0
-local whiteFrame = Instance.new("Frame",mainFrame)
-whiteFrame.Size = UDim2.new(1,0,1,0)
-whiteFrame.BackgroundColor3 = Color3.fromRGB(255,255,255)
+UI.ResetOnSpawn = false
+UI.IgnoreGuiInset = true
+
+-- Main Container
+local mainContainer = Instance.new("Frame",UI)
+mainContainer.Size = UDim2.new(0,320,0,480)
+mainContainer.Position = UDim2.new(0.5,-160,0.5,-240)
+mainContainer.BackgroundColor3 = Color3.fromRGB(25,25,25)
+mainContainer.BorderSizePixel = 0
+
+-- Modern Corner Radius
+local mainCorner = Instance.new("UICorner",mainContainer)
+mainCorner.CornerRadius = UDim.new(0,16)
+
+-- Modern Shadow Effect
+local shadow = Instance.new("Frame",UI)
+shadow.Size = UDim2.new(0,324,0,484)
+shadow.Position = UDim2.new(0.5,-162,0.5,-238)
+shadow.BackgroundColor3 = Color3.fromRGB(0,0,0)
+shadow.BackgroundTransparency = 0.8
+shadow.ZIndex = -1
+local shadowCorner = Instance.new("UICorner",shadow)
+shadowCorner.CornerRadius = UDim.new(0,16)
+
+-- Header Bar
+local headerBar = Instance.new("Frame",mainContainer)
+headerBar.Size = UDim2.new(1,0,0,50)
+headerBar.BackgroundColor3 = Color3.fromRGB(32,32,32)
+headerBar.BorderSizePixel = 0
+local headerCorner = Instance.new("UICorner",headerBar)
+headerCorner.CornerRadius = UDim.new(0,16)
+
+-- Header Bottom Fix
+local headerFix = Instance.new("Frame",headerBar)
+headerFix.Size = UDim2.new(1,0,0,16)
+headerFix.Position = UDim2.new(0,0,1,-16)
+headerFix.BackgroundColor3 = Color3.fromRGB(32,32,32)
+headerFix.BorderSizePixel = 0
+
+-- Title
+local titleLabel = Instance.new("TextLabel",headerBar)
+titleLabel.Size = UDim2.new(0,150,1,0)
+titleLabel.Position = UDim2.new(0,16,0,0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "Paint Admin"
+titleLabel.TextColor3 = Color3.fromRGB(255,255,255)
+titleLabel.TextSize = 16
+titleLabel.Font = Enum.Font.GothamSemiBold
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Close Button
+local closeButton = Instance.new("TextButton",headerBar)
+closeButton.Size = UDim2.new(0,30,0,30)
+closeButton.Position = UDim2.new(1,-40,0,10)
+closeButton.BackgroundColor3 = Color3.fromRGB(255,69,69)
+closeButton.BorderSizePixel = 0
+closeButton.Text = "✕"
+closeButton.TextColor3 = Color3.fromRGB(255,255,255)
+closeButton.TextSize = 14
+closeButton.Font = Enum.Font.GothamBold
+local closeCorner = Instance.new("UICorner",closeButton)
+closeCorner.CornerRadius = UDim.new(0,8)
+
+-- Minimize Button
+local minimizeButton = Instance.new("TextButton",headerBar)
+minimizeButton.Size = UDim2.new(0,30,0,30)
+minimizeButton.Position = UDim2.new(1,-80,0,10)
+minimizeButton.BackgroundColor3 = Color3.fromRGB(255,189,69)
+minimizeButton.BorderSizePixel = 0
+minimizeButton.Text = "−"
+minimizeButton.TextColor3 = Color3.fromRGB(255,255,255)
+minimizeButton.TextSize = 16
+minimizeButton.Font = Enum.Font.GothamBold
+local minimizeCorner = Instance.new("UICorner",minimizeButton)
+minimizeCorner.CornerRadius = UDim.new(0,8)
+
+-- Stats Display
+local statsLabel = Instance.new("TextLabel",headerBar)
+statsLabel.Size = UDim2.new(0,80,1,0)
+statsLabel.Position = UDim2.new(1,-130,0,0)
+statsLabel.BackgroundTransparency = 1
+statsLabel.Text = "0 p/s"
+statsLabel.TextColor3 = Color3.fromRGB(170,170,170)
+statsLabel.TextSize = 12
+statsLabel.Font = Enum.Font.Gotham
+statsLabel.TextXAlignment = Enum.TextXAlignment.Right
+
+-- Content Area
+local contentFrame = Instance.new("ScrollingFrame",mainContainer)
+contentFrame.Size = UDim2.new(1,-20,1,-70)
+contentFrame.Position = UDim2.new(0,10,0,60)
+contentFrame.BackgroundTransparency = 1
+contentFrame.BorderSizePixel = 0
+contentFrame.ScrollBarThickness = 4
+contentFrame.ScrollBarImageColor3 = Color3.fromRGB(80,80,80)
+contentFrame.CanvasSize = UDim2.new(0,0,0,0)
+contentFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+
+-- Content Layout
+local contentLayout = Instance.new("UIListLayout",contentFrame)
+contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+contentLayout.Padding = UDim.new(0,8)
+
 local sound = Instance.new("Sound")
 sound.SoundId = "rbxassetid://4612386227"
 sound.Parent = workspace
@@ -106,21 +138,18 @@ local provinceSound = Instance.new("Sound")
 provinceSound.SoundId = "rbxassetid://5694665239"
 provinceSound.Parent = workspace
 
--- DRAG SELECT VARIABLES --
+-- Variables
 local dragSelectMode = false
 local isDragging = false
 local dragConnection = nil
 local selectedInDrag = {}
-
--- ULTRA DEFENSE VARIABLES --
 local ultraFastMode = false
 local ultraDefenseConnection = nil
+local isMinimized = false
 
 local provinces = {}
-
 local provincespersecond = 0
 local pps = 0
-
 local selectColorMode = false
 local removeProvincesMode = false
 local selectProvincesMode = false
@@ -128,50 +157,60 @@ local safeMode = false
 local newpaint = false
 local painting = true
 local keepTerColor = false
-
 local provinceCodeGenerator = 0
 
-local dragging
-local dragInput
-local dragStart
-local startPos
+-- Done Button
+local doneButton = Instance.new("TextButton",UI)
+doneButton.Size = UDim2.new(0,100,0,35)
+doneButton.Position = UDim2.new(0.5,-50,0.5,-200)
+doneButton.BackgroundColor3 = Color3.fromRGB(52,199,89)
+doneButton.BorderSizePixel = 0
+doneButton.Text = "Done"
+doneButton.TextColor3 = Color3.fromRGB(255,255,255)
+doneButton.TextSize = 14
+doneButton.Font = Enum.Font.GothamSemiBold
+doneButton.Visible = false
+local doneCorner = Instance.new("UICorner",doneButton)
+doneCorner.CornerRadius = UDim.new(0,8)
+
+-- Dragging Variables
+local dragging = false
+local dragStart = nil
+local startPos = nil
 
 -- Functions --
 
--- ULTRA DEFENSE SYSTEM --
+-- ULTRA DEFENSE SYSTEM (OPTIMIZED) --
 local function startUltraDefense()
 	if ultraDefenseConnection then
 		ultraDefenseConnection:Disconnect()
 	end
 	
-	ultraDefenseConnection = task.spawn(function()
-		while ultraFastMode do
-			-- Tüm korunan province'leri sürekli kontrol et
+	-- Optimized defense with proper timing
+	ultraDefenseConnection = runService.Heartbeat:Connect(function()
+		if not ultraFastMode then return end
+		
+		-- Check only every few frames to prevent lag
+		if tick() % 0.1 < 0.016 then -- Every 0.1 seconds
 			for _, info in pairs(provinces) do
-				if info.Province and info.Province.Parent then
-					-- Eğer rengi değiştiyse ANINDA geri boyama
-					if info.Province.Color ~= color then
-						-- 5 KEZ BOYAMA SALDIRISI
-						for i = 1, 5 do
-							if player and player.Character and player.Character:FindFirstChild("PaintBucket") then
-								local args = {
-									[1] = "PaintPart",
-									[2] = {
-										["Part"] = info.Province,
-										["Color"] = color
-									},
-									[3] = "Peace"
-								}
-								pcall(function()
-									game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
-								end)
-							end
-						end
-						provincespersecond = provincespersecond + 5
+				if info.Province and info.Province.Parent and info.Province.Color ~= color then
+					-- Single repair attempt per check
+					if player and player.Character and player.Character:FindFirstChild("PaintBucket") then
+						local args = {
+							[1] = "PaintPart",
+							[2] = {
+								["Part"] = info.Province,
+								["Color"] = color
+							},
+							[3] = "Peace"
+						}
+						pcall(function()
+							game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+						end)
+						provincespersecond = provincespersecond + 1
 					end
 				end
 			end
-			-- HİÇ BEKLEME - MAKSIMUM HIZ
 		end
 	end)
 end
@@ -219,7 +258,7 @@ local function startDragSelect()
 					
 					local tempHighlight = Instance.new("SelectionBox")
 					tempHighlight.Adornee = mouse.Target
-					tempHighlight.Color3 = Color3.fromRGB(0, 255, 0)
+					tempHighlight.Color3 = Color3.fromRGB(52,199,89)
 					tempHighlight.Parent = mouse.Target
 					tempHighlight.Transparency = 0.3
 					
@@ -241,15 +280,11 @@ local function finishDragSelect()
 		dragConnection = nil
 	end
 	
-	if #selectedInDrag > 0 then
-		print("Added " .. #selectedInDrag .. " provinces via drag select!")
-	end
-	
 	selectedInDrag = {}
 	isDragging = false
 end
 
--- ORIJINAL paintProvinceLoop (HIZLANDIRILMIŞ) --
+-- OPTIMIZED paintProvinceLoop --
 local function paintProvinceLoop(province,coro,highlighty)
 	local savedColor = color
 	local active = true
@@ -273,15 +308,16 @@ local function paintProvinceLoop(province,coro,highlighty)
 							[3] = "Peace"
 						}
 						
-						-- ULTRA FAST MODUNDA ÇOKLU BOYAMA
+						-- Optimized painting based on mode
 						if ultraFastMode then
-							-- 3 KEZ BOYAMA SALDIRISI
-							for i = 1, 3 do
-								pcall(function()
-									game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
-								end)
-							end
-							provincespersecond = provincespersecond + 3
+							-- Double paint for ultra mode but not excessive
+							pcall(function()
+								game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+							end)
+							pcall(function()
+								game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+							end)
+							provincespersecond = provincespersecond + 2
 						else
 							pcall(function()
 								game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
@@ -292,11 +328,11 @@ local function paintProvinceLoop(province,coro,highlighty)
 				end
 			end
 
-			-- HIZ KONTROLLARI
+			-- Optimized timing
 			if safeMode then
 				task.wait(0.3)
 			elseif ultraFastMode then
-				-- HİÇ BEKLEME - MAKSIMUM SALDIRI
+				task.wait(0.05) -- Faster but not laggy
 			elseif newpaint then
 				task.wait(0.01)
 			else
@@ -315,101 +351,99 @@ local function paintProvinceLoop(province,coro,highlighty)
 	provinceCodeGenerator += 1
 end
 
-local function createNewOption(optionType,text,customText,enabled)
-	local optionFrame = Instance.new("Frame",scrollFrame)
+-- MODERN OPTION CREATOR --
+local function createModernOption(optionType, text, customText, enabled)
+	local optionFrame = Instance.new("Frame", contentFrame)
+	optionFrame.Size = UDim2.new(1,0,0,40)
+	optionFrame.BackgroundColor3 = Color3.fromRGB(35,35,35)
 	optionFrame.BorderSizePixel = 0
-	optionFrame.BackgroundColor3 = Color3.fromRGB(32,34,37) -- Modern card rengi
-	optionFrame.Size = UDim2.new(1,0,0,45) -- Sabit pixel boyut
-	optionFrame.Parent = scrollFrame
-	-- Modern köşe yuvarlama
-	local frameCorner = Instance.new("UICorner",optionFrame)
-	frameCorner.CornerRadius = UDim.new(0,8)
 	
-	local textlabel = Instance.new("TextLabel",optionFrame)
-	textlabel.BackgroundTransparency = 1
-	textlabel.Position = UDim2.new(0,12,0,0)
-	textlabel.Size = UDim2.new(0.6,0,1,0)
-	textlabel.TextSize = 14 -- Sabit text boyutu
-	textlabel.Text = text
-	textlabel.Font = Enum.Font.Gotham
-	textlabel.TextColor3 = Color3.fromRGB(220,220,220)
-	textlabel.TextXAlignment = Enum.TextXAlignment.Left
-	textlabel.TextYAlignment = Enum.TextYAlignment.Center
+	local optionCorner = Instance.new("UICorner", optionFrame)
+	optionCorner.CornerRadius = UDim.new(0,8)
+	
+	local optionLabel = Instance.new("TextLabel", optionFrame)
+	optionLabel.Size = UDim2.new(1,-100,1,0)
+	optionLabel.Position = UDim2.new(0,12,0,0)
+	optionLabel.BackgroundTransparency = 1
+	optionLabel.Text = text
+	optionLabel.TextColor3 = Color3.fromRGB(220,220,220)
+	optionLabel.TextSize = 13
+	optionLabel.Font = Enum.Font.Gotham
+	optionLabel.TextXAlignment = Enum.TextXAlignment.Left
 	
 	if optionType == "switch" then
-		local switchFrame = Instance.new("Frame",optionFrame)
-		switchFrame.BackgroundColor3 = Color3.fromRGB(60,60,60)
-		switchFrame.Position = UDim2.new(1,-60,0.5,-10)
-		switchFrame.Size = UDim2.new(0,50,0,20) -- Küçük modern switch
-		switchFrame.BorderSizePixel = 0
-		local switchCorner = Instance.new("UICorner",switchFrame)
-		switchCorner.CornerRadius = UDim.new(0,10)
+		local switchBg = Instance.new("Frame", optionFrame)
+		switchBg.Size = UDim2.new(0,40,0,20)
+		switchBg.Position = UDim2.new(1,-50,0.5,-10)
+		switchBg.BackgroundColor3 = enabled and Color3.fromRGB(52,199,89) or Color3.fromRGB(60,60,60)
+		switchBg.BorderSizePixel = 0
+		local switchBgCorner = Instance.new("UICorner", switchBg)
+		switchBgCorner.CornerRadius = UDim.new(0,10)
 		
-		local switch = Instance.new("ImageButton",switchFrame)
-		switch.AutoButtonColor = false
-		switch.BorderSizePixel = 0
-		switch.Size = UDim2.new(0,18,0,18)
-		switch.Position = UDim2.new(0,1,0,1)
-		switch.BackgroundColor3 = Color3.fromRGB(255,255,255)
-		local switchButtonCorner = Instance.new("UICorner",switch)
-		switchButtonCorner.CornerRadius = UDim.new(0,9)
+		local switchButton = Instance.new("TextButton", switchBg)
+		switchButton.Size = UDim2.new(0,16,0,16)
+		switchButton.Position = enabled and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2)
+		switchButton.BackgroundColor3 = Color3.fromRGB(255,255,255)
+		switchButton.BorderSizePixel = 0
+		switchButton.Text = ""
+		local switchButtonCorner = Instance.new("UICorner", switchButton)
+		switchButtonCorner.CornerRadius = UDim.new(0,8)
 		
-		if enabled then
-			switchFrame.BackgroundColor3 = Color3.fromRGB(0,122,255) -- Modern mavi
-			switch.Position = UDim2.new(1,-19,0,1)
-		end
-		return switch
+		return switchButton
+		
 	elseif optionType == "color" then
-		local colorButton = Instance.new("ImageButton",optionFrame)
-		colorButton.Position = UDim2.new(1,-35,0.5,-12)
-		colorButton.AutoButtonColor = false
-		colorButton.Size = UDim2.new(0,24,0,24) -- Küçük color button
+		local colorButton = Instance.new("TextButton", optionFrame)
+		colorButton.Size = UDim2.new(0,30,0,20)
+		colorButton.Position = UDim2.new(1,-40,0.5,-10)
 		colorButton.BackgroundColor3 = color
-		local colorCorner = Instance.new("UICorner",colorButton)
+		colorButton.BorderSizePixel = 0
+		colorButton.Text = ""
+		local colorCorner = Instance.new("UICorner", colorButton)
 		colorCorner.CornerRadius = UDim.new(0,6)
+		
 		return colorButton
+		
 	elseif optionType == "custom" then
-		local button = Instance.new("TextButton",optionFrame)
-		button.BackgroundColor3 = Color3.fromRGB(0,122,255) -- Modern mavi
-		button.Position = UDim2.new(1,-70,0.5,-12)
-		button.Size = UDim2.new(0,60,0,24) -- Küçük button
-		button.AutoButtonColor = false
-		button.BorderSizePixel = 0
-		button.Text = customText
-		button.TextSize = 12
-		button.Font = Enum.Font.GothamMedium
-		button.TextColor3 = Color3.fromRGB(255,255,255)
-		local buttonCorner = Instance.new("UICorner",button)
-		buttonCorner.CornerRadius = UDim.new(0,6)
-		return button
+		local customButton = Instance.new("TextButton", optionFrame)
+		customButton.Size = UDim2.new(0,60,0,24)
+		customButton.Position = UDim2.new(1,-70,0.5,-12)
+		customButton.BackgroundColor3 = Color3.fromRGB(0,122,255)
+		customButton.BorderSizePixel = 0
+		customButton.Text = customText
+		customButton.TextColor3 = Color3.fromRGB(255,255,255)
+		customButton.TextSize = 12
+		customButton.Font = Enum.Font.GothamSemiBold
+		local customCorner = Instance.new("UICorner", customButton)
+		customCorner.CornerRadius = UDim.new(0,6)
+		
+		return customButton
 	end
 end
 
-local function update(input)
-	local delta = input.Position - dragStart
-	mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+-- Window Controls
+local function toggleMinimize()
+	isMinimized = not isMinimized
+	local targetSize = isMinimized and UDim2.new(0,320,0,50) or UDim2.new(0,320,0,480)
+	tweenService:Create(mainContainer, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {Size = targetSize}):Play()
+	contentFrame.Visible = not isMinimized
 end
 
--- Script --
+-- Event Connections
+closeButton.MouseButton1Click:Connect(function()
+	UI:Destroy()
+end)
 
-wait(1)
+minimizeButton.MouseButton1Click:Connect(function()
+	toggleMinimize()
+end)
 
-sound:Play()
-
-if userInputService.MouseEnabled == false then
-	tweenService:Create(UIHolder,TweenInfo.new(0.5),{Size = UDim2.new(1.5,0,1.5,0)}):Play()
-else
-	tweenService:Create(UIHolder,TweenInfo.new(0.5),{Size = UDim2.new(0.75,0,0.75,0)}):Play()
-end
-tweenService:Create(mainFrame,TweenInfo.new(0.5),{Rotation = 0}):Play()
-tweenService:Create(whiteFrame,TweenInfo.new(4),{BackgroundTransparency = 1}):Play()
-
-topBar.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+-- Window Dragging
+headerBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		dragging = true
 		dragStart = input.Position
-		startPos = mainFrame.Position
-
+		startPos = mainContainer.Position
+		
 		input.Changed:Connect(function()
 			if input.UserInputState == Enum.UserInputState.End then
 				dragging = false
@@ -418,32 +452,43 @@ topBar.InputBegan:Connect(function(input)
 	end
 end)
 
-topBar.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+headerBar.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
 		dragInput = input
 	end
 end)
 
 userInputService.InputChanged:Connect(function(input)
 	if input == dragInput and dragging then
-		update(input)
+		local delta = input.Position - dragStart
+		mainContainer.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 	end
 end)
 
--- ORIJINAL UI BUTONLARI --
-local button2 = createNewOption("color","Country Color")
-local button1 = createNewOption("custom","Protect Province","Add")
-local dragSelectButton = createNewOption("custom","🖱️ Drag Select","Drag")
-local button5 = createNewOption("custom","Unprotect Province","Remove")
-local button3 = createNewOption("custom","Clear Provinces","Clear")
-local button4 = createNewOption("switch","Safe Mode")
-local togglePaintButton = createNewOption("switch","Toggle Paint",nil,true)
-local newPaintButton = createNewOption("switch","Fast Paint")
-local territoryColorButton = createNewOption("switch","Keep Territory Color (NEW)")
-local randomColorButton = createNewOption("custom","Randomize color (NEW)","Change")
-local ultraFastButton = createNewOption("switch","🔥 ULTRA DEFENSE")
+-- Create Options
+local button2 = createModernOption("color","Country Color")
+local button1 = createModernOption("custom","Protect Province","Add")
+local dragSelectButton = createModernOption("custom","Drag Select","Drag")
+local button5 = createModernOption("custom","Unprotect Province","Remove")
+local button3 = createModernOption("custom","Clear Provinces","Clear")
+local button4 = createModernOption("switch","Safe Mode")
+local togglePaintButton = createModernOption("switch","Toggle Paint",nil,true)
+local newPaintButton = createModernOption("switch","Fast Paint")
+local territoryColorButton = createModernOption("switch","Keep Territory Color")
+local randomColorButton = createModernOption("custom","Random Color","Random")
+local ultraFastButton = createModernOption("switch","Ultra Defense")
 
--- MOUSE KONTROLLERI --
+-- Initialize
+wait(1)
+sound:Play()
+
+-- Smooth entrance animation
+mainContainer.Position = UDim2.new(0.5,-160,1,100)
+tweenService:Create(mainContainer, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+	Position = UDim2.new(0.5,-160,0.5,-240)
+}):Play()
+
+-- Mouse Events
 mouse.Button1Down:Connect(function()
 	if dragSelectMode then
 		isDragging = true
@@ -480,7 +525,7 @@ mouse.Button1Down:Connect(function()
 		if selectColorMode then
 			color = mouse.Target.Color
 			selectColorMode = false
-			UIHolder.Visible = true
+			mainContainer.Visible = true
 			button2.BackgroundColor3 = color
 			changecolor:Play()
 		end
@@ -514,31 +559,31 @@ mouse.Button1Up:Connect(function()
 	end
 end)
 
--- BUTON BAĞLANTILARI --
+-- Button Events
 button2.BackgroundColor3 = color
-button2.MouseButton1Down:Connect(function()
-	UIHolder.Visible = false
+button2.MouseButton1Click:Connect(function()
+	mainContainer.Visible = false
 	selectColorMode = true
 end)
 
-button1.MouseButton1Down:Connect(function()
-	UIHolder.Visible = false
+button1.MouseButton1Click:Connect(function()
+	mainContainer.Visible = false
 	selectProvincesMode = true
 	doneButton.Visible = true
 end)
 
-dragSelectButton.MouseButton1Down:Connect(function()
-	UIHolder.Visible = false
+dragSelectButton.MouseButton1Click:Connect(function()
+	mainContainer.Visible = false
 	dragSelectMode = true
 	doneButton.Visible = true
 	doneButton.Text = "Finish Drag"
 end)
 
-doneButton.MouseButton1Down:Connect(function()
+doneButton.MouseButton1Click:Connect(function()
 	removeProvincesMode = false
 	selectProvincesMode = false
 	dragSelectMode = false
-	UIHolder.Visible = true
+	mainContainer.Visible = true
 	doneButton.Visible = false
 	doneButton.Text = "Done"
 	
@@ -548,7 +593,7 @@ doneButton.MouseButton1Down:Connect(function()
 	end
 end)
 
-button3.MouseButton1Down:Connect(function()
+button3.MouseButton1Click:Connect(function()
 	for _,info in pairs(provinces) do
 		coroutine.close(info.Coroutine)
 		info.Event:Disconnect()
@@ -560,101 +605,86 @@ button3.MouseButton1Down:Connect(function()
 	end
 end)
 
-button4.MouseButton1Down:Connect(function()
+button4.MouseButton1Click:Connect(function()
 	sound2:Play()
-	if safeMode then
-		safeMode = false
-		tweenService:Create(button4.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-		tweenService:Create(button4,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-		tweenService:Create(button4,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
-	else
-		safeMode = true
-		tweenService:Create(button4.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-		tweenService:Create(button4,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-		tweenService:Create(button4,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-	end
+	safeMode = not safeMode
+	local bg = button4.Parent
+	local newColor = safeMode and Color3.fromRGB(52,199,89) or Color3.fromRGB(60,60,60)
+	local newPos = safeMode and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2)
+	
+	tweenService:Create(bg, TweenInfo.new(0.2), {BackgroundColor3 = newColor}):Play()
+	tweenService:Create(button4, TweenInfo.new(0.2), {Position = newPos}):Play()
 end)
 
-button5.MouseButton1Down:Connect(function()
-	UIHolder.Visible = false
+button5.MouseButton1Click:Connect(function()
+	mainContainer.Visible = false
 	removeProvincesMode = true
 	doneButton.Visible = true
 end)
 
-togglePaintButton.MouseButton1Down:Connect(function()
+togglePaintButton.MouseButton1Click:Connect(function()
 	sound2:Play()
-	if painting then
-		painting = false
-		tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-		tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-		tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
-	else
-		painting = true
-		tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-		tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-		tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-	end
+	painting = not painting
+	local bg = togglePaintButton.Parent
+	local newColor = painting and Color3.fromRGB(52,199,89) or Color3.fromRGB(60,60,60)
+	local newPos = painting and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2)
+	
+	tweenService:Create(bg, TweenInfo.new(0.2), {BackgroundColor3 = newColor}):Play()
+	tweenService:Create(togglePaintButton, TweenInfo.new(0.2), {Position = newPos}):Play()
 end)
 
-newPaintButton.MouseButton1Down:Connect(function()
+newPaintButton.MouseButton1Click:Connect(function()
 	sound2:Play()
-	if newpaint then
-		newpaint = false
-		tweenService:Create(newPaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-		tweenService:Create(newPaintButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-		tweenService:Create(newPaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
-	else
-		newpaint = true
-		tweenService:Create(newPaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-		tweenService:Create(newPaintButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-		tweenService:Create(newPaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-	end
+	newpaint = not newpaint
+	local bg = newPaintButton.Parent
+	local newColor = newpaint and Color3.fromRGB(52,199,89) or Color3.fromRGB(60,60,60)
+	local newPos = newpaint and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2)
+	
+	tweenService:Create(bg, TweenInfo.new(0.2), {BackgroundColor3 = newColor}):Play()
+	tweenService:Create(newPaintButton, TweenInfo.new(0.2), {Position = newPos}):Play()
 end)
 
-territoryColorButton.MouseButton1Down:Connect(function()
+territoryColorButton.MouseButton1Click:Connect(function()
 	sound2:Play()
-	if keepTerColor then
-		keepTerColor = false
-		tweenService:Create(territoryColorButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-		tweenService:Create(territoryColorButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-		tweenService:Create(territoryColorButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
-	else
-		keepTerColor = true
-		tweenService:Create(territoryColorButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-		tweenService:Create(territoryColorButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-		tweenService:Create(territoryColorButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-	end
+	keepTerColor = not keepTerColor
+	local bg = territoryColorButton.Parent
+	local newColor = keepTerColor and Color3.fromRGB(52,199,89) or Color3.fromRGB(60,60,60)
+	local newPos = keepTerColor and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2)
+	
+	tweenService:Create(bg, TweenInfo.new(0.2), {BackgroundColor3 = newColor}):Play()
+	tweenService:Create(territoryColorButton, TweenInfo.new(0.2), {Position = newPos}):Play()
 end)
 
-randomColorButton.MouseButton1Down:Connect(function()
+randomColorButton.MouseButton1Click:Connect(function()
 	color = Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255))
 	button2.BackgroundColor3 = color
 	changecolor:Play()
 end)
 
--- 🔥 ULTRA DEFENSE BUTTON - KİMSE YENEMEZ! --
-ultraFastButton.MouseButton1Down:Connect(function()
+-- Ultra Defense (Optimized)
+ultraFastButton.MouseButton1Click:Connect(function()
 	sound2:Play()
+	ultraFastMode = not ultraFastMode
+	
 	if ultraFastMode then
-		ultraFastMode = false
+		startUltraDefense()
+		print("🔥 ULTRA DEFENSE: ON (Optimized)")
+	else
 		if ultraDefenseConnection then
 			ultraDefenseConnection:Disconnect()
 		end
-		tweenService:Create(ultraFastButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-		tweenService:Create(ultraFastButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-		tweenService:Create(ultraFastButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
 		print("🔥 ULTRA DEFENSE: OFF")
-	else
-		ultraFastMode = true
-		startUltraDefense()
-		tweenService:Create(ultraFastButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(255, 0, 0)}):Play() -- KIRMIZI - TEHLİKE!
-		tweenService:Create(ultraFastButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-		tweenService:Create(ultraFastButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-		print("🔥 ULTRA DEFENSE: ON - INVINCIBLE MODE!")
-		print("⚡ WARNING: MAXIMUM POWER - NOBODY CAN DEFEAT YOU!")
 	end
+	
+	local bg = ultraFastButton.Parent
+	local newColor = ultraFastMode and Color3.fromRGB(255,69,69) or Color3.fromRGB(60,60,60)
+	local newPos = ultraFastMode and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2)
+	
+	tweenService:Create(bg, TweenInfo.new(0.2), {BackgroundColor3 = newColor}):Play()
+	tweenService:Create(ultraFastButton, TweenInfo.new(0.2), {Position = newPos}):Play()
 end)
 
+-- Keyboard shortcuts
 userInputService.InputBegan:Connect(function(input,isTyping)
 	if isTyping == false then
 		if input.KeyCode == Enum.KeyCode.R then
@@ -662,39 +692,30 @@ userInputService.InputBegan:Connect(function(input,isTyping)
 			button2.BackgroundColor3 = color
 			changecolor:Play()
 		elseif input.KeyCode == Enum.KeyCode.Q then
-			if painting then
-				painting = false
-				tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
-			else
-				painting = true
-				tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-			end
+			painting = not painting
 		end
 	end
 end)
 
+-- Stats Update Loop
 while task.wait(1) do
-	pss.TextColor3 = Color3.fromRGB(80, 255, 123)
+	-- Modern color coding
+	local statColor = Color3.fromRGB(170,170,170)
 	if provincespersecond >= 50 then
-		pss.TextColor3 = Color3.fromRGB(247, 226, 112)
+		statColor = Color3.fromRGB(255,214,10)
 	end
 	if provincespersecond >= 100 then
-		pss.TextColor3 = Color3.fromRGB(245, 128, 37)
+		statColor = Color3.fromRGB(255,149,0)
 	end
 	if provincespersecond >= 300 then
-		pss.TextColor3 = Color3.fromRGB(235, 8, 10)
+		statColor = Color3.fromRGB(255,69,58)
 	end
 	if provincespersecond >= 1000 then
-		pss.TextColor3 = Color3.fromRGB(235, 0, 120)
+		statColor = Color3.fromRGB(191,90,242)
 	end
-	if ultraFastMode and provincespersecond >= 2000 then
-		pss.TextColor3 = Color3.fromRGB(255, 0, 0) -- KIRMIZI ULTRA MOD
-	end
-	pss.Text = provincespersecond.." paint/second"
+	
+	statsLabel.TextColor3 = statColor
+	statsLabel.Text = provincespersecond.." p/s"
 	pps = provincespersecond
 	provincespersecond = 0
 end
