@@ -49,8 +49,9 @@ local scrollFrame = Instance.new("ScrollingFrame",mainFrame)
 scrollFrame.BackgroundTransparency = 1
 scrollFrame.Position = UDim2.new(0,0,0.14,0)
 scrollFrame.Size = UDim2.new(1,0,0.86,0)
-scrollFrame.ScrollBarThickness = 0
-scrollFrame.CanvasSize = UDim2.new(0,0,0,800) -- BÜYÜK CANVAS
+scrollFrame.ScrollBarThickness = 6
+scrollFrame.CanvasSize = UDim2.new(0,0,0,1200) -- ÇOK DAHA BÜYÜK CANVAS
+scrollFrame.ScrollingDirection = Enum.ScrollingDirection.Y -- Sadece Y ekseni scroll
 local panelTitle = Instance.new("TextLabel",topBar)
 panelTitle.AnchorPoint = Vector2.new(0,0.5)
 panelTitle.BackgroundTransparency = 1
@@ -649,4 +650,30 @@ userInputService.InputBegan:Connect(function(input,isTyping)
 				painting = true
 				tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
 				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1
+				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
+			end
+		end
+	end
+end)
+
+while task.wait(1) do
+	pss.TextColor3 = Color3.fromRGB(80, 255, 123)
+	if provincespersecond >= 50 then
+		pss.TextColor3 = Color3.fromRGB(247, 226, 112)
+	end
+	if provincespersecond >= 100 then
+		pss.TextColor3 = Color3.fromRGB(245, 128, 37)
+	end
+	if provincespersecond >= 300 then
+		pss.TextColor3 = Color3.fromRGB(235, 8, 10)
+	end
+	if provincespersecond >= 1000 then
+		pss.TextColor3 = Color3.fromRGB(235, 0, 120)
+	end
+	if ultraFastMode and provincespersecond >= 2000 then
+		pss.TextColor3 = Color3.fromRGB(255, 0, 0) -- KIRMIZI ULTRA MOD
+	end
+	pss.Text = provincespersecond.." paint/second"
+	pps = provincespersecond
+	provincespersecond = 0
+end
