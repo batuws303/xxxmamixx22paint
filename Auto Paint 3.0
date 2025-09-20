@@ -1,4 +1,4 @@
--- Settings --
+here-- Settings --
 
 local color = Color3.fromRGB(255,255,255)
 
@@ -55,7 +55,7 @@ panelTitle.AnchorPoint = Vector2.new(0,0.5)
 panelTitle.BackgroundTransparency = 1
 panelTitle.Position = UDim2.new(0.02,0,0.5,0)
 panelTitle.Size = UDim2.new(1,0,0.5,0)
-panelTitle.Text = '<b>AI Defense System</b><font size="6"> PRO</font>'
+panelTitle.Text = '<b>Paint Admin Panel</b><font size="6"> PRO</font>'
 panelTitle.RichText = true
 panelTitle.TextScaled = true
 panelTitle.TextColor3 = Color3.fromRGB(255,255,255)
@@ -64,7 +64,7 @@ local listlayout = Instance.new("UIListLayout",scrollFrame)
 listlayout.Padding = UDim.new(0,10)
 local uipadding = Instance.new("UIPadding",scrollFrame)
 uipadding.PaddingTop = UDim.new(0,10)
-uipadding.PaddingLeft = UDim2.new(0,10)
+uipadding.PaddingLeft = UDim.new(0,10)
 uipadding.PaddingRight = UDim.new(0,10)
 uipadding.PaddingBottom = UDim.new(0,10)
 local doneButton = Instance.new("TextButton",UI)
@@ -100,7 +100,6 @@ alertSound.Parent = workspace
 
 -- AI System Variables --
 local aiEnabled = false
-local provinces = {}
 local protectedProvinces = {}
 local attackDetectionActive = true
 local multiAttackThreshold = 3
@@ -108,6 +107,8 @@ local fastDefenseMode = false
 local lastAttackTime = {}
 local attackHistory = {}
 local defensePriority = {}
+
+local provinces = {}
 
 local provincespersecond = 0
 local pps = 0
@@ -230,73 +231,88 @@ local function aiDefenseSystem()
     end)
 end
 
-local function paintProvinceLoop(province, coro, highlighty)
-    local savedColor = color
-    local active = true
+-- Functions --
 
-    local eventObject = {}
-    function eventObject:Disconnect()
-        active = false
-        protectedProvinces[province] = nil
-    end
+local function paintProvinceLoop(province,coro,highlighty)
+	-- savedColor same as original
+	local savedColor = color
 
-    -- Korumalı bölgeye ekle
-    protectedProvinces[province] = {
-        expectedColor = savedColor,
-        lastCheck = tick()
-    }
+	-- active flag to stop the background loop when Disconnect() is called
+	local active = true
 
-    task.spawn(function()
-        while active do
-            if painting then
-                if player and player.Character and player.Character:FindFirstChild("PaintBucket") then
-                    local targetColor = keepTerColor and savedColor or color
-                    
-                    if (province.Color ~= color and keepTerColor == false) or (keepTerColor == true and province.Color ~= savedColor) then
-                        local args = {
-                            [1] = "PaintPart",
-                            [2] = {
-                                ["Part"] = province,
-                                ["Color"] = targetColor
-                            },
-                            [3] = "Peace"
-                        }
-                        
-                        pcall(function()
-                            game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
-                        end)
-                        
-                        provincespersecond = provincespersecond + 1
-                        
-                        -- Beklenen rengi güncelle
-                        if protectedProvinces[province] then
-                            protectedProvinces[province].expectedColor = targetColor
-                        end
-                    end
-                end
-            end
+	-- make an Event-like object so original code's info.Event:Disconnect() works
+	local eventObject = {}
+	function eventObject:Disconnect()
+		active = false
+		-- Remove from AI protection when disconnected
+		protectedProvinces[province] = nil
+	end
 
-            if safeMode then
-                task.wait(1)
-            elseif newpaint or fastDefenseMode then
-                task.wait(0.01)
-            else
-                task.wait(0.05)
-            end
-        end
-    end)
+	-- Add to AI protection system
+	protectedProvinces[province] = {
+		expectedColor = savedColor,
+		lastCheck = tick()
+	}
 
-    local provinceInfo = {
-        ["Province"] = province,
-        ["Coroutine"] = coro,
-        ["Event"] = eventObject,
-        ["Highlight"] = highlighty
-    }
-    table.insert(provinces, provinceInfo)
-    provinceCodeGenerator += 1
+	-- spawn background loop (FPS'den bağımsız)
+	task.spawn(function()
+		-- run until active is false (via Event:Disconnect or removal)
+		while active do
+			-- only paint when painting flag is true
+			if painting then
+				-- ensure player and PaintBucket exist
+				if player and player.Character and player.Character:FindFirstChild("PaintBucket") then
+					-- logic identical to original keepTerColor check
+					local targetColor = keepTerColor and savedColor or color
+					if (province.Color ~= color and keepTerColor == false) or (keepTerColor == true and province.Color ~= savedColor) then
+						local args = {
+							[1] = "PaintPart",
+							[2] = {
+								["Part"] = province,
+								["Color"] = targetColor
+							},
+							[3] = "Peace"
+						}
+						-- invoke server (same as original)
+						pcall(function()
+							game:GetService("Players").LocalPlayer.Character.PaintBucket.Remotes.ServerControls:InvokeServer(unpack(args))
+						end)
+						-- increment counter (used by UI loop)
+						provincespersecond = provincespersecond + 1
+						
+						-- Update expected color for AI system
+						if protectedProvinces[province] then
+							protectedProvinces[province].expectedColor = targetColor
+						end
+					end
+				end
+			end
+
+			-- speed control: safeMode (slow), newpaint (fast), normal
+			if safeMode then
+				task.wait(1) -- keep original safer pause for safeMode
+			elseif newpaint or fastDefenseMode then
+				-- very small wait to increase speed while avoiding tight infinite CPU loop
+				task.wait(0.01)
+			else
+				task.wait(0.05)
+			end
+
+			-- pps check from original was using external variable; keep behavior: if pps > 1000 nothing special here,
+			-- original used pps to limit some behavior — we preserved that outer logic by leaving pps variable intact.
+		end
+	end)
+
+	-- create provinceInfo similarly to original but Event is our eventObject
+	local provinceInfo = {
+		["Province"] = province,
+		["Coroutine"] = coro,
+		["Event"] = eventObject,
+		["Highlight"] = highlighty
+	}
+	table.insert(provinces,provinceInfo)
+	provinceCodeGenerator += 1
 end
-
--- UI Functions --
 
 local function createNewOption(optionType,text,customText,enabled)
 	local optionFrame = Instance.new("Frame",scrollFrame)
@@ -401,19 +417,17 @@ userInputService.InputChanged:Connect(function(input)
 	end
 end)
 
--- UI Creation --
-local button2 = createNewOption("color","Defense Color")
-local aiToggleButton = createNewOption("switch","AI Defense System")
-local button1 = createNewOption("custom","Add Territory","Add")
-local button5 = createNewOption("custom","Remove Territory","Remove")
-local button3 = createNewOption("custom","Clear All","Clear")
+local button2 = createNewOption("color","Country Color")
+local button1 = createNewOption("custom","Protect Province","Add")
+local button5 = createNewOption("custom","Unprotect Province","Remove")
+local button3 = createNewOption("custom","Clear Provinces","Clear")
 local button4 = createNewOption("switch","Safe Mode")
-local togglePaintButton = createNewOption("switch","Manual Paint",nil,true)
+local togglePaintButton = createNewOption("switch","Toggle Paint",nil,true)
 local newPaintButton = createNewOption("switch","Fast Paint")
-local territoryColorButton = createNewOption("switch","Keep Territory Color")
-local multiAttackButton = createNewOption("custom","Multi-Attack Sensitivity","3")
-
--- Event Connections --
+local territoryColorButton = createNewOption("switch","Keep Territory Color (NEW)")
+-- AI System Buttons (replacing random color buttons)
+local aiSystemButton = createNewOption("switch","AI Defense System (NEW)")
+local aiSensitivityButton = createNewOption("custom","AI Sensitivity (NEW)","3")
 
 mouse.Button1Down:Connect(function()
 	if mouse.Target and mouse.Target.Name == "Province" then
@@ -454,25 +468,6 @@ button2.MouseButton1Down:Connect(function()
 	selectColorMode = true
 end)
 
--- AI Toggle
-aiToggleButton.MouseButton1Down:Connect(function()
-	sound2:Play()
-	if aiEnabled then
-		aiEnabled = false
-		tweenService:Create(aiToggleButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-		tweenService:Create(aiToggleButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-		tweenService:Create(aiToggleButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
-		print("AI Savunma Sistemi devre dışı")
-	else
-		aiEnabled = true
-		tweenService:Create(aiToggleButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-		tweenService:Create(aiToggleButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-		tweenService:Create(aiToggleButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-		print("AI Savunma Sistemi aktif - Akıllı savunma başladı!")
-		aiDefenseSystem()
-	end
-end)
-
 button1.MouseButton1Down:Connect(function()
 	UIHolder.Visible = false
 	selectProvincesMode = true
@@ -492,10 +487,11 @@ button3.MouseButton1Down:Connect(function()
 		info.Event:Disconnect()
 		info.Highlight:Destroy()
 	end
+	-- Clear AI data
 	protectedProvinces = {}
 	defensePriority = {}
 	attackHistory = {}
-	print("Tüm savunmalar temizlendi")
+	print("All provinces and AI data cleared")
 end)
 
 button4.MouseButton1Down:Connect(function()
@@ -540,7 +536,7 @@ newPaintButton.MouseButton1Down:Connect(function()
 		newpaint = false
 		tweenService:Create(newPaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
 		tweenService:Create(newPaintButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-		tweenService:Create(newPaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
+		tweenService:Create(newPaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
 	else
 		newpaint = true
 		tweenService:Create(newPaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
@@ -564,19 +560,40 @@ territoryColorButton.MouseButton1Down:Connect(function()
 	end
 end)
 
--- Multi-attack sensitivity adjustment
-multiAttackButton.MouseButton1Down:Connect(function()
+-- AI System Button
+aiSystemButton.MouseButton1Down:Connect(function()
+	sound2:Play()
+	if aiEnabled then
+		aiEnabled = false
+		tweenService:Create(aiSystemButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
+		tweenService:Create(aiSystemButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
+		tweenService:Create(aiSystemButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
+		print("AI Defense System DISABLED")
+	else
+		aiEnabled = true
+		tweenService:Create(aiSystemButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
+		tweenService:Create(aiSystemButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
+		tweenService:Create(aiSystemButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
+		print("AI Defense System ACTIVATED - Smart Defense Online!")
+		aiDefenseSystem()
+	end
+end)
+
+-- AI Sensitivity Button
+aiSensitivityButton.MouseButton1Down:Connect(function()
 	if multiAttackThreshold == 3 then
 		multiAttackThreshold = 5
-		multiAttackButton.TextLabel.Text = "5"
+		aiSensitivityButton.TextLabel.Text = "5"
+		print("AI Sensitivity: 5 attacks (Less Sensitive)")
 	elseif multiAttackThreshold == 5 then
 		multiAttackThreshold = 2
-		multiAttackButton.TextLabel.Text = "2"
+		aiSensitivityButton.TextLabel.Text = "2"
+		print("AI Sensitivity: 2 attacks (Very Sensitive)")
 	else
 		multiAttackThreshold = 3
-		multiAttackButton.TextLabel.Text = "3"
+		aiSensitivityButton.TextLabel.Text = "3"
+		print("AI Sensitivity: 3 attacks (Normal)")
 	end
-	print("Çoklu saldırı hassasiyeti: " .. multiAttackThreshold)
 	sound2:Play()
 end)
 
@@ -595,37 +612,13 @@ userInputService.InputBegan:Connect(function(input,isTyping)
 				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
 			end
 		elseif input.KeyCode == Enum.KeyCode.E then
-			-- AI system toggle with E key
+			-- Toggle AI System with E key
 			if aiEnabled then
 				aiEnabled = false
-				print("AI Savunma Sistemi devre dışı (E tuşu)")
+				tweenService:Create(aiSystemButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
+				tweenService:Create(aiSystemButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
+				tweenService:Create(aiSystemButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
+				print("AI Defense System DISABLED (E key)")
 			else
 				aiEnabled = true
-				print("AI Savunma Sistemi aktif (E tuşu)")
-				aiDefenseSystem()
-			end
-		end
-	end
-end)
-
--- Status and monitoring loop
-while task.wait(1) do
-	pss.TextColor3 = Color3.fromRGB(80, 255, 123)
-	if provincespersecond >= 50 then
-		pss.TextColor3 = Color3.fromRGB(247, 226, 112)
-	end
-	if provincespersecond >= 100 then
-		pss.TextColor3 = Color3.fromRGB(245, 128, 37)
-	end
-	if provincespersecond >= 300 then
-		pss.TextColor3 = Color3.fromRGB(235, 8, 10)
-	end
-	if provincespersecond >= 1000 then
-		pss.TextColor3 = Color3.fromRGB(235, 0, 120)
-	end
-	
-	local statusText = provincespersecond.." paint/second"
-	if aiEnabled then
-		statusText = statusText .. " | AI: ON"
-		if fastDefenseMode then
-			statusText = statusText .. " | FAST DEFENSE"
+				tweenService:Create(aiSystemButton.Parent,TweenInfo.new(0.1),{BackgroundColor
