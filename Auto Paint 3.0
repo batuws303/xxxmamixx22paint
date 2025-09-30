@@ -19,69 +19,103 @@ highlight.FillTransparency = 0.8
 highlight.Parent = workspace
 highlight.Adornee = provincesFolder
 
+-- MODERN UI CREATION --
 local UI = Instance.new("ScreenGui",player.PlayerGui)
+UI.ResetOnSpawn = false
+UI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
 local UIHolder = Instance.new("Frame",UI)
 UIHolder.AnchorPoint = Vector2.new(0.5,0.5)
 UIHolder.BackgroundTransparency = 1
 UIHolder.Position = UDim2.new(0.5,0,0.5,0)
 UIHolder.Size = UDim2.new(0,0,0,0)
-local aspectratio = Instance.new("UIAspectRatioConstraint",UIHolder)
+
 local mainFrame = Instance.new("Frame",UIHolder)
-mainFrame.BackgroundColor3 = Color3.fromRGB(33,33,42)
+mainFrame.BackgroundColor3 = Color3.fromRGB(25,25,35)
 mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
 mainFrame.Position = UDim2.new(0.5,0,0.5,0)
-mainFrame.Size = UDim2.new(0.5,0,0.276,0)
+mainFrame.Size = UDim2.new(0,450,0,600)
+mainFrame.BorderSizePixel = 0
 mainFrame.Rotation = 359
+
+local mainCorner = Instance.new("UICorner",mainFrame)
+mainCorner.CornerRadius = UDim.new(0,12)
+
 local topBar = Instance.new("Frame",mainFrame)
-topBar.BorderColor3 = Color3.fromRGB(0,0,0)
-topBar.BackgroundColor3 = Color3.fromRGB(49,49,64)
-topBar.Size = UDim2.new(1,0,0.14,0)
-local pss = Instance.new("TextLabel",topBar)
-pss.Text = "0 paint/second"
-pss.AnchorPoint = Vector2.new(0,0.5)
-pss.Size = UDim2.new(0.974,0,0.5,0)
-pss.Position = UDim2.new(0,0,0.5,0)
-pss.TextColor3 = Color3.fromRGB(255,255,255)
-pss.BackgroundTransparency = 1
-pss.TextScaled = true
-pss.TextXAlignment = Enum.TextXAlignment.Right
-local scrollFrame = Instance.new("ScrollingFrame",mainFrame)
-scrollFrame.BackgroundTransparency = 1
-scrollFrame.Position = UDim2.new(0,0,0.14,0)
-scrollFrame.Size = UDim2.new(1,0,0.86,0)
-scrollFrame.ScrollBarThickness = 0
-scrollFrame.CanvasSize = UDim2.new(0,0,0,750)
+topBar.BackgroundColor3 = Color3.fromRGB(35,35,50)
+topBar.Size = UDim2.new(1,0,0,50)
+topBar.BorderSizePixel = 0
+
+local topCorner = Instance.new("UICorner",topBar)
+topCorner.CornerRadius = UDim.new(0,12)
+
+local topBarFill = Instance.new("Frame",topBar)
+topBarFill.BackgroundColor3 = Color3.fromRGB(35,35,50)
+topBarFill.Position = UDim2.new(0,0,1,-12)
+topBarFill.Size = UDim2.new(1,0,0,12)
+topBarFill.BorderSizePixel = 0
+
 local panelTitle = Instance.new("TextLabel",topBar)
-panelTitle.AnchorPoint = Vector2.new(0,0.5)
 panelTitle.BackgroundTransparency = 1
-panelTitle.Position = UDim2.new(0.02,0,0.5,0)
-panelTitle.Size = UDim2.new(1,0,0.5,0)
-panelTitle.Text = '<b>Paint Admin Panel</b><font size="6"> PRO</font>'
-panelTitle.RichText = true
-panelTitle.TextScaled = true
+panelTitle.Position = UDim2.new(0,15,0,0)
+panelTitle.Size = UDim2.new(0.6,0,1,0)
+panelTitle.Text = "Paint Admin Panel PRO"
+panelTitle.Font = Enum.Font.GothamBold
+panelTitle.TextSize = 18
 panelTitle.TextColor3 = Color3.fromRGB(255,255,255)
 panelTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local pss = Instance.new("TextLabel",topBar)
+pss.Text = "0 paint/s"
+pss.BackgroundTransparency = 1
+pss.Position = UDim2.new(0.4,0,0,0)
+pss.Size = UDim2.new(0.55,0,1,0)
+pss.TextColor3 = Color3.fromRGB(80,255,123)
+pss.Font = Enum.Font.GothamBold
+pss.TextSize = 14
+pss.TextXAlignment = Enum.TextXAlignment.Right
+pss.TextYAlignment = Enum.TextYAlignment.Center
+
+local scrollFrame = Instance.new("ScrollingFrame",mainFrame)
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.Position = UDim2.new(0,0,0,60)
+scrollFrame.Size = UDim2.new(1,0,1,-70)
+scrollFrame.ScrollBarThickness = 4
+scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(255,255,255)
+scrollFrame.BorderSizePixel = 0
+scrollFrame.CanvasSize = UDim2.new(0,0,0,0)
+scrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+
 local listlayout = Instance.new("UIListLayout",scrollFrame)
-listlayout.Padding = UDim.new(0,10)
+listlayout.Padding = UDim.new(0,12)
+listlayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
 local uipadding = Instance.new("UIPadding",scrollFrame)
-uipadding.PaddingTop = UDim.new(0,10)
-uipadding.PaddingLeft = UDim.new(0,10)
-uipadding.PaddingRight = UDim.new(0,10)
-uipadding.PaddingBottom = UDim.new(0,10)
+uipadding.PaddingTop = UDim.new(0,15)
+uipadding.PaddingBottom = UDim.new(0,15)
+
 local doneButton = Instance.new("TextButton",UI)
 doneButton.Visible = false
 doneButton.AnchorPoint = Vector2.new(0.5,0)
-doneButton.BackgroundColor3 = Color3.fromRGB(0,247,159)
-doneButton.Position = UDim2.new(0.5,0,0,0)
-doneButton.Size = UDim2.new(0.3,0,0.1,0)
+doneButton.BackgroundColor3 = Color3.fromRGB(0,200,150)
+doneButton.Position = UDim2.new(0.5,0,0.05,0)
+doneButton.Size = UDim2.new(0,200,0,50)
 doneButton.TextColor3 = Color3.fromRGB(255,255,255)
-doneButton.TextScaled = true
+doneButton.Font = Enum.Font.GothamBold
+doneButton.TextSize = 16
 doneButton.Text = "Done"
 doneButton.AutoButtonColor = false
 doneButton.BorderSizePixel = 0
+
+local doneCorner = Instance.new("UICorner",doneButton)
+doneCorner.CornerRadius = UDim.new(0,10)
+
 local whiteFrame = Instance.new("Frame",mainFrame)
 whiteFrame.Size = UDim2.new(1,0,1,0)
 whiteFrame.BackgroundColor3 = Color3.fromRGB(255,255,255)
+whiteFrame.BorderSizePixel = 0
+whiteFrame.ZIndex = 10
+
 local sound = Instance.new("Sound")
 sound.SoundId = "rbxassetid://4612386227"
 sound.Parent = workspace
@@ -95,12 +129,11 @@ sound2.PlaybackSpeed = 2
 local provinceSound = Instance.new("Sound")
 provinceSound.SoundId = "rbxassetid://5694665239"
 provinceSound.Parent = workspace
-
--- AI SYSTEM VARIABLES --
 local alertSound = Instance.new("Sound")
 alertSound.SoundId = "rbxassetid://131961136"
 alertSound.Parent = workspace
 
+-- AI SYSTEM VARIABLES --
 local aiEnabled = false
 local protectedProvinces = {}
 local multiAttackThreshold = 3
@@ -110,7 +143,6 @@ local attackHistory = {}
 local defensePriority = {}
 
 local provinces = {}
-
 local provincespersecond = 0
 local pps = 0
 
@@ -121,7 +153,6 @@ local safeMode = false
 local newpaint = false
 local painting = true
 local keepTerColor = false
-
 local provinceCodeGenerator = 0
 
 local dragging
@@ -202,8 +233,6 @@ local function aiDefenseSystem()
     end)
 end
 
--- Functions --
-
 local function paintProvinceLoop(province,coro,highlighty)
 	local savedColor = color
 	local active = true
@@ -265,61 +294,83 @@ local function paintProvinceLoop(province,coro,highlighty)
 	provinceCodeGenerator += 1
 end
 
-local function createNewOption(optionType,text,customText,enabled)
-	local optionFrame = Instance.new("Frame",scrollFrame)
-	optionFrame.BorderColor3 = Color3.fromRGB(0,0,0)
-	optionFrame.BackgroundColor3 = Color3.fromRGB(49, 49, 64)
-	optionFrame.Size = UDim2.new(1,0,0.075,0)
-	optionFrame.Parent = scrollFrame
-	local textlabel = Instance.new("TextLabel",optionFrame)
-	textlabel.BackgroundTransparency = 1
-	textlabel.Position = UDim2.new(0.02,0,0.2,0)
-	textlabel.Size = UDim2.new(1,0,0.6,0)
-	textlabel.TextScaled = true
-	textlabel.Text = text
-	textlabel.Font = Enum.Font.SourceSansBold
-	textlabel.TextColor3 = Color3.fromRGB(255,255,255)
-	textlabel.TextXAlignment = Enum.TextXAlignment.Left
-	if optionType == "switch" then
-		local switchFrame = Instance.new("Frame",optionFrame)
-		switchFrame.BackgroundColor3 = Color3.fromRGB(241, 33, 103)
-		switchFrame.Position = UDim2.new(0.865,0,0.125,0)
-		switchFrame.Size = UDim2.new(0.125,0,0.75,0)
-		switchFrame.BorderSizePixel = 0
-		local switch = Instance.new("ImageButton",switchFrame)
-		switch.AutoButtonColor = false
-		switch.BorderSizePixel = 0
-		switch.Size = UDim2.new(1,0,1,0)
-		switch.BackgroundColor3 = Color3.fromRGB(255,255,255)
-		local aspectRatio = Instance.new("UIAspectRatioConstraint",switch)
-		if enabled then
-			tweenService:Create(switch.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-			tweenService:Create(switch,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-			tweenService:Create(switch,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
+-- MODERN UI FUNCTIONS --
+local function createModernButton(text, buttonType, defaultValue)
+	local buttonFrame = Instance.new("Frame",scrollFrame)
+	buttonFrame.BackgroundColor3 = Color3.fromRGB(35,35,50)
+	buttonFrame.Size = UDim2.new(0.9,0,0,60)
+	buttonFrame.BorderSizePixel = 0
+	
+	local corner = Instance.new("UICorner",buttonFrame)
+	corner.CornerRadius = UDim.new(0,10)
+	
+	local label = Instance.new("TextLabel",buttonFrame)
+	label.BackgroundTransparency = 1
+	label.Position = UDim2.new(0,15,0,0)
+	label.Size = UDim2.new(0.65,0,1,0)
+	label.Text = text
+	label.Font = Enum.Font.GothamBold
+	label.TextSize = 15
+	label.TextColor3 = Color3.fromRGB(255,255,255)
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	
+	if buttonType == "toggle" then
+		local toggleBg = Instance.new("Frame",buttonFrame)
+		toggleBg.BackgroundColor3 = Color3.fromRGB(60,60,80)
+		toggleBg.Position = UDim2.new(1,-70,0.5,-15)
+		toggleBg.Size = UDim2.new(0,50,0,30)
+		toggleBg.BorderSizePixel = 0
+		
+		local toggleCorner = Instance.new("UICorner",toggleBg)
+		toggleCorner.CornerRadius = UDim.new(1,0)
+		
+		local toggleButton = Instance.new("TextButton",toggleBg)
+		toggleButton.BackgroundColor3 = Color3.fromRGB(200,200,200)
+		toggleButton.Position = UDim2.new(0,3,0.5,-12)
+		toggleButton.Size = UDim2.new(0,24,0,24)
+		toggleButton.Text = ""
+		toggleButton.AutoButtonColor = false
+		toggleButton.BorderSizePixel = 0
+		
+		local btnCorner = Instance.new("UICorner",toggleButton)
+		btnCorner.CornerRadius = UDim.new(1,0)
+		
+		if defaultValue then
+			toggleBg.BackgroundColor3 = Color3.fromRGB(0,200,150)
+			toggleButton.Position = UDim2.new(1,-27,0.5,-12)
 		end
-		return switch
-	elseif optionType == "color" then
-		local colorButton = Instance.new("ImageButton",optionFrame)
-		colorButton.Position = UDim2.new(0.928,0,0.125,0)
-		colorButton.AutoButtonColor = false
-		colorButton.Size = UDim2.new(0.062,0,0.75,0)
-		return colorButton
-	elseif optionType == "custom" then
-		local button = Instance.new("ImageButton",optionFrame)
-		button.BackgroundColor3 = Color3.fromRGB(100,100,100)
-		button.Position = UDim2.new(0.865,0,0.125,0)
-		button.Size = UDim2.new(0.125,0,0.75,0)
-		button.AutoButtonColor = false
-		local textlabel = Instance.new("TextLabel",button)
-		textlabel.BackgroundTransparency = 1
-		textlabel.Position = UDim2.new(0.5,0,0.5,0)
-		textlabel.AnchorPoint = Vector2.new(0.5,0.5)
-		textlabel.Size = UDim2.new(0.8,0,0.8,0)
-		textlabel.Text = customText
-		textlabel.TextScaled = true
-		textlabel.Font = Enum.Font.SourceSansBold
-		textlabel.TextColor3 = Color3.fromRGB(255,255,255)
-		return button
+		
+		return toggleButton, toggleBg
+		
+	elseif buttonType == "action" then
+		local actionBtn = Instance.new("TextButton",buttonFrame)
+		actionBtn.BackgroundColor3 = Color3.fromRGB(60,60,80)
+		actionBtn.Position = UDim2.new(1,-70,0.5,-20)
+		actionBtn.Size = UDim2.new(0,60,0,40)
+		actionBtn.Text = defaultValue or "Click"
+		actionBtn.Font = Enum.Font.GothamBold
+		actionBtn.TextSize = 13
+		actionBtn.TextColor3 = Color3.fromRGB(255,255,255)
+		actionBtn.AutoButtonColor = false
+		actionBtn.BorderSizePixel = 0
+		
+		local actionCorner = Instance.new("UICorner",actionBtn)
+		actionCorner.CornerRadius = UDim.new(0,8)
+		
+		return actionBtn
+		
+	elseif buttonType == "color" then
+		local colorBtn = Instance.new("ImageButton",buttonFrame)
+		colorBtn.BackgroundColor3 = color
+		colorBtn.Position = UDim2.new(1,-50,0.5,-20)
+		colorBtn.Size = UDim2.new(0,40,0,40)
+		colorBtn.AutoButtonColor = false
+		colorBtn.BorderSizePixel = 0
+		
+		local colorCorner = Instance.new("UICorner",colorBtn)
+		colorCorner.CornerRadius = UDim.new(0,8)
+		
+		return colorBtn
 	end
 end
 
@@ -334,13 +385,9 @@ wait(1)
 
 sound:Play()
 
-if userInputService.MouseEnabled == false then
-	tweenService:Create(UIHolder,TweenInfo.new(0.5),{Size = UDim2.new(1.5,0,1.5,0)}):Play()
-else
-	tweenService:Create(UIHolder,TweenInfo.new(0.5),{Size = UDim2.new(0.75,0,0.75,0)}):Play()
-end
+tweenService:Create(UIHolder,TweenInfo.new(0.5),{Size = UDim2.new(1,0,1,0)}):Play()
 tweenService:Create(mainFrame,TweenInfo.new(0.5),{Rotation = 0}):Play()
-tweenService:Create(whiteFrame,TweenInfo.new(4),{BackgroundTransparency = 1}):Play()
+tweenService:Create(whiteFrame,TweenInfo.new(0.8),{BackgroundTransparency = 1}):Play()
 
 topBar.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -368,18 +415,19 @@ userInputService.InputChanged:Connect(function(input)
 	end
 end)
 
-local button2 = createNewOption("color","Country Color")
-local button1 = createNewOption("custom","Protect Province","Add")
-local button5 = createNewOption("custom","Unprotect Province","Remove")
-local button3 = createNewOption("custom","Clear Provinces","Clear")
-local button4 = createNewOption("switch","Safe Mode")
-local togglePaintButton = createNewOption("switch","Toggle Paint",nil,true)
-local newPaintButton = createNewOption("switch","Fast Paint")
-local territoryColorButton = createNewOption("switch","Keep Territory Color (NEW)")
--- AI SYSTEM BUTTONS (REPLACED RANDOM COLOR BUTTONS)
-local aiSystemButton = createNewOption("switch","AI Defense System (NEW)")
-local aiSensitivityButton = createNewOption("custom","AI Sensitivity (NEW)","3")
+-- CREATE MODERN BUTTONS --
+local button2 = createModernButton("Country Color", "color")
+local button1 = createModernButton("Protect Province", "action", "Add")
+local button5 = createModernButton("Unprotect Province", "action", "Remove")
+local button3 = createModernButton("Clear Provinces", "action", "Clear")
+local button4, button4Bg = createModernButton("Safe Mode", "toggle", false)
+local togglePaintButton, togglePaintBg = createModernButton("Toggle Paint", "toggle", true)
+local newPaintButton, newPaintBg = createModernButton("Fast Paint", "toggle", false)
+local territoryColorButton, territoryColorBg = createModernButton("Keep Territory Color", "toggle", false)
+local aiSystemButton, aiSystemBg = createModernButton("AI Defense System", "toggle", false)
+local aiSensitivityButton = createModernButton("AI Sensitivity", "action", "3")
 
+-- MOUSE EVENTS --
 mouse.Button1Down:Connect(function()
 	if mouse.Target and mouse.Target.Name == "Province" then
 		if selectColorMode then
@@ -413,7 +461,7 @@ mouse.Button1Down:Connect(function()
 	end
 end)
 
-button2.BackgroundColor3 = color
+-- BUTTON CONNECTIONS --
 button2.MouseButton1Down:Connect(function()
 	UIHolder.Visible = false
 	selectColorMode = true
@@ -441,21 +489,14 @@ button3.MouseButton1Down:Connect(function()
 	protectedProvinces = {}
 	defensePriority = {}
 	attackHistory = {}
+	sound2:Play()
 end)
 
 button4.MouseButton1Down:Connect(function()
 	sound2:Play()
-	if safeMode then
-		safeMode = false
-		tweenService:Create(button4.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-		tweenService:Create(button4,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-		tweenService:Create(button4,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
-	else
-		safeMode = true
-		tweenService:Create(button4.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-		tweenService:Create(button4,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-		tweenService:Create(button4,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-	end
+	safeMode = not safeMode
+	tweenService:Create(button4Bg,TweenInfo.new(0.2),{BackgroundColor3 = safeMode and Color3.fromRGB(0,200,150) or Color3.fromRGB(60,60,80)}):Play()
+	tweenService:Create(button4,TweenInfo.new(0.2),{Position = safeMode and UDim2.new(1,-27,0.5,-12) or UDim2.new(0,3,0.5,-12)}):Play()
 end)
 
 button5.MouseButton1Down:Connect(function()
@@ -466,115 +507,68 @@ end)
 
 togglePaintButton.MouseButton1Down:Connect(function()
 	sound2:Play()
-	if painting then
-		painting = false
-		tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-		tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-		tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
-	else
-		painting = true
-		tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-		tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-		tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-	end
+	painting = not painting
+	tweenService:Create(togglePaintBg,TweenInfo.new(0.2),{BackgroundColor3 = painting and Color3.fromRGB(0,200,150) or Color3.fromRGB(60,60,80)}):Play()
+	tweenService:Create(togglePaintButton,TweenInfo.new(0.2),{Position = painting and UDim2.new(1,-27,0.5,-12) or UDim2.new(0,3,0.5,-12)}):Play()
 end)
 
 newPaintButton.MouseButton1Down:Connect(function()
 	sound2:Play()
-	if newpaint then
-		newpaint = false
-		tweenService:Create(newPaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-		tweenService:Create(newPaintButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-		tweenService:Create(newPaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
-	else
-		newpaint = true
-		tweenService:Create(newPaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-		tweenService:Create(newPaintButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-		tweenService:Create(newPaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-	end
+	newpaint = not newpaint
+	tweenService:Create(newPaintBg,TweenInfo.new(0.2),{BackgroundColor3 = newpaint and Color3.fromRGB(0,200,150) or Color3.fromRGB(60,60,80)}):Play()
+	tweenService:Create(newPaintButton,TweenInfo.new(0.2),{Position = newpaint and UDim2.new(1,-27,0.5,-12) or UDim2.new(0,3,0.5,-12)}):Play()
 end)
 
 territoryColorButton.MouseButton1Down:Connect(function()
 	sound2:Play()
-	if keepTerColor then
-		keepTerColor = false
-		tweenService:Create(territoryColorButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-		tweenService:Create(territoryColorButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-		tweenService:Create(territoryColorButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
-	else
-		keepTerColor = true
-		tweenService:Create(territoryColorButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-		tweenService:Create(territoryColorButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-		tweenService:Create(territoryColorButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-	end
+	keepTerColor = not keepTerColor
+	tweenService:Create(territoryColorBg,TweenInfo.new(0.2),{BackgroundColor3 = keepTerColor and Color3.fromRGB(0,200,150) or Color3.fromRGB(60,60,80)}):Play()
+	tweenService:Create(territoryColorButton,TweenInfo.new(0.2),{Position = keepTerColor and UDim2.new(1,-27,0.5,-12) or UDim2.new(0,3,0.5,-12)}):Play()
 end)
 
--- AI SYSTEM BUTTON
 aiSystemButton.MouseButton1Down:Connect(function()
 	sound2:Play()
+	aiEnabled = not aiEnabled
+	tweenService:Create(aiSystemBg,TweenInfo.new(0.2),{BackgroundColor3 = aiEnabled and Color3.fromRGB(0,200,150) or Color3.fromRGB(60,60,80)}):Play()
+	tweenService:Create(aiSystemButton,TweenInfo.new(0.2),{Position = aiEnabled and UDim2.new(1,-27,0.5,-12) or UDim2.new(0,3,0.5,-12)}):Play()
 	if aiEnabled then
-		aiEnabled = false
-		tweenService:Create(aiSystemButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-		tweenService:Create(aiSystemButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-		tweenService:Create(aiSystemButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
-		print("AI Savunma Sistemi KAPALI")
-	else
-		aiEnabled = true
-		tweenService:Create(aiSystemButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-		tweenService:Create(aiSystemButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-		tweenService:Create(aiSystemButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-		print("AI Savunma Sistemi AÇIK - Akıllı savunma başladı!")
+		print("AI Savunma Sistemi AÇIK")
 		aiDefenseSystem()
+	else
+		print("AI Savunma Sistemi KAPALI")
 	end
 end)
 
--- AI SENSITIVITY BUTTON
 aiSensitivityButton.MouseButton1Down:Connect(function()
 	if multiAttackThreshold == 3 then
 		multiAttackThreshold = 5
-		aiSensitivityButton.TextLabel.Text = "5"
-		print("AI Hassasiyet: 5 saldırı (Az hassas)")
+		aiSensitivityButton.Text = "5"
 	elseif multiAttackThreshold == 5 then
 		multiAttackThreshold = 2
-		aiSensitivityButton.TextLabel.Text = "2"
-		print("AI Hassasiyet: 2 saldırı (Çok hassas)")
+		aiSensitivityButton.Text = "2"
 	else
 		multiAttackThreshold = 3
-		aiSensitivityButton.TextLabel.Text = "3"
-		print("AI Hassasiyet: 3 saldırı (Normal)")
+		aiSensitivityButton.Text = "3"
 	end
+	print("AI Hassasiyet: " .. multiAttackThreshold)
 	sound2:Play()
 end)
 
 userInputService.InputBegan:Connect(function(input,isTyping)
 	if isTyping == false then
 		if input.KeyCode == Enum.KeyCode.Q then
-			if painting then
-				painting = false
-				tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
-			else
-				painting = true
-				tweenService:Create(togglePaintButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-				tweenService:Create(togglePaintButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
-			end
+			painting = not painting
+			tweenService:Create(togglePaintBg,TweenInfo.new(0.2),{BackgroundColor3 = painting and Color3.fromRGB(0,200,150) or Color3.fromRGB(60,60,80)}):Play()
+			tweenService:Create(togglePaintButton,TweenInfo.new(0.2),{Position = painting and UDim2.new(1,-27,0.5,-12) or UDim2.new(0,3,0.5,-12)}):Play()
 		elseif input.KeyCode == Enum.KeyCode.E then
-			-- AI TOGGLE WITH E KEY
+			aiEnabled = not aiEnabled
+			tweenService:Create(aiSystemBg,TweenInfo.new(0.2),{BackgroundColor3 = aiEnabled and Color3.fromRGB(0,200,150) or Color3.fromRGB(60,60,80)}):Play()
+			tweenService:Create(aiSystemButton,TweenInfo.new(0.2),{Position = aiEnabled and UDim2.new(1,-27,0.5,-12) or UDim2.new(0,3,0.5,-12)}):Play()
 			if aiEnabled then
-				aiEnabled = false
-				tweenService:Create(aiSystemButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(241, 33, 103)}):Play()
-				tweenService:Create(aiSystemButton,TweenInfo.new(0.1),{Position = UDim2.new(0,0,0,0)}):Play()
-				tweenService:Create(aiSystemButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(0,0)}):Play()
-				print("AI Savunma Sistemi KAPALI (E tuşu)")
-			else
-				aiEnabled = true
-				tweenService:Create(aiSystemButton.Parent,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(53, 227, 153)}):Play()
-				tweenService:Create(aiSystemButton,TweenInfo.new(0.1),{Position = UDim2.new(1,0,0,0)}):Play()
-				tweenService:Create(aiSystemButton,TweenInfo.new(0.1),{AnchorPoint = Vector2.new(1,0)}):Play()
 				print("AI Savunma Sistemi AÇIK (E tuşu)")
 				aiDefenseSystem()
+			else
+				print("AI Savunma Sistemi KAPALI (E tuşu)")
 			end
 		end
 	end
@@ -595,11 +589,11 @@ while task.wait(1) do
 		pss.TextColor3 = Color3.fromRGB(235, 0, 120)
 	end
 	
-	local statusText = provincespersecond.." paint/second"
+	local statusText = provincespersecond.." paint/s"
 	if aiEnabled then
-		statusText = statusText .. " | AI: AÇIK"
+		statusText = statusText .. " | AI"
 		if fastDefenseMode then
-			statusText = statusText .. " | HIZLI SAVUNMA"
+			statusText = statusText .. " ⚡"
 		end
 	end
 	
@@ -607,7 +601,6 @@ while task.wait(1) do
 	pps = provincespersecond
 	provincespersecond = 0
 	
-	-- AI temizlik
 	if aiEnabled then
 		local currentTime = tick()
 		for province, attacks in pairs(attackHistory) do
